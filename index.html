@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coleta Inteligente — Hub Central de Módulos (Master Portal)</title>
+  <!-- Design Tokens & CSS -->
+  <link rel="stylesheet" href="css/design-tokens.css">
+  <link rel="stylesheet" href="css/hub.css">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+  <div class="hub-layout">
+    <!-- Hub Sticky Header -->
+    <header class="hub-header">
+      <div class="hub-brand">
+        <div class="hub-brand-icon">
+          <i data-lucide="recycle" style="color: white; width: 22px; height: 22px;"></i>
+        </div>
+        <div>
+          <div class="hub-brand-title">Coleta Inteligente</div>
+        </div>
+        <span class="hub-brand-tag">MVP DEMO FOR INVESTORS</span>
+      </div>
+
+      <div class="hub-header-actions">
+        <div class="hub-live-badge">
+          <div class="hub-live-pulse"></div>
+          <span>Operação em Tempo Real • Campo Grande / MS</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Hub Container -->
+    <main class="hub-container">
+      
+      <!-- Hero Section -->
+      <section class="hub-hero">
+        <h1 class="hub-hero-title">Plataforma Integrada de Gestão de Resíduos Sólidos</h1>
+        <p class="hub-hero-subtitle">
+          Solução multi-tenant de alta performance para Prefeituras, Concessionárias, Cooperativas e Órgãos de Controle. 
+          Selecione um dos 8 módulos abaixo para acessar a mesa de trabalho independente.
+        </p>
+      </section>
+
+      <!-- Macro Stats Grid -->
+      <section class="hub-stats-grid">
+        <div class="hub-stat-box">
+          <div class="hub-stat-label">População Atendida</div>
+          <div class="hub-stat-num">916.000</div>
+          <div class="hub-stat-trend">
+            <i data-lucide="trending-up" style="width: 14px;"></i> 100% de cobertura nos setores urbanos
+          </div>
+        </div>
+
+        <div class="hub-stat-box">
+          <div class="hub-stat-label">Frota & Equipes Ativas</div>
+          <div class="hub-stat-num">48 / 12</div>
+          <div class="hub-stat-trend">
+            <i data-lucide="check-circle" style="width: 14px;"></i> Telemetria GPS & Checkpoints em tempo real
+          </div>
+        </div>
+
+        <div class="hub-stat-box">
+          <div class="hub-stat-label">Taxa de Execução Diária</div>
+          <div class="hub-stat-num">96.8%</div>
+          <div class="hub-stat-trend">
+            <i data-lucide="shield-check" style="width: 14px;"></i> 4.810 km percorridos hoje
+          </div>
+        </div>
+
+        <div class="hub-stat-box">
+          <div class="hub-stat-label">Auditoria & Compliance TCE</div>
+          <div class="hub-stat-num">100%</div>
+          <div class="hub-stat-trend">
+            <i data-lucide="lock" style="width: 14px;"></i> Medição por evidência fotográfica imutável
+          </div>
+        </div>
+      </section>
+
+      <!-- 8 Modules Grid -->
+      <section>
+        <div class="hub-section-header">
+          <h2 class="hub-section-title">Módulos da Plataforma</h2>
+          <span style="font-size: 13px; color: #94a3b8;">Clique em qualquer card para entrar na mesa de trabalho</span>
+        </div>
+
+        <div class="modules-grid">
+
+          <!-- 1. Módulo Limpeza Urbana -->
+          <div class="module-card" style="--card-accent: #10b981; --card-accent-glow: rgba(16, 185, 129, 0.25);" onclick="location.href='modules/limpeza.html'">
+            <div>
+              <div class="module-card-top">
+                <div class="module-icon-wrapper" style="color: #34d399;">
+                  <i data-lucide="sparkles"></i>
+                </div>
+                <span class="module-status-badge">Operacional</span>
+              </div>
+              <div class="module-card-title">Módulo Limpeza Urbana</div>
+              <div class="module-card-desc">
+                Gestão de equipes a pé (varrição, capina, bueiros), itinerários por checkpoints, programação semanal e aplicativo mobile de campo.
+              </div>
+            </div>
+            <div>
+              <div class="module-card-metric">
+                <span>Equipes em Campo:</span>
+                <strong style="color: #34d399;">4 ativas (78 checkpoints)</strong>
+              </div>
+              <button class="module-card-action">
+                <span>Entrar no Módulo</span>
+                <i data-lucide="arrow-right" style="width: 14px;"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- 2. Módulo Coleta Convencional e Seletiva -->
+          <div class="module-card" style="--card-accent: #3b82f6; --card-accent-glow: rgba(59, 130, 246, 0.25);" onclick="location.href='modules/coleta.html'">
+            <div>
+              <div class="module-card-top">
+                <div class="module-icon-wrapper" style="color: #60a5fa;">
+                  <i data-lucide="truck"></i>
+                </div>
+                <span class="module-status-badge">Ao Vivo GPS</span>
+              </div>
+              <div class="module-card-title">Módulo Coleta</div>
+              <div class="module-card-desc">
+                Rastreamento da frota de caminhões em tempo real com telemetria GPS, gestão de motoristas, setores, pesagem em balança e aterros.
+              </div>
+            </div>
+            <div>
+              <div class="module-card-metric">
+                <span>Veículos em Rota:</span>
+                <strong style="color: #60a5fa;">18 caminhões online</strong>
+              </div>
+              <button class="module-card-action">
+                <span>Entrar no Módulo</span>
+                <i data-lucide="arrow-right" style="width: 14px;"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- 3. Módulo Fiscalização & CCO -->
+          <div class="module-card" style="--card-accent: #a855f7; --card-accent-glow: rgba(168, 85, 247, 0.25);" onclick="location.href='modules/fiscalizacao.html'">
+            <div>
+              <div class="module-card-top">
+                <div class="module-icon-wrapper" style="color: #c084fc;">
+                  <i data-lucide="shield-alert"></i>
+                </div>
+                <span class="module-status-badge">CCO Ativo</span>
+              </div>
+              <div class="module-card-title">Módulo Fiscalização</div>
+              <div class="module-card-desc">
+                Central de Comando Operacional (CCO), vistoria de campo por fiscais, registro de não conformidades com fotos e abertura de OS corretivas.
+              </div>
+            </div>
+            <div>
+              <div class="module-card-metric">
+                <span>Ocorrências Hoje:</span>
+                <strong style="color: #c084fc;">12 vistoriadas (3 OS)</strong>
+              </div>
+              <button class="module-card-action">
+                <span>Entrar no Módulo</span>
+                <i data-lucide="arrow-right" style="width: 14px;"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- 4. Módulo Atendimento ao Cidadão (SAC) -->
+          <div class="module-card" style="--card-accent: #f59e0b; --card-accent-glow: rgba(245, 158, 11, 0.25);" onclick="location.href='modules/sac.html'">
+            <div>
+              <div class="module-card-top">
+                <div class="module-icon-wrapper" style="color: #fbbf24;">
+                  <i data-lucide="message-square"></i>
+                </div>
+                <span class="module-status-badge">SAC 24h</span>
+              </div>
+              <div class="module-card-title">Atendimento ao Cidadão</div>
+              <div class="module-card-desc">
+                Central SAC, acompanhamento do caminhão de lixo no bairro pelo cidadão em tempo real, agendamento de cata-treco e disk-denúncia.
+              </div>
+            </div>
+            <div>
+              <div class="module-card-metric">
+                <span>SLA de Atendimento:</span>
+                <strong style="color: #fbbf24;">94.2% dentro do prazo</strong>
+              </div>
+              <button class="module-card-action">
+                <span>Entrar no Módulo</span>
+                <i data-lucide="arrow-right" style="width: 14px;"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- 5. Módulo Ecoponto -->
+          <div class="module-card" style="--card-accent: #14b8a6; --card-accent-glow: rgba(20, 184, 166, 0.25);" onclick="location.href='modules/ecoponto.html'">
+            <div>
+              <div class="module-card-top">
+                <div class="module-icon-wrapper" style="color: #2dd4bf;">
+                  <i data-lucide="box"></i>
+                </div>
+                <span class="module-status-badge">PEVs Monitorados</span>
+              </div>
+              <div class="module-card-title">Módulo Ecoponto</div>
+              <div class="module-card-desc">
+                Gestão de Pontos de Entrega Voluntária (PEV), recepção de entulho/madeira/gesso, controle de caçambas e alertas de lotação crítica.
+              </div>
+            </div>
+            <div>
+              <div class="module-card-metric">
+                <span>Ecopontos Ativos:</span>
+                <strong style="color: #2dd4bf;">6 unidades (85% capac.)</strong>
+              </div>
+              <button class="module-card-action">
+                <span>Entrar no Módulo</span>
+                <i data-lucide="arrow-right" style="width: 14px;"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- 6. Módulo Ambiental (Cooperativas) -->
+          <div class="module-card" style="--card-accent: #84cc16; --card-accent-glow: rgba(132, 204, 22, 0.25);" onclick="location.href='modules/ambiental.html'">
+            <div>
+              <div class="module-card-top">
+                <div class="module-icon-wrapper" style="color: #a3e635;">
+                  <i data-lucide="trees"></i>
+                </div>
+                <span class="module-status-badge">EPR & Reciclagem</span>
+              </div>
+              <div class="module-card-title">Módulo Ambiental</div>
+              <div class="module-card-desc">
+                Gestão de cooperativas e catadores, esteira de triagem, controle de fardos recicláveis, logística reversa e leitura de NF-e.
+              </div>
+            </div>
+            <div>
+              <div class="module-card-metric">
+                <span>Triagem Mensal:</span>
+                <strong style="color: #a3e635;">136.5 Toneladas</strong>
+              </div>
+              <button class="module-card-action">
+                <span>Entrar no Módulo</span>
+                <i data-lucide="arrow-right" style="width: 14px;"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- 7. Módulo Compliance e Auditoria -->
+          <div class="module-card" style="--card-accent: #06b6d4; --card-accent-glow: rgba(6, 182, 212, 0.25);" onclick="location.href='modules/compliance.html'">
+            <div>
+              <div class="module-card-top">
+                <div class="module-icon-wrapper" style="color: #22d3ee;">
+                  <i data-lucide="file-check"></i>
+                </div>
+                <span class="module-status-badge">Auditável TCE</span>
+              </div>
+              <div class="module-card-title">Compliance & Auditoria</div>
+              <div class="module-card-desc">
+                Faturamento por evidência operada, conciliação de pesagem vs. medição contratual e emissão do dossiê oficial para TCE e ICMS Ecológico.
+              </div>
+            </div>
+            <div>
+              <div class="module-card-metric">
+                <span>Dossiê Auditado:</span>
+                <strong style="color: #22d3ee;">R$ 4.820.150,00 (Jul/26)</strong>
+              </div>
+              <button class="module-card-action">
+                <span>Entrar no Módulo</span>
+                <i data-lucide="arrow-right" style="width: 14px;"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- 8. Módulo Inteligência & Relatórios -->
+          <div class="module-card" style="--card-accent: #ec4899; --card-accent-glow: rgba(236, 72, 153, 0.25);" onclick="location.href='modules/inteligencia.html'">
+            <div>
+              <div class="module-card-top">
+                <div class="module-icon-wrapper" style="color: #f472b6;">
+                  <i data-lucide="bar-chart-3"></i>
+                </div>
+                <span class="module-status-badge">Painel Prefeito</span>
+              </div>
+              <div class="module-card-title">Inteligência & Relatórios</div>
+              <div class="module-card-desc">
+                Executive Dashboard consolidado para tomada de decisão estratégica do Prefeito/Secretários, benchmarking e exportações.
+              </div>
+            </div>
+            <div>
+              <div class="module-card-metric">
+                <span>Relatórios Gerados:</span>
+                <strong style="color: #f472b6;">24 disponíveis</strong>
+              </div>
+              <button class="module-card-action">
+                <span>Entrar no Módulo</span>
+                <i data-lucide="arrow-right" style="width: 14px;"></i>
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- Flow Shortcuts for Investor Presentation -->
+      <section class="hub-flows-banner">
+        <div class="hub-flows-info">
+          <h3>Demonstração Guiada de Fluxos Principais</h3>
+          <p>Acesse rapidamente as jornadas ponta a ponta preparadas para a reunião de investimentos.</p>
+        </div>
+        <div class="hub-flows-buttons">
+          <button class="btn btn-secondary" onclick="location.href='modules/limpeza.html?flow=operacao'">
+            <i data-lucide="play-circle" style="width: 16px;"></i>
+            <span>Fluxo 1: Operação Limpeza</span>
+          </button>
+          <button class="btn btn-secondary" onclick="location.href='modules/coleta.html?flow=telemetria'">
+            <i data-lucide="map-pin" style="width: 16px;"></i>
+            <span>Fluxo 2: Telemetria Rota</span>
+          </button>
+          <button class="btn btn-primary" onclick="location.href='modules/compliance.html?flow=dossie'">
+            <i data-lucide="file-badge" style="width: 16px;"></i>
+            <span>Fluxo 3: Dossiê TCE</span>
+          </button>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script>
+    // Initialize Lucide Icons
+    lucide.createIcons();
+  </script>
+</body>
+</html>

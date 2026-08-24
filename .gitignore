@@ -1,0 +1,9 @@
+# Temporary & IDE files
+.claude/
+.vscode/
+.idea/
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
