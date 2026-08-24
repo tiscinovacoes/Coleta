@@ -3,26 +3,147 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Módulo Coleta Convencional & Seletiva — Coleta Inteligente (UX Master)</title>
+  <title>Coleta — Suíte Integrada Operacional (Figma 1:1)</title>
   <!-- Design Tokens & CSS -->
   <link rel="stylesheet" href="../css/design-tokens.css">
   <link rel="stylesheet" href="../css/modules.css">
-  <!-- Leaflet CSS for Live GPS Map -->
+  <!-- Leaflet CSS for Maps -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
-    /* Modal Styles (UX Master Solid & Opaque) */
+    /* Figma 1:1 Layout Overrides */
+    .app-sidebar {
+      width: 260px;
+      background: #071724;
+      border-right: 1px solid #1e2d3d;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      color: #8b9fa8;
+      font-family: var(--font-sans);
+    }
+
+    .sidebar-brand-figma {
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid #1e2d3d;
+    }
+
+    .sidebar-brand-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: -0.2px;
+    }
+
+    .sidebar-section-hdr {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #475569;
+      letter-spacing: 0.8px;
+      padding: 14px 20px 6px 20px;
+    }
+
+    .sidebar-nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 20px;
+      color: #94a3b8;
+      text-decoration: none;
+      font-size: 12.5px;
+      font-weight: 500;
+      transition: all 0.15s ease;
+    }
+
+    .sidebar-nav-item:hover {
+      background: #0e2233;
+      color: #ffffff;
+    }
+
+    .sidebar-nav-item.active {
+      background: #0b2533;
+      color: #ffffff;
+      font-weight: 600;
+      border-left: 3px solid #3b82f6;
+    }
+
+    .sidebar-nav-subitem {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 7px 20px 7px 36px;
+      color: #94a3b8;
+      text-decoration: none;
+      font-size: 12px;
+      transition: all 0.15s ease;
+      cursor: pointer;
+    }
+
+    .sidebar-nav-subitem:hover {
+      color: #ffffff;
+      background: rgba(255,255,255,0.03);
+    }
+
+    .sidebar-nav-subitem.active {
+      color: #ffffff;
+      font-weight: 600;
+      background: #0b2533;
+      border-left: 3px solid #3b82f6;
+    }
+
+    .sidebar-user-card {
+      margin-top: auto;
+      padding: 14px 16px;
+      border-top: 1px solid #1e2d3d;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #071724;
+    }
+
+    .sidebar-user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #2563eb;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 12px;
+    }
+
+    /* Figma Table Left Status Strip */
+    .data-table tbody tr {
+      position: relative;
+      transition: background 0.15s ease;
+    }
+
+    .status-left-strip {
+      width: 4px;
+      height: 100%;
+      position: absolute;
+      left: 0;
+      top: 0;
+    }
+
+    .strip-success { background: #10b981; }
+    .strip-warning { background: #f59e0b; }
+    .strip-danger  { background: #ef4444; }
+
+    /* Modal Solid Opaque Styles */
     .modal-overlay {
       position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
+      top: 0; left: 0; right: 0; bottom: 0;
       background: rgba(7, 23, 36, 0.75);
       backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
       z-index: 1000;
       display: flex;
       align-items: center;
@@ -32,11 +153,7 @@
       pointer-events: none;
       transition: opacity var(--transition-fast);
     }
-
-    .modal-overlay.active {
-      opacity: 1;
-      pointer-events: auto;
-    }
+    .modal-overlay.active { opacity: 1; pointer-events: auto; }
 
     .modal-card {
       background-color: #ffffff !important;
@@ -50,14 +167,7 @@
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      transform: translateY(20px);
-      transition: transform var(--transition-normal);
     }
-
-    .modal-overlay.active .modal-card {
-      transform: translateY(0);
-    }
-
     .modal-header {
       padding: 20px 24px;
       border-bottom: 1px solid #e2e8f0;
@@ -65,25 +175,22 @@
       align-items: center;
       justify-content: space-between;
       background-color: #ffffff !important;
-      color: #0f172a !important;
     }
-
+    .modal-header h2 { color: #0f172a !important; }
     .modal-body {
       padding: 24px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 18px;
+      gap: 16px;
       background-color: #ffffff !important;
       color: #0f172a !important;
     }
-
     .modal-footer {
       padding: 16px 24px;
       border-top: 1px solid #e2e8f0;
       background-color: #f8fafc !important;
       display: flex;
-      align-items: center;
       justify-content: flex-end;
       gap: 12px;
     }
@@ -93,7 +200,6 @@
       flex-direction: column;
       gap: 6px;
     }
-
     .form-label {
       font-size: 11px;
       font-weight: 700;
@@ -101,7 +207,6 @@
       color: #475569 !important;
       letter-spacing: 0.5px;
     }
-
     .form-control {
       padding: 10px 12px;
       border-radius: var(--radius-md);
@@ -112,33 +217,30 @@
       font-size: 13px;
       outline: none;
     }
-
     .form-control:focus {
       border-color: var(--color-primary);
       background-color: #ffffff !important;
       box-shadow: 0 0 0 3px var(--color-primary-glow);
     }
-
     .form-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 16px;
     }
 
-    /* Live GPS Truck Marker Styling */
-    .truck-marker {
-      background: #3b82f6;
+    .truck-marker-icon {
+      background: #2563eb;
       border: 2px solid #ffffff;
       color: white;
       border-radius: 50%;
-      width: 32px;
-      height: 32px;
+      width: 28px;
+      height: 28px;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 0 12px rgba(59, 130, 246, 0.6);
       font-weight: 700;
       font-size: 10px;
+      box-shadow: 0 0 10px rgba(37, 99, 235, 0.6);
     }
 
     .ticket-paper {
@@ -155,77 +257,130 @@
 
   <div class="app-shell">
     
-    <!-- Sidebar Nível 2 — Módulo Coleta -->
+    <!-- Figma 1:1 Sidebar (2 Níveis) -->
     <aside class="app-sidebar">
-      <div class="sidebar-header">
-        <div class="sidebar-logo" style="background: #2563eb;">CL</div>
-        <div class="sidebar-title">Coleta & Rastreio</div>
+      <div class="sidebar-brand-figma">
+        <div style="background: #2563eb; width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center;">
+          <i data-lucide="recycle" style="color: white; width: 16px;"></i>
+        </div>
+        <span class="sidebar-brand-title">Coleta Inteligente</span>
       </div>
 
-      <nav class="sidebar-nav">
-        <div class="nav-section-title">Operação & Telemetria</div>
-        <a href="#" class="nav-item active" id="nav-frota" onclick="switchTab('frota', event)">
-          <i data-lucide="truck" class="nav-item-icon"></i>
-          <span>1. Frota & Veículos (RF-01)</span>
-          <span class="nav-item-badge" id="sidebarFrotaBadge">48</span>
+      <div style="overflow-y: auto; flex: 1;">
+        <!-- Section PLATAFORMA -->
+        <div class="sidebar-section-hdr">PLATAFORMA</div>
+        <a href="../index.html" class="sidebar-nav-item">
+          <i data-lucide="home" style="width: 15px;"></i>
+          <span>Início</span>
         </a>
-        <a href="#" class="nav-item" id="nav-rotas" onclick="switchTab('rotas', event)">
-          <i data-lucide="route" class="nav-item-icon"></i>
-          <span>2. Rotas & Geofence (RF-02)</span>
-          <span class="nav-item-badge">47</span>
+        <a href="#" class="sidebar-nav-item">
+          <i data-lucide="users" style="width: 15px;"></i>
+          <span>Usuários</span>
         </a>
-        <a href="#" class="nav-item" id="nav-rastreamento" onclick="switchTab('rastreamento', event)">
-          <i data-lucide="radar" class="nav-item-icon"></i>
-          <span>3. CCO Rastreio ao Vivo (RF-03)</span>
-          <span class="nav-item-badge" style="background: rgba(59, 130, 246, 0.2); color: #60a5fa;">34 On</span>
+        <a href="#" class="sidebar-nav-item">
+          <i data-lucide="settings" style="width: 15px;"></i>
+          <span>Configurações</span>
         </a>
 
-        <div class="nav-section-title" style="margin-top: 12px;">Destinação & Balança</div>
-        <a href="#" class="nav-item" id="nav-pesagem" onclick="switchTab('pesagem', event)">
-          <i data-lucide="scale" class="nav-item-icon"></i>
-          <span>4. Pesagem & Balança (RF-04)</span>
-          <span class="nav-item-badge" style="background: rgba(16, 185, 129, 0.2); color: #34d399;">64 Tíquetes</span>
+        <!-- Section MÓDULOS -->
+        <div class="sidebar-section-hdr" style="margin-top: 8px;">MÓDULOS</div>
+        
+        <!-- Active Module: Coleta -->
+        <div class="sidebar-nav-item active" style="background: #0e2233;">
+          <i data-lucide="truck" style="width: 15px; color: #3b82f6;"></i>
+          <span style="color: #ffffff; font-weight: 700;">Módulo Coleta</span>
+        </div>
+
+        <!-- 8 Sub-items of Coleta matching Figma 1:1 -->
+        <a href="#" class="sidebar-nav-subitem" onclick="switchTab('visao-geral', event)" id="subnav-visao-geral">
+          <span>Visão Geral</span>
         </a>
-        <a href="#" class="nav-item" id="nav-motoristas" onclick="switchTab('motoristas', event)">
-          <i data-lucide="user-check" class="nav-item-icon"></i>
-          <span>5. Motoristas & Escala (RF-05)</span>
+        <a href="#" class="sidebar-nav-subitem" onclick="switchTab('programacao', event)" id="subnav-programacao">
+          <span>Programação</span>
+        </a>
+        <a href="#" class="sidebar-nav-subitem" onclick="switchTab('execucoes', event)" id="subnav-execucoes">
+          <span>Execuções ao Vivo</span>
+          <span class="badge badge-warning" style="font-size: 9px; padding: 1px 5px;">34 On</span>
+        </a>
+        <a href="#" class="sidebar-nav-subitem active" onclick="switchTab('frota', event)" id="subnav-frota">
+          <span>Frota & Ativos</span>
+          <span class="badge badge-neutral" style="font-size: 9px; padding: 1px 5px;" id="badgeFrotaCount">48</span>
+        </a>
+        <a href="#" class="sidebar-nav-subitem" onclick="switchTab('motoristas', event)" id="subnav-motoristas">
+          <span>Motoristas</span>
+        </a>
+        <!-- NOME ATUALIZADO: APENAS 'Rotas' -->
+        <a href="#" class="sidebar-nav-subitem" onclick="switchTab('rotas', event)" id="subnav-rotas">
+          <span>Rotas</span>
+          <span class="badge badge-neutral" style="font-size: 9px; padding: 1px 5px;">47</span>
+        </a>
+        <a href="#" class="sidebar-nav-subitem" onclick="switchTab('destinacao', event)" id="subnav-destinacao">
+          <span>Locais de Destinação</span>
+        </a>
+        <a href="#" class="sidebar-nav-subitem" onclick="switchTab('relatorios', event)" id="subnav-relatorios">
+          <span>Relatórios & Dossiê</span>
         </a>
 
-        <div class="nav-section-title" style="margin-top: 12px;">Auditoria & Prestação</div>
-        <a href="#" class="nav-item" id="nav-prestacao-coleta" onclick="switchTab('prestacao-coleta', event)">
-          <i data-lucide="file-text" class="nav-item-icon"></i>
-          <span>6. Dossiê de Coleta (RF-06)</span>
-          <span class="nav-item-badge" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24;">480,5t Hoje</span>
+        <!-- Collapsed Other Modules -->
+        <div class="sidebar-section-hdr" style="margin-top: 12px;">OUTROS MÓDULOS</div>
+        <a href="limpeza.html" class="sidebar-nav-item">
+          <i data-lucide="sparkles" style="width: 15px;"></i>
+          <span>Limpeza Urbana</span>
         </a>
-      </nav>
+        <a href="fiscalizacao.html" class="sidebar-nav-item">
+          <i data-lucide="shield" style="width: 15px;"></i>
+          <span>Fiscalização & CCO</span>
+        </a>
+        <a href="sac.html" class="sidebar-nav-item">
+          <i data-lucide="phone-call" style="width: 15px;"></i>
+          <span>SAC & Cidadão</span>
+        </a>
+        <a href="ecoponto.html" class="sidebar-nav-item">
+          <i data-lucide="package" style="width: 15px;"></i>
+          <span>Ecoponto</span>
+        </a>
+        <a href="ambiental.html" class="sidebar-nav-item">
+          <i data-lucide="leaf" style="width: 15px;"></i>
+          <span>Ambiental</span>
+        </a>
+        <a href="compliance.html" class="sidebar-nav-item">
+          <i data-lucide="file-text" style="width: 15px;"></i>
+          <span>Compliance & Auditoria</span>
+        </a>
+        <a href="inteligencia.html" class="sidebar-nav-item">
+          <i data-lucide="bar-chart-3" style="width: 15px;"></i>
+          <span>Inteligência & Prefeito</span>
+        </a>
+      </div>
 
-      <div class="sidebar-footer">
-        <a href="../index.html" class="btn-back-hub">
-          <i data-lucide="grid"></i>
-          <span>Voltar ao Hub de Módulos</span>
-        </a>
+      <!-- User Info Card -->
+      <div class="sidebar-user-card">
+        <div class="sidebar-user-avatar">AB</div>
+        <div style="flex: 1; min-width: 0;">
+          <strong style="display: block; font-size: 12px; color: #ffffff; truncate" title="Ana Beatriz Costa">Ana Beatriz Costa</strong>
+          <span style="font-size: 10px; color: #64748b;">Supervisora Operacional</span>
+        </div>
+        <a href="../index.html" title="Sair do Módulo" style="color: #64748b;"><i data-lucide="log-out" style="width: 15px;"></i></a>
       </div>
     </aside>
 
     <!-- Main Content Area -->
     <main class="app-main">
       
-      <!-- Top Navbar (48px) -->
+      <!-- Top Navbar Figma 1:1 (48px) -->
       <header class="app-navbar">
         <div class="breadcrumb">
-          <span>Coleta Inteligente</span>
+          <span>Coleta</span>
           <i data-lucide="chevron-right" style="width: 14px;"></i>
-          <span>Módulo Coleta Convencional & Seletiva</span>
-          <i data-lucide="chevron-right" style="width: 14px;"></i>
-          <span class="breadcrumb-active" id="currentTabTitle">1. Frota & Veículos (RF-COL-01)</span>
+          <span class="breadcrumb-active" id="currentBreadcrumb">Frota & Ativos Móveis</span>
         </div>
 
         <div class="navbar-controls">
           <div class="device-switcher">
-            <button class="device-btn active" id="btnDeskView" onclick="setDeviceView('desktop')">Desktop 1440</button>
-            <button class="device-btn" id="btnMobView" onclick="toggleMobileSim()">App Cabine Motorista (390px)</button>
+            <button class="device-btn active" id="btnDeskView">Desktop 1440</button>
+            <button class="device-btn" onclick="toggleMobileSim()">App Cabine (390px)</button>
           </div>
-          <span class="badge badge-success">GPS Telemetria 5s • CCO Ativo</span>
+          <span class="badge badge-success">GPS Telemetria 5s • CCO Online</span>
         </div>
       </header>
 
@@ -233,52 +388,215 @@
       <div class="content-area" id="tabContentArea">
         
         <!-- ========================================================================= -->
-        <!-- TAB 1: FROTA & TELEMETRIA GPS (RF-COL-01) -->
+        <!-- SUB-PAGE 1: VISÃO GERAL -->
+        <!-- ========================================================================= -->
+        <div id="tab-visao-geral" class="tab-pane" style="display: none;">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Visão Geral Operacional da Coleta</h1>
+              <p class="page-subtitle">Painel executivo com radar em tempo real, volume coletado e indicadores de SLA urbano.</p>
+            </div>
+            <button class="btn btn-secondary" onclick="openModalDossieColeta()">Exportar Dossiê Oficial</button>
+          </div>
+
+          <div class="kpi-row">
+            <div class="kpi-card">
+              <span class="kpi-label">TOTAL COLETADO HOJE</span>
+              <div class="kpi-value font-mono" id="kpiTotalHoje" style="color: #10b981;">480,5 t</div>
+              <span class="kpi-subtext">410t Orgânico · 70,5t Seletivo</span>
+            </div>
+            <div class="kpi-card">
+              <span class="kpi-label">ROTAS EM ANDAMENTO</span>
+              <div class="kpi-value font-mono" style="color: #3b82f6;">34 / 47</div>
+              <span class="kpi-subtext">72,3% das rotas concluídas</span>
+            </div>
+            <div class="kpi-card">
+              <span class="kpi-label">FROTA EM OPERAÇÃO</span>
+              <div class="kpi-value font-mono">34 Veículos</div>
+              <span class="kpi-subtext">4 em oficina · 10 de reserva</span>
+            </div>
+            <div class="kpi-card">
+              <span class="kpi-label">CUMPRIMENTO DE SLA</span>
+              <div class="kpi-value font-mono" style="color: #059669;">98,2%</div>
+              <span class="kpi-subtext">Setores urbanos no prazo</span>
+            </div>
+          </div>
+
+          <div style="height: 480px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); overflow: hidden; position: relative;">
+            <div id="visaoGeralMap" style="width: 100%; height: 100%;"></div>
+            <div style="position: absolute; top: 16px; left: 16px; z-index: 500; background: rgba(7, 23, 36, 0.9); backdrop-filter: blur(8px); padding: 12px 16px; border-radius: 8px; color: white; display: flex; gap: 16px; font-size: 12px;">
+              <div>🟢 <strong>34</strong> Veículos Online</div>
+              <div>⚡ <strong>28 km/h</strong> Vel. Média</div>
+              <div>📍 <strong>18,4 km</strong> Raio de Cobertura</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- SUB-PAGE 2: PROGRAMAÇÃO -->
+        <!-- ========================================================================= -->
+        <div id="tab-programacao" class="tab-pane" style="display: none;">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Programação de Execuções da Coleta</h1>
+              <p class="page-subtitle">Escalamento de frota, motoristas, equipes de coletores e horários de partida por setor.</p>
+            </div>
+            <button class="btn btn-primary" onclick="openModalGerarProgramacao()">
+              <i data-lucide="calendar-plus" style="width: 16px;"></i>
+              <span>Gerar Programação</span>
+            </button>
+          </div>
+
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>ROTA / SETOR</th>
+                  <th>TURNO</th>
+                  <th>DIAS</th>
+                  <th>CAMINHÃO ALOCADO</th>
+                  <th>MOTORISTA TITULAR</th>
+                  <th>HORÁRIO PARTIDA</th>
+                  <th>STATUS DA ESCALA</th>
+                </tr>
+              </thead>
+              <tbody id="programacaoTable">
+                <tr>
+                  <td><strong>RT-C01 · Centro Convencional</strong></td>
+                  <td><span class="badge badge-neutral">Diurno</span></td>
+                  <td>Seg / Qua / Sex</td>
+                  <td class="mono"><strong>CAM-101 (15m³)</strong></td>
+                  <td>João Paulo Santos</td>
+                  <td class="mono">07:00</td>
+                  <td><span class="badge badge-success">Escala Publicada</span></td>
+                </tr>
+                <tr>
+                  <td><strong>RT-S01 · Afonso Pena Seletiva</strong></td>
+                  <td><span class="badge badge-neutral">Diurno</span></td>
+                  <td>Ter / Qui / Sáb</td>
+                  <td class="mono"><strong>CAM-102 (19m³)</strong></td>
+                  <td>Matheus Nogueira</td>
+                  <td class="mono">08:00</td>
+                  <td><span class="badge badge-success">Escala Publicada</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- SUB-PAGE 3: EXECUÇÕES AO VIVO -->
+        <!-- ========================================================================= -->
+        <div id="tab-execucoes" class="tab-pane" style="display: none;">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Monitoramento de Execuções ao Vivo</h1>
+              <p class="page-subtitle">Acompanhamento do ciclo de vida das viagens, progresso do percurso e pesagens.</p>
+            </div>
+          </div>
+
+          <div class="kpi-row">
+            <div class="kpi-card">
+              <span class="kpi-label">EM EXECUÇÃO</span>
+              <div class="kpi-value font-mono" style="color: #3b82f6;">34</div>
+              <span class="kpi-subtext">Caminhões em rota agora</span>
+            </div>
+            <div class="kpi-card">
+              <span class="kpi-label">EM VIAGEM AO ATERRO</span>
+              <div class="kpi-value font-mono" style="color: #f59e0b;">6</div>
+              <span class="kpi-subtext">Deslocamento para descarregar</span>
+            </div>
+            <div class="kpi-card">
+              <span class="kpi-label">CONCLUÍDAS HOJE</span>
+              <div class="kpi-value font-mono" style="color: #10b981;">28</div>
+              <span class="kpi-subtext">Com tíquete de balança lacrado</span>
+            </div>
+            <div class="kpi-card">
+              <span class="kpi-label">OCORRÊNCIAS REGISTRADAS</span>
+              <div class="kpi-value font-mono" style="color: #ef4444;">2</div>
+              <span class="kpi-subtext">Trânsito / Caçamba obstruída</span>
+            </div>
+          </div>
+
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>CÓDIGO VIAGEM</th>
+                  <th>VEÍCULO</th>
+                  <th>ROTA</th>
+                  <th>MOTORISTA</th>
+                  <th>PARTIDA</th>
+                  <th>PROGRESSO ROTA</th>
+                  <th>PESO ESTIMADO</th>
+                  <th>STATUS</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="mono"><strong>EX-2026-881</strong></td>
+                  <td class="mono">CAM-101</td>
+                  <td>RT-C01 Centro</td>
+                  <td>João Paulo Santos</td>
+                  <td class="mono">07:02</td>
+                  <td>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                      <div style="width: 60px; height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden;">
+                        <div style="width: 78%; height: 100%; background: #3b82f6;"></div>
+                      </div>
+                      <span class="mono">78%</span>
+                    </div>
+                  </td>
+                  <td class="mono">12,2 t</td>
+                  <td><span class="badge badge-success">Em Coleta</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- SUB-PAGE 4: FROTA & ATIVOS MÓVEIS -->
         <!-- ========================================================================= -->
         <div id="tab-frota" class="tab-pane active-pane">
           <div class="page-header">
             <div>
-              <h1 class="page-title">Gestão da Frota de Coleta</h1>
-              <p class="page-subtitle">Monitoramento de veículos compactadores, caçambas, telemetria GPS, horímetro e manutenção.</p>
+              <h1 class="page-title">Frota & Ativos Móveis</h1>
+              <p class="page-subtitle">Cadastramento de caminhões compactadores, caçambas, horímetro e telemetria GPS em tempo real.</p>
             </div>
             <button class="btn btn-primary" onclick="openModalNovoVeiculo()">
               <i data-lucide="plus" style="width: 16px;"></i>
-              <span>Novo Veículo</span>
+              <span>Novo Ativo</span>
             </button>
           </div>
 
-          <!-- 4 KPI Cards -->
           <div class="kpi-row">
             <div class="kpi-card">
-              <span class="kpi-label">FROTA TOTAL</span>
-              <div class="kpi-value" id="kpiFrotaCount">48</div>
+              <span class="kpi-label">FROTA TOTAL CADASTRADA</span>
+              <div class="kpi-value font-mono" id="kpiFrotaTotal">48</div>
               <span class="kpi-subtext">32 Compactadores · 16 Caçambas</span>
             </div>
-
             <div class="kpi-card">
               <span class="kpi-label">EM OPERAÇÃO AGORA</span>
-              <div class="kpi-value" style="color: #3b82f6;">34</div>
-              <span class="kpi-subtext">Com sinal GPS ativo (5s)</span>
+              <div class="kpi-value font-mono" style="color: #3b82f6;">34</div>
+              <span class="kpi-subtext">Transmitindo GPS a cada 5s</span>
             </div>
-
             <div class="kpi-card">
               <span class="kpi-label">EM MANUTENÇÃO</span>
-              <div class="kpi-value" style="color: #f59e0b;">4</div>
+              <div class="kpi-value font-mono" style="color: #f59e0b;">4</div>
               <span class="kpi-subtext">Oficina Central · Preventiva</span>
             </div>
-
             <div class="kpi-card">
               <span class="kpi-label">CONSUMO MÉDIO DIESEL</span>
-              <div class="kpi-value font-mono">2,4 km/l</div>
-              <span class="kpi-subtext" style="color: #059669;">Diesel S10 · Telemetria OK</span>
+              <div class="kpi-value font-mono" style="color: #10b981;">2,4 km/l</div>
+              <span class="kpi-subtext">Diesel S10 · Telemetria OK</span>
             </div>
           </div>
 
-          <!-- Sticky Toolbar -->
           <div class="toolbar-card">
             <div style="display: flex; align-items: center; gap: 12px; flex: 1;">
-              <input type="text" class="search-input" id="searchFrota" onkeyup="filterFrotaTable()" placeholder="Buscar por placa, prefixo, modelo ou motorista...">
-              <button class="btn btn-secondary" onclick="alert('Filtro por Tipo de Veículo ou Status de Operação')">
+              <input type="text" class="search-input" id="searchFrota" onkeyup="filterFrotaTable()" placeholder="Buscar por prefixo, placa, modelo ou motorista...">
+              <button class="btn btn-secondary" onclick="alert('Filtros: Selecione Tipo de Veículo ou Situação de Operação')">
                 <i data-lucide="filter" style="width: 14px;"></i>
                 <span>Filtros</span>
               </button>
@@ -286,23 +604,24 @@
               <span class="badge badge-success">Status: Online GPS</span>
             </div>
             <div style="display: flex; align-items: center; gap: 8px;">
-              <button class="btn btn-secondary btn-sm" onclick="alert('Exportando dados da frota...')">Exportar CSV</button>
+              <button class="btn btn-secondary btn-sm" onclick="alert('Exportando lista de frota...')">Exportar CSV</button>
             </div>
           </div>
 
-          <!-- Split Workstation (Table + Drawer) -->
           <div class="split-workstation">
             <div class="table-container">
               <table class="data-table">
                 <thead>
                   <tr>
+                    <th style="width: 4px;"></th>
                     <th>PREFIXO</th>
                     <th>PLACA</th>
-                    <th>MODELO & MARCA</th>
                     <th>TIPO DE VEÍCULO</th>
+                    <th>MARCA / MODELO</th>
                     <th>CAPACIDADE</th>
                     <th>MOTORISTA ALOCADO</th>
                     <th>TELEMETRIA GPS</th>
+                    <th>SITUAÇÃO</th>
                   </tr>
                 </thead>
                 <tbody id="frotaFullTable">
@@ -332,15 +651,15 @@
               </div>
 
               <div>
-                <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--color-text-muted); margin-bottom: 6px;">MOTORISTA TITULAR</div>
+                <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--color-text-muted); margin-bottom: 6px;">MOTORISTA TITULAR (CNH)</div>
                 <div style="background: var(--color-page); padding: 10px; border-radius: var(--radius-md); border: 1px solid var(--color-border);">
                   <strong style="display: block; font-size: 13px;" id="ftDrawerMotorista">João Paulo Santos</strong>
-                  <span style="font-size: 11px; color: var(--color-text-muted);" id="ftDrawerCnh">CNH Cat E (Validade: 11/2028) • Exame Tox: OK</span>
+                  <span style="font-size: 11px; color: var(--color-text-muted);" id="ftDrawerCnh">CNH Cat E (Validade: 11/2028) • Tox: OK</span>
                 </div>
               </div>
 
               <div>
-                <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--color-text-muted); margin-bottom: 6px;">DADOS DO VEÍCULO</div>
+                <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--color-text-muted); margin-bottom: 6px;">DADOS TÉCNICOS DO ATIVO</div>
                 <div style="font-size: 12px; display: flex; flex-direction: column; gap: 4px;" class="font-mono">
                   <div>Placa: <strong id="ftDrawerPlaca">QAA-9912</strong></div>
                   <div>Modelo: <strong>Mercedes-Benz Atego 1719</strong></div>
@@ -350,7 +669,7 @@
               </div>
 
               <div style="margin-top: auto; padding-top: 16px; border-top: 1px solid var(--color-border); display: flex; gap: 10px;">
-                <button class="btn btn-secondary" style="flex: 1;" onclick="alert('Histórico de Telemetria do Veículo baixado.')">Histórico GPS</button>
+                <button class="btn btn-secondary" style="flex: 1;" onclick="alert('Histórico de telemetria exportado em PDF!')">Histórico GPS</button>
                 <button class="btn btn-primary" onclick="openMobileSimForTruck('CAM-101')">Abrir Cabine App</button>
               </div>
             </div>
@@ -358,39 +677,75 @@
         </div>
 
         <!-- ========================================================================= -->
-        <!-- TAB 2: ROTAS & GEOFENCE (RF-COL-02) -->
+        <!-- SUB-PAGE 5: MOTORISTAS -->
+        <!-- ========================================================================= -->
+        <div id="tab-motoristas" class="tab-pane" style="display: none;">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Gestão de Motoristas & Condutores</h1>
+              <p class="page-subtitle">Cadastro de condutores habilitados (CNH D/E), exames toxicológicos e pontuação de condução defensiva.</p>
+            </div>
+            <button class="btn btn-primary" onclick="openModalNovoMotorista()">
+              <i data-lucide="user-plus" style="width: 16px;"></i>
+              <span>Novo Motorista</span>
+            </button>
+          </div>
+
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>NOME COMPLETO</th>
+                  <th>MATRÍCULA</th>
+                  <th>CATEGORIA CNH</th>
+                  <th>VALIDADE CNH</th>
+                  <th>EXAME TOXICOLÓGICO</th>
+                  <th>VEÍCULO ALOCADO</th>
+                  <th>DIREÇÃO DEFENSIVA</th>
+                  <th>SITUAÇÃO</th>
+                </tr>
+              </thead>
+              <tbody id="motoristasTable">
+                <!-- Rendered via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- SUB-PAGE 6: ROTAS (MOCADO 100% GARANTIDO) -->
         <!-- ========================================================================= -->
         <div id="tab-rotas" class="tab-pane" style="display: none;">
           <div class="page-header">
             <div>
-              <h1 class="page-title">Mapeamento de Rotas & Geofencing</h1>
-              <p class="page-subtitle">Cadastro de setores de coleta domiciliar, seletiva e hospitalar com zonas de cercamento digital.</p>
+              <h1 class="page-title">Mapeamento de Rotas Operacionais</h1>
+              <p class="page-subtitle">Cadastro de itinerários de coleta domiciliar, seletiva e hospitalar com traçado viário georreferenciado.</p>
             </div>
-            <button class="btn btn-primary" onclick="alert('Desenhar nova rota no mapa!')">
-              <i data-lucide="map-pin" style="width: 16px;"></i>
-              <span>Desenhar Rota</span>
+            <button class="btn btn-primary" onclick="alert('Criar nova rota no mapa!')">
+              <i data-lucide="plus" style="width: 16px;"></i>
+              <span>Nova Rota</span>
             </button>
           </div>
 
           <div class="kpi-row">
             <div class="kpi-card">
               <span class="kpi-label">ROTAS MAPEADAS</span>
-              <div class="kpi-value">47</div>
+              <div class="kpi-value font-mono">47</div>
               <span class="kpi-subtext">32 Domiciliares · 15 Seletivas</span>
             </div>
             <div class="kpi-card">
               <span class="kpi-label">EXTENSÃO TOTAL</span>
-              <div class="kpi-value">840 km</div>
+              <div class="kpi-value font-mono" style="color: #3b82f6;">840 km</div>
               <span class="kpi-subtext">Malha viária urbana</span>
             </div>
             <div class="kpi-card">
               <span class="kpi-label">SETORIZADAS</span>
-              <div class="kpi-value">12 Regiões</div>
-              <span class="kpi-subtext">Zonas urbanas separadas</span>
+              <div class="kpi-value font-mono">12 Regiões</div>
+              <span class="kpi-subtext">Zonas urbanas mapeadas</span>
             </div>
             <div class="kpi-card">
               <span class="kpi-label">FREQUÊNCIA DE COLETA</span>
-              <div class="kpi-value">100% Coberta</div>
+              <div class="kpi-value font-mono" style="color: #10b981;">100% Coberta</div>
               <span class="kpi-subtext">Diária / Alternada</span>
             </div>
           </div>
@@ -403,13 +758,14 @@
                     <th>CÓDIGO</th>
                     <th>NOME DA ROTA</th>
                     <th>TIPO DE COLETA</th>
-                    <th>TURNO & DIAS</th>
-                    <th>DISTÂNCIA PREVISTA</th>
+                    <th>TURNO & FREQUÊNCIA</th>
+                    <th>DISTÂNCIA</th>
                     <th>STATUS</th>
+                    <th>AÇÕES</th>
                   </tr>
                 </thead>
-                <tbody id="rotasTable">
-                  <!-- Rendered via JS -->
+                <tbody id="rotasFullTable">
+                  <!-- MOCK DYNAMICALLY RENDERED -->
                 </tbody>
               </table>
             </div>
@@ -418,7 +774,7 @@
             <div style="width: 480px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); overflow: hidden; display: flex; flex-direction: column;">
               <div style="padding: 12px 16px; background: var(--color-page); border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center;">
                 <strong style="font-size: 13px;" id="mapRotaTitle">Rota RT-C01 · Centro Convencional</strong>
-                <span class="badge badge-success">Geofence Ativo</span>
+                <span class="badge badge-success">Traçado GPS Ativo</span>
               </div>
               <div id="rotasMap" style="flex: 1; background: #e2e8f0;"></div>
             </div>
@@ -426,58 +782,29 @@
         </div>
 
         <!-- ========================================================================= -->
-        <!-- TAB 3: CCO RASTREIO AO VIVO (RF-COL-03) -->
+        <!-- SUB-PAGE 7: LOCAIS DE DESTINAÇÃO & BALANÇA -->
         <!-- ========================================================================= -->
-        <div id="tab-rastreamento" class="tab-pane" style="display: none;">
+        <div id="tab-destinacao" class="tab-pane" style="display: none;">
           <div class="page-header">
             <div>
-              <h1 class="page-title">Central de Comando Operacional (CCO GPS)</h1>
-              <p class="page-subtitle">Rastreamento da frota em tempo real no mapa com alertas de desvio e excesso de velocidade.</p>
-            </div>
-            <div style="display: flex; gap: 8px;">
-              <button class="btn btn-secondary" onclick="alert('Atualizando radar GPS...')">
-                <i data-lucide="refresh-cw" style="width: 14px;"></i>
-                <span>Atualizar Radar</span>
-              </button>
-            </div>
-          </div>
-
-          <div style="height: 540px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); overflow: hidden; position: relative;">
-            <div id="ccoFullMap" style="width: 100%; height: 100%;"></div>
-
-            <!-- Floating Fleet Status Bar -->
-            <div style="position: absolute; top: 16px; left: 16px; z-index: 500; background: rgba(7, 23, 36, 0.9); backdrop-filter: blur(8px); padding: 12px 16px; border-radius: 8px; color: white; display: flex; gap: 16px; font-size: 12px;">
-              <div><strong>34</strong> Caminhões On-line</div>
-              <div><strong>28 km/h</strong> Vel. Média</div>
-              <div><strong>96.4%</strong> Aderência de Rota</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ========================================================================= -->
-        <!-- TAB 4: PESAGEM & BALANÇA / ATERRO (RF-COL-04) -->
-        <!-- ========================================================================= -->
-        <div id="tab-pesagem" class="tab-pane" style="display: none;">
-          <div class="page-header">
-            <div>
-              <h1 class="page-title">Pesagem & Tíquetes de Balança</h1>
-              <p class="page-subtitle">Controle de entrada e saída no Aterro Sanitário Dom Antônio Barbosa e Unidade de Triagem (UTR).</p>
+              <h1 class="page-title">Locais de Destinação & Balança Eletrônica</h1>
+              <p class="page-subtitle">Controle de entrada e pesagem no Aterro Dom Antônio Barbosa e Unidade de Triagem (UTR).</p>
             </div>
             <button class="btn btn-primary" onclick="openModalNovoTiquete()">
-              <i data-lucide="plus" style="width: 16px;"></i>
-              <span>Emitir Tíquete de Pesagem</span>
+              <i data-lucide="scale" style="width: 16px;"></i>
+              <span>Emitir Tíquete Balança</span>
             </button>
           </div>
 
           <div class="kpi-row">
             <div class="kpi-card">
               <span class="kpi-label">PESO TOTAL HOJE</span>
-              <div class="kpi-value font-mono" style="color: #10b981;">480,5 t</div>
+              <div class="kpi-value font-mono" id="kpiPesoTotalBalanica" style="color: #10b981;">480,5 t</div>
               <span class="kpi-subtext">Resíduos pesados na balança</span>
             </div>
             <div class="kpi-card">
               <span class="kpi-label">TÍQUETES EMITIDOS</span>
-              <div class="kpi-value font-mono">64</div>
+              <div class="kpi-value font-mono" id="kpiTiquetesCount">64</div>
               <span class="kpi-subtext">Descarregamentos hoje</span>
             </div>
             <div class="kpi-card">
@@ -495,68 +822,53 @@
           <div class="table-container">
             <table class="data-table">
               <thead>
-                <tr>
-                  <th>Nº TÍQUETE</th>
-                  <th>VEÍCULO</th>
-                  <th>MOTORISTA</th>
-                  <th>DATA & HORA ENT./SAÍDA</th>
-                  <th>PESO BRUTO</th>
-                  <th>TARA</th>
-                  <th>PESO LÍQUIDO</th>
-                  <th>DESTINAÇÃO FINAL</th>
-                  <th>AÇÃO</th>
-                </tr>
+                <tr><th>Nº TÍQUETE</th><th>VEÍCULO</th><th>MOTORISTA</th><th>DATA ENT.</th><th>PESO BRUTO</th><th>TARA</th><th>PESO LÍQUIDO</th><th>DESTINO</th><th>AÇÃO</th></tr>
               </thead>
-              <tbody id="tiquetesTable">
-                <!-- Rendered via JS -->
-              </tbody>
+              <tbody id="tiquetesTable"></tbody>
             </table>
           </div>
         </div>
 
         <!-- ========================================================================= -->
-        <!-- TAB 5: MOTORISTAS & ESCALA (RF-COL-05) -->
+        <!-- SUB-PAGE 8: RELATÓRIOS & DOSSIÊ -->
         <!-- ========================================================================= -->
-        <div id="tab-motoristas" class="tab-pane" style="display: none;">
+        <div id="tab-relatorios" class="tab-pane" style="display: none;">
           <div class="page-header">
             <div>
-              <h1 class="page-title">Escala de Motoristas & Condutores</h1>
-              <p class="page-subtitle">Cadastro de condutores habilitados (CNH Cat D/E), exames toxicológicos e alocação em frotas.</p>
+              <h1 class="page-title">Relatórios & Dossiê de Coleta</h1>
+              <p class="page-subtitle">Consolidação mensal para órgãos de controle (TCE / IMASUL) com retenção de tíquetes de balança.</p>
             </div>
-          </div>
-
-          <div class="kpi-row">
-            <div class="kpi-card">
-              <span class="kpi-label">MOTORISTAS CADASTRADOS</span>
-              <div class="kpi-value">52</div>
-              <span class="kpi-subtext">48 Ativos · 4 Folga</span>
-            </div>
-            <div class="kpi-card">
-              <span class="kpi-label">EXAMES TOXICOLÓGICOS</span>
-              <div class="kpi-value" style="color: #10b981;">100% OK</div>
-              <span class="kpi-subtext">Nenhum exame vencido</span>
-            </div>
-            <div class="kpi-card">
-              <span class="kpi-label">NOTA DIREÇÃO DEFENSIVA</span>
-              <div class="kpi-value font-mono" style="color: #3b82f6;">9.8 / 10</div>
-              <span class="kpi-subtext">Telemetria de condução</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- ========================================================================= -->
-        <!-- TAB 6: DOSSIÊ DE PRESTAÇÃO DE CONTAS DA COLETA (RF-COL-06) -->
-        <!-- ========================================================================= -->
-        <div id="tab-prestacao-coleta" class="tab-pane" style="display: none;">
-          <div class="page-header">
-            <div>
-              <h1 class="page-title">Dossiê de Prestação de Contas da Coleta</h1>
-              <p class="page-subtitle">Consolidação oficial de tonelagem coletada e tíquetes homologados de destinação final (TCE).</p>
-            </div>
-            <button class="btn btn-primary" onclick="alert('Emitindo Dossiê Consolidado em PDF Assinado...')">
+            <button class="btn btn-primary" onclick="openModalDossieColeta()">
               <i data-lucide="file-check" style="width: 16px;"></i>
               <span>Emitir Dossiê Coleta PDF</span>
             </button>
+          </div>
+
+          <div class="table-container" style="margin-top: 16px;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>MÊS DE REFERÊNCIA</th>
+                  <th>TONELAGEM TOTAL</th>
+                  <th>TÍQUETES HOMOLOGADOS</th>
+                  <th>ATERRO SANITÁRIO</th>
+                  <th>UTR SELETIVA</th>
+                  <th>DECLARAÇÃO DE DESTINAÇÃO</th>
+                  <th>AÇÕES</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Julho / 2026</strong></td>
+                  <td class="mono">12.840,5 t</td>
+                  <td class="mono">840 tíquetes</td>
+                  <td class="mono">10.920 t</td>
+                  <td class="mono" style="color: #059669;">1.920,5 t</td>
+                  <td><span class="badge badge-success">Manifesto MTR Válido</span></td>
+                  <td><button class="btn btn-secondary btn-sm" onclick="openModalDossieColeta()">Ver Dossiê PDF</button></td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
 
@@ -565,140 +877,118 @@
 
   </div>
 
-  <!-- ========================================================================= -->
-  <!-- MODAL 1: CADASTRAR NOVO VEÍCULO DA FROTA (RF-COL-01) -->
-  <!-- ========================================================================= -->
-  <div class="modal-overlay" id="modalNovoVeiculo">
+  <!-- MODAIS (PROGRAMAÇÃO, VEÍCULO, MOTORISTA, TÍQUETE, DOSSIÊ) -->
+  <div class="modal-overlay" id="modalGerarProgramacao">
     <div class="modal-card">
       <div class="modal-header">
-        <div>
-          <h2 style="font-size: 16px; font-weight: 700;">Cadastrar Novo Veículo da Frota</h2>
-          <span style="font-size: 11px; color: var(--color-text-muted);">RF-COL-01 · Inclusão de Caminhão no Núcleo de Telemetria</span>
-        </div>
-        <button style="border: none; background: transparent; cursor: pointer;" onclick="closeModalNovoVeiculo()">
-          <i data-lucide="x" style="width: 20px;"></i>
-        </button>
+        <div><h2 style="font-size: 16px; font-weight: 700;">Gerar Programação Semanal de Coleta</h2></div>
+        <button style="border: none; background: transparent; cursor: pointer;" onclick="closeModalGerarProgramacao()"><i data-lucide="x" style="width: 20px;"></i></button>
       </div>
-      <form id="formNovoVeiculo" onsubmit="salvarNovoVeiculo(event)">
+      <form onsubmit="salvarGerarProgramacao(event)">
         <div class="modal-body">
           <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Prefixo da Frota</label>
-              <input type="text" class="form-control font-mono" id="inpFtPrefixo" value="CAM-105" required readonly>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Placa do Veículo</label>
-              <input type="text" class="form-control font-mono" id="inpFtPlaca" placeholder="Ex: QAA-8812" required>
-            </div>
+            <div class="form-group"><label class="form-label">Período da Escala</label><select class="form-control" id="inpProgSemana"><option>Semana 25/08 a 31/08/2026</option></select></div>
+            <div class="form-group"><label class="form-label">Turno</label><select class="form-control" id="inpProgTurno"><option value="Diurno">Diurno (07h-15h)</option></select></div>
           </div>
-
+          <div class="form-group"><label class="form-label">Rota</label><select class="form-control" id="inpProgRota"><option value="RT-N01 · Setor Norte Convencional">RT-N01 · Setor Norte Convencional</option></select></div>
           <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Modelo & Marca</label>
-              <input type="text" class="form-control" id="inpFtModelo" placeholder="Ex: Mercedes-Benz Atego 1719" required>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Tipo de Equipamento</label>
-              <select class="form-control" id="inpFtTipo" required>
-                <option value="Compactador 15m³">Compactador 15m³</option>
-                <option value="Compactador 19m³">Compactador 19m³</option>
-                <option value="Caçamba Roll-On 30m³">Caçamba Roll-On 30m³</option>
-                <option value="Caminhão Toco 8m³">Caminhão Toco 8m³</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Capacidade Carga (toneladas)</label>
-              <input type="number" class="form-control font-mono" id="inpFtCapacidade" value="15" required>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Motorista Alocado</label>
-              <select class="form-control" id="inpFtMotorista" required>
-                <option value="João Paulo Santos">João Paulo Santos (CNH E)</option>
-                <option value="Matheus Nogueira">Matheus Nogueira (CNH D)</option>
-                <option value="Rafael Alencar">Rafael Alencar (CNH E)</option>
-              </select>
-            </div>
+            <div class="form-group"><label class="form-label">Caminhão</label><select class="form-control" id="inpProgCaminhao"><option value="CAM-101 (Compactador 15m³)">CAM-101</option></select></div>
+            <div class="form-group"><label class="form-label">Motorista</label><select class="form-control" id="inpProgMotorista"><option value="João Paulo Santos">João Paulo Santos</option></select></div>
           </div>
         </div>
-
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" onclick="closeModalNovoVeiculo()">Cancelar</button>
-          <button type="submit" class="btn btn-primary">
-            <i data-lucide="check" style="width: 16px;"></i>
-            <span>Salvar e Cadastrar Veículo</span>
-          </button>
-        </div>
+        <div class="modal-footer"><button type="button" class="btn btn-secondary" onclick="closeModalGerarProgramacao()">Cancelar</button><button type="submit" class="btn btn-primary">Publicar Escala</button></div>
       </form>
     </div>
   </div>
 
-  <!-- ========================================================================= -->
-  <!-- MODAL 2: EMISSÃO DE TÍQUETE DE BALANÇA (RF-COL-04) -->
-  <!-- ========================================================================= -->
+  <div class="modal-overlay" id="modalNovoVeiculo">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div><h2 style="font-size: 16px; font-weight: 700;">Cadastrar Novo Ativo da Frota</h2></div>
+        <button style="border: none; background: transparent; cursor: pointer;" onclick="closeModalNovoVeiculo()"><i data-lucide="x" style="width: 20px;"></i></button>
+      </div>
+      <form id="formNovoVeiculo" onsubmit="salvarNovoVeiculo(event)">
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Prefixo</label><input type="text" class="form-control font-mono" id="inpFtPrefixo" value="CAM-105" readonly></div>
+            <div class="form-group"><label class="form-label">Placa</label><input type="text" class="form-control font-mono" id="inpFtPlaca" placeholder="Ex: QAA-8812" required></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Modelo & Marca</label><input type="text" class="form-control" id="inpFtModelo" placeholder="Ex: Mercedes-Benz Atego 1719" required></div>
+            <div class="form-group"><label class="form-label">Tipo</label><select class="form-control" id="inpFtTipo"><option value="Compactador 15m³">Compactador 15m³</option></select></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Capacidade (t)</label><input type="number" class="form-control font-mono" id="inpFtCapacidade" value="15" required></div>
+            <div class="form-group"><label class="form-label">Motorista</label><select class="form-control" id="inpFtMotorista"><option value="João Paulo Santos">João Paulo Santos</option></select></div>
+          </div>
+        </div>
+        <div class="modal-footer"><button type="button" class="btn btn-secondary" onclick="closeModalNovoVeiculo()">Cancelar</button><button type="submit" class="btn btn-primary">Salvar Ativo</button></div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modalNovoMotorista">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div><h2 style="font-size: 16px; font-weight: 700;">Cadastrar Novo Motorista de Coleta</h2></div>
+        <button style="border: none; background: transparent; cursor: pointer;" onclick="closeModalNovoMotorista()"><i data-lucide="x" style="width: 20px;"></i></button>
+      </div>
+      <form onsubmit="salvarNovoMotorista(event)">
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Nome Completo</label><input type="text" class="form-control" id="inpMotNome" required></div>
+            <div class="form-group"><label class="form-label">Matrícula</label><input type="text" class="form-control font-mono" id="inpMotMatricula" value="M-4415" readonly></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">CNH</label><select class="form-control" id="inpMotCnhCat"><option value="Categoria E">Categoria E</option><option value="Categoria D">Categoria D</option></select></div>
+            <div class="form-group"><label class="form-label">Validade</label><input type="date" class="form-control" id="inpMotValidade" value="2028-10-15" required></div>
+          </div>
+        </div>
+        <div class="modal-footer"><button type="button" class="btn btn-secondary" onclick="closeModalNovoMotorista()">Cancelar</button><button type="submit" class="btn btn-primary">Cadastrar Condutor</button></div>
+      </form>
+    </div>
+  </div>
+
   <div class="modal-overlay" id="modalNovoTiquete">
     <div class="modal-card">
       <div class="modal-header">
-        <div>
-          <h2 style="font-size: 16px; font-weight: 700;">Emissão de Tíquete de Pesagem em Balança</h2>
-          <span style="font-size: 11px; color: var(--color-text-muted);">RF-COL-04 · Registro Automático de Destinação Final</span>
-        </div>
-        <button style="border: none; background: transparent; cursor: pointer;" onclick="closeModalNovoTiquete()">
-          <i data-lucide="x" style="width: 20px;"></i>
-        </button>
+        <div><h2 style="font-size: 16px; font-weight: 700;">Emissão de Tíquete de Pesagem em Balança</h2></div>
+        <button style="border: none; background: transparent; cursor: pointer;" onclick="closeModalNovoTiquete()"><i data-lucide="x" style="width: 20px;"></i></button>
       </div>
       <form id="formNovoTiquete" onsubmit="salvarNovoTiquete(event)">
         <div class="modal-body">
           <div class="ticket-paper">
             <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #64748b; margin-bottom: 4px;">COMPROVANTE DE PESAGEM DIGITAL</div>
             <div style="font-size: 16px; font-weight: 800; color: #0f172a; margin-bottom: 12px;">BALANÇA ELETRÔNICA Nº 01 — ATERRO DOM ANTÔNIO</div>
-
             <div class="form-row">
-              <div class="form-group">
-                <label class="form-label">Veículo / Prefixo</label>
-                <select class="form-control font-mono" id="inpTqVeiculo" required onchange="calcularPesoLiquido()">
-                  <option value="CAM-101 (Placa QAA-9912)">CAM-101 (Compactador 15m³)</option>
-                  <option value="CAM-102 (Placa QAA-9915)">CAM-102 (Compactador 19m³)</option>
-                  <option value="CAM-103 (Placa QAB-1020)">CAM-103 (Caçamba Roll-On)</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label class="form-label">Destinação Final</label>
-                <select class="form-control" id="inpTqDestino" required>
-                  <option value="Aterro Dom Antônio Barbosa">Aterro Sanitário Dom Antônio Barbosa</option>
-                  <option value="UTR Seletiva (Triagem)">UTR Seletiva (Triagem de Recicláveis)</option>
-                  <option value="Estação Transbordo">Estação de Transbordo</option>
-                </select>
-              </div>
+              <div class="form-group"><label class="form-label">Veículo</label><select class="form-control font-mono" id="inpTqVeiculo"><option value="CAM-101 (Placa QAA-9912)">CAM-101</option></select></div>
+              <div class="form-group"><label class="form-label">Destino</label><select class="form-control" id="inpTqDestino"><option value="Aterro Dom Antônio Barbosa">Aterro Dom Antônio Barbosa</option></select></div>
             </div>
-
             <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-top: 14px; background: #f8fafc; padding: 12px; border-radius: 6px; border: 1px solid #cbd5e1;">
-              <div class="form-group">
-                <label class="form-label">Peso Bruto (kg)</label>
-                <input type="number" class="form-control font-mono" id="inpTqBruto" value="22400" oninput="calcularPesoLiquido()" required>
-              </div>
-              <div class="form-group">
-                <label class="form-label">Tara Veículo (kg)</label>
-                <input type="number" class="form-control font-mono" id="inpTqTara" value="10200" oninput="calcularPesoLiquido()" required>
-              </div>
-              <div class="form-group">
-                <label class="form-label">Peso Líquido</label>
-                <div style="font-size: 16px; font-weight: 800; color: #059669; padding-top: 8px;" class="font-mono" id="txtPesoLiquido">12,200 t (12.200 kg)</div>
-              </div>
+              <div class="form-group"><label class="form-label">Peso Bruto (kg)</label><input type="number" class="form-control font-mono" id="inpTqBruto" value="22400" oninput="calcularPesoLiquido()" required></div>
+              <div class="form-group"><label class="form-label">Tara (kg)</label><input type="number" class="form-control font-mono" id="inpTqTara" value="10200" oninput="calcularPesoLiquido()" required></div>
+              <div class="form-group"><label class="form-label">Peso Líquido</label><div style="font-size: 16px; font-weight: 800; color: #059669; padding-top: 8px;" class="font-mono" id="txtPesoLiquido">12,200 t</div></div>
             </div>
           </div>
         </div>
-
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" onclick="closeModalNovoTiquete()">Cancelar</button>
-          <button type="submit" class="btn btn-primary">
-            <i data-lucide="check-circle" style="width: 16px;"></i>
-            <span>Homologar e Emitir Tíquete</span>
-          </button>
-        </div>
+        <div class="modal-footer"><button type="button" class="btn btn-secondary" onclick="closeModalNovoTiquete()">Cancelar</button><button type="submit" class="btn btn-primary">Homologar Tíquete</button></div>
       </form>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modalDossieColeta">
+    <div class="modal-card" style="max-width: 800px;">
+      <div class="modal-header">
+        <div><h2 style="font-size: 16px; font-weight: 700;">Dossiê Consolidado de Destinação de Resíduos</h2></div>
+        <button style="border: none; background: transparent; cursor: pointer;" onclick="closeModalDossieColeta()"><i data-lucide="x" style="width: 20px;"></i></button>
+      </div>
+      <div class="modal-body">
+        <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 20px; color: #0f172a;">
+          <h2>SECRETARIA DE SANEAMENTO E INFRAESTRUTURA</h2>
+          <div style="font-size: 12px; margin-top: 10px;">Relatório Consolidado de Coleta e Destinação Final · Julho/2026</div>
+        </div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-secondary" onclick="window.print()">Imprimir</button><button class="btn btn-primary" onclick="alert('Dossiê Baixado em PDF!'); closeModalDossieColeta();">Baixar PDF Assinado</button></div>
     </div>
   </div>
 
@@ -708,27 +998,16 @@
       <span>🚛 CABINE DO MOTORISTA (390px)</span>
       <i data-lucide="minimize-2" style="width: 14px;"></i>
     </div>
-    
-    <div class="mobile-sim-body" id="mobileSimContent">
-      <div style="padding: 12px; background: #071724; color: white; display: flex; align-items: center; justify-content: space-between;">
+    <div class="mobile-sim-body">
+      <div style="padding: 12px; background: #071724; color: white; display: flex; justify-content: space-between;">
         <span style="font-weight: 700; font-size: 13px;">CAM-101 · João Paulo</span>
         <span class="badge badge-success">GPS ON</span>
       </div>
-
       <div style="padding: 14px; display: flex; flex-direction: column; gap: 10px;">
         <div style="background: white; border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px;">
           <div style="font-size: 10px; font-weight: 700; color: #64748b;">ROTA EM EXECUÇÃO</div>
           <div style="font-size: 14px; font-weight: 700; color: #0f172a;">RT-C01 · Centro Convencional</div>
-          <div style="font-size: 11px; color: #2563eb; margin-top: 2px;">Velocidade atual: 28 km/h</div>
-
-          <div style="margin-top: 10px; background: #f8fafc; padding: 8px; border-radius: 6px; font-size: 11px;">
-            <div>Balança Interna Caminhão: <strong class="mono" style="color: #059669;">8,4t / 15t (56%)</strong></div>
-          </div>
-
-          <button class="btn btn-primary" style="width: 100%; margin-top: 12px; padding: 10px;" onclick="alert('Ponto de coleta registrado no GPS!')">
-            <i data-lucide="check" style="width: 14px;"></i>
-            <span>Registrar Ponto de Coleta</span>
-          </button>
+          <button class="btn btn-primary" style="width: 100%; margin-top: 12px;" onclick="alert('Ponto de coleta registrado!')">Registrar Ponto GPS</button>
         </div>
       </div>
     </div>
@@ -738,47 +1017,52 @@
   <script>
     lucide.createIcons();
 
-    // Data Store Coleta
     const frotaData = [
-      { id: "CAM-101", placa: "QAA-9912", modelo: "Mercedes Atego 1719", tipo: "Compactador 15m³", capacidade: "15,0 t", motorista: "João Paulo Santos", vel: "42 km/h", status: "Online GPS", badge: "success" },
-      { id: "CAM-102", placa: "QAA-9915", modelo: "VW Constellation 17.260", tipo: "Compactador 19m³", capacidade: "19,0 t", motorista: "Matheus Nogueira", vel: "38 km/h", status: "Online GPS", badge: "success" },
-      { id: "CAM-103", placa: "QAB-1020", modelo: "Volvo VM 270", tipo: "Caçamba Roll-On 30m³", capacidade: "20,0 t", motorista: "Rafael Alencar", vel: "0 km/h", status: "Manutenção", badge: "warning" }
+      { id: "CAM-101", placa: "QAA-9912", modelo: "Mercedes Atego 1719", tipo: "Compactador 15m³", capacidade: "15,0 t", motorista: "João Paulo Santos", vel: "42 km/h", status: "Em Operação", strip: "strip-success", badge: "success" },
+      { id: "CAM-102", placa: "QAA-9915", modelo: "VW Constellation 17.260", tipo: "Compactador 19m³", capacidade: "19,0 t", motorista: "Matheus Nogueira", vel: "38 km/h", status: "Em Operação", strip: "strip-success", badge: "success" },
+      { id: "CAM-103", placa: "QAB-1020", modelo: "Volvo VM 270", tipo: "Caçamba Roll-On 30m³", capacidade: "20,0 t", motorista: "Rafael Alencar", vel: "0 km/h", status: "Manutenção", strip: "strip-warning", badge: "warning" },
+      { id: "CAM-104", placa: "QAB-1088", modelo: "Ford Cargo 1719", tipo: "Compactador 15m³", capacidade: "15,0 t", motorista: "Carlos Eduardo", vel: "0 km/h", status: "Inativo", strip: "strip-danger", badge: "danger" }
     ];
 
+    const motoristasData = [
+      { nome: "João Paulo Santos", matricula: "M-4410", cnh: "Categoria E", validade: "11/11/2028", tox: "Em Dia", veiculo: "CAM-101", nota: "9.8 / 10", status: "Escalado" },
+      { nome: "Matheus Nogueira", matricula: "M-4412", cnh: "Categoria D", validade: "05/04/2027", tox: "Em Dia", veiculo: "CAM-102", nota: "9.5 / 10", status: "Escalado" }
+    ];
+
+    // MOCK DATASET FOR ROTAS 100% GARANTIDO
     const rotasColetaData = [
-      { id: "RT-C01", nome: "RT-C01 · Centro Convencional", tipo: "Domiciliar", turno: "Diurno (07h-15h)", distancia: "18,4 km", status: "Ativa" },
-      { id: "RT-S01", nome: "RT-S01 · Afonso Pena Seletiva", tipo: "Seletiva (Recicláveis)", turno: "Diurno (08h-16h)", distancia: "24,0 km", status: "Ativa" }
+      { id: "RT-C01", nome: "RT-C01 · Centro Convencional A", tipo: "Domiciliar", turno: "Diurno (07h-15h) · Seg/Qua/Sex", distancia: "18,4 km", status: "Em Operação", badge: "success" },
+      { id: "RT-C02", nome: "RT-C02 · Centro Convencional B", tipo: "Domiciliar", turno: "Noturno (19h-03h) · Diário", distancia: "21,2 km", status: "Em Operação", badge: "success" },
+      { id: "RT-S01", nome: "RT-S01 · Afonso Pena Seletiva", tipo: "Seletiva (Recicláveis)", turno: "Diurno (08h-16h) · Ter/Qui/Sáb", distancia: "24,0 km", status: "Em Operação", badge: "success" },
+      { id: "RT-N01", nome: "RT-N01 · Setor Norte Domiciliar", tipo: "Domiciliar", turno: "Diurno (07h-15h) · Seg/Qua/Sex", distancia: "32,5 km", status: "Ativa", badge: "primary" },
+      { id: "RT-H01", nome: "RT-H01 · Rota Hospitalar RSU", tipo: "Hospitalar (Infectante)", turno: "Noturno (22h-05h) · Diário", distancia: "12,8 km", status: "Ativa", badge: "primary" }
     ];
 
     const tiquetesData = [
-      { id: "TQ-2026-8891", veiculo: "CAM-101", motorista: "João Paulo Santos", hora: "24/08 14:20", bruto: "22.400 kg", tara: "10.200 kg", liquido: "12,200 t", destino: "Aterro Dom Antônio" },
-      { id: "TQ-2026-8892", veiculo: "CAM-102", motorista: "Matheus Nogueira", hora: "24/08 15:10", bruto: "26.800 kg", tara: "11.100 kg", liquido: "15,700 t", destino: "Aterro Dom Antônio" }
+      { id: "TQ-2026-8891", veiculo: "CAM-101", motorista: "João Paulo Santos", hora: "24/08 14:20", bruto: "22.400 kg", tara: "10.200 kg", liquido: "12,200 t", destino: "Aterro Dom Antônio" }
     ];
 
-    // Render Frota
     function renderFrota() {
       const tbody = document.getElementById('frotaFullTable');
       tbody.innerHTML = '';
-
       frotaData.forEach((ft, index) => {
         const tr = document.createElement('tr');
         if (index === 0) tr.classList.add('selected');
         tr.onclick = () => selectFrotaRow(ft, tr);
 
         tr.innerHTML = `
+          <td style="padding:0; position:relative;"><div class="status-left-strip ${ft.strip}"></div></td>
           <td class="mono"><strong>${ft.id}</strong></td>
           <td class="mono"><strong>${ft.placa}</strong></td>
-          <td>${ft.modelo}</td>
           <td>${ft.tipo}</td>
+          <td>${ft.modelo}</td>
           <td class="mono">${ft.capacidade}</td>
           <td>${ft.motorista}</td>
-          <td><span class="badge badge-${ft.badge}">${ft.status} (${ft.vel})</span></td>
+          <td class="mono"><span class="badge badge-${ft.badge}">${ft.status} (${ft.vel})</span></td>
+          <td><span class="badge badge-${ft.badge}">${ft.status}</span></td>
         `;
         tbody.appendChild(tr);
       });
-
-      document.getElementById('kpiFrotaCount').innerText = frotaData.length;
-      document.getElementById('sidebarFrotaBadge').innerText = frotaData.length;
     }
 
     function selectFrotaRow(ft, tr) {
@@ -793,9 +1077,9 @@
       document.getElementById('ftDrawerBadge').className = `badge badge-${ft.badge}`;
     }
 
-    // Render Rotas
     function renderRotas() {
-      const tbody = document.getElementById('rotasTable');
+      const tbody = document.getElementById('rotasFullTable');
+      if (!tbody) return;
       tbody.innerHTML = '';
 
       rotasColetaData.forEach((rt, index) => {
@@ -808,24 +1092,44 @@
           <td><strong>${rt.nome}</strong></td>
           <td><span class="badge badge-neutral">${rt.tipo}</span></td>
           <td>${rt.turno}</td>
-          <td class="mono">${rt.distancia}</td>
-          <td><span class="badge badge-success">${rt.status}</span></td>
+          <td class="mono"><strong>${rt.distancia}</strong></td>
+          <td><span class="badge badge-${rt.badge}">${rt.status}</span></td>
+          <td><button class="btn btn-secondary btn-sm" onclick="alert('Ver no mapa: ${rt.nome}')">Ver no Mapa</button></td>
         `;
         tbody.appendChild(tr);
       });
     }
 
     function selectRotaRow(rt, tr) {
-      document.querySelectorAll('#rotasTable tr').forEach(r => r.classList.remove('selected'));
+      document.querySelectorAll('#rotasFullTable tr').forEach(r => r.classList.remove('selected'));
       if (tr) tr.classList.add('selected');
       document.getElementById('mapRotaTitle').innerText = `Rota ${rt.nome}`;
     }
 
-    // Render Tiquetes
+    function renderMotoristas() {
+      const tbody = document.getElementById('motoristasTable');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      motoristasData.forEach((mot) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>${mot.nome}</strong></td>
+          <td class="mono">${mot.matricula}</td>
+          <td><span class="badge badge-neutral">${mot.cnh}</span></td>
+          <td class="mono">${mot.validade}</td>
+          <td><span class="badge badge-success">${mot.tox}</span></td>
+          <td class="mono"><strong>${mot.veiculo}</strong></td>
+          <td class="mono" style="color: #059669;"><strong>${mot.nota}</strong></td>
+          <td><span class="badge badge-success">${mot.status}</span></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
     function renderTiquetes() {
       const tbody = document.getElementById('tiquetesTable');
+      if (!tbody) return;
       tbody.innerHTML = '';
-
       tiquetesData.forEach((tq) => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
@@ -837,97 +1141,18 @@
           <td class="mono">${tq.tara}</td>
           <td class="mono" style="color: #059669;"><strong>${tq.liquido}</strong></td>
           <td>${tq.destino}</td>
-          <td><button class="btn btn-secondary btn-sm" onclick="alert('Visualizando comprovante de pesagem ${tq.id}')">Ver Tíquete</button></td>
+          <td><button class="btn btn-secondary btn-sm" onclick="openModalNovoTiquete()">Ver Recibo</button></td>
         `;
         tbody.appendChild(tr);
       });
     }
 
-    // Modal Handlers
-    function openModalNovoVeiculo() {
-      document.getElementById('modalNovoVeiculo').classList.add('active');
-    }
-    function closeModalNovoVeiculo() {
-      document.getElementById('modalNovoVeiculo').classList.remove('active');
-    }
-
-    function salvarNovoVeiculo(event) {
-      event.preventDefault();
-      const placa = document.getElementById('inpFtPlaca').value;
-      const modelo = document.getElementById('inpFtModelo').value;
-      const tipo = document.getElementById('inpFtTipo').value;
-      const cap = document.getElementById('inpFtCapacidade').value;
-      const motorista = document.getElementById('inpFtMotorista').value;
-
-      const newId = `CAM-10${frotaData.length + 1}`;
-      const newVeiculo = {
-        id: newId,
-        placa: placa.toUpperCase(),
-        modelo: modelo,
-        tipo: tipo,
-        capacidade: `${cap},0 t`,
-        motorista: motorista,
-        vel: "32 km/h",
-        status: "Online GPS",
-        badge: "success"
-      };
-
-      frotaData.unshift(newVeiculo);
-      renderFrota();
-      selectFrotaRow(newVeiculo, document.querySelector('#frotaFullTable tr'));
-      closeModalNovoVeiculo();
-
-      alert(`✅ NOVO CAMINHÃO CADASTRADO!\n\n• Prefixo: ${newId}\n• Placa: ${newVeiculo.placa}\n• Tipo: ${tipo}\n• Motorista: ${motorista}\n\nO veículo foi ativado e sincronizado com o GPS Telemetria!`);
-    }
-
-    function openModalNovoTiquete() {
-      document.getElementById('modalNovoTiquete').classList.add('active');
-    }
-    function closeModalNovoTiquete() {
-      document.getElementById('modalNovoTiquete').classList.remove('active');
-    }
-
-    function calcularPesoLiquido() {
-      const bruto = parseFloat(document.getElementById('inpTqBruto').value) || 0;
-      const tara = parseFloat(document.getElementById('inpTqTara').value) || 0;
-      const liq = bruto - tara;
-      const ton = (liq / 1000).toFixed(3);
-      document.getElementById('txtPesoLiquido').innerText = `${ton} t (${liq.toLocaleString()} kg)`;
-    }
-
-    function salvarNovoTiquete(event) {
-      event.preventDefault();
-      const veiculo = document.getElementById('inpTqVeiculo').value.split(' ')[0];
-      const destino = document.getElementById('inpTqDestino').value;
-      const bruto = document.getElementById('inpTqBruto').value;
-      const tara = document.getElementById('inpTqTara').value;
-      const liqKg = parseFloat(bruto) - parseFloat(tara);
-      const liqTon = (liqKg / 1000).toFixed(3) + ' t';
-
-      const newTq = {
-        id: `TQ-2026-${Math.floor(8900 + Math.random()*100)}`,
-        veiculo: veiculo,
-        motorista: "João Paulo Santos",
-        hora: "24/08 18:55",
-        bruto: `${parseFloat(bruto).toLocaleString()} kg`,
-        tara: `${parseFloat(tara).toLocaleString()} kg`,
-        liquido: liqTon,
-        destino: destino
-      };
-
-      tiquetesData.unshift(newTq);
-      renderTiquetes();
-      closeModalNovoTiquete();
-
-      alert(`⚖️ TÍQUETE DE PESAGEM HOMOLOGADO!\n\n• Nº Tíquete: ${newTq.id}\n• Veículo: ${veiculo}\n• Peso Líquido: ${liqTon}\n• Destino: ${destino}\n\nRegistro gravado com hash de autenticidade da Balança Eletrônica!`);
-    }
-
-    // Tab Switcher
+    // Switch Tab Handler
     function switchTab(tabKey, event) {
       if (event) event.preventDefault();
 
-      document.querySelectorAll('.sidebar-nav .nav-item').forEach(el => el.classList.remove('active'));
-      const activeNav = document.getElementById(`nav-${tabKey}`);
+      document.querySelectorAll('.sidebar-nav-subitem').forEach(el => el.classList.remove('active'));
+      const activeNav = document.getElementById(`subnav-${tabKey}`);
       if (activeNav) activeNav.classList.add('active');
 
       document.querySelectorAll('.tab-pane').forEach(pane => pane.style.display = 'none');
@@ -935,22 +1160,37 @@
       if (targetPane) targetPane.style.display = 'block';
 
       const titles = {
-        frota: '1. Frota & Veículos (RF-COL-01)',
-        rotas: '2. Rotas & Geofence (RF-COL-02)',
-        rastreamento: '3. CCO Rastreio ao Vivo (RF-COL-03)',
-        pesagem: '4. Pesagem & Balança (RF-COL-04)',
-        motoristas: '5. Motoristas & Escala (RF-COL-05)',
-        'prestacao-coleta': '6. Dossiê de Coleta (RF-COL-06)'
+        'visao-geral': 'Visão Geral Operacional',
+        programacao: 'Programação de Execuções',
+        execucoes: 'Execuções ao Vivo (CCO)',
+        frota: 'Frota & Ativos Móveis',
+        motoristas: 'Motoristas & Condutores',
+        rotas: 'Mapeamento de Rotas',
+        destinacao: 'Locais de Destinação & Balança',
+        relatorios: 'Relatórios & Dossiê'
       };
 
-      document.getElementById('currentTabTitle').innerText = titles[tabKey] || tabKey;
+      document.getElementById('currentBreadcrumb').innerText = titles[tabKey] || tabKey;
 
-      if (tabKey === 'rotas') initRotasMap();
-      if (tabKey === 'rastreamento') initCcoMap();
-      if (tabKey === 'pesagem') renderTiquetes();
+      if (tabKey === 'rotas') {
+        renderRotas();
+        initRotasMap();
+      }
+      if (tabKey === 'motoristas') renderMotoristas();
+      if (tabKey === 'destinacao') renderTiquetes();
+      if (tabKey === 'visao-geral') initVisaoGeralMap();
     }
 
     // Leaflet Maps
+    let visaoGeralMapInstance = null;
+    function initVisaoGeralMap() {
+      if (visaoGeralMapInstance) return;
+      setTimeout(() => {
+        visaoGeralMapInstance = L.map('visaoGeralMap').setView([-20.465, -54.615], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(visaoGeralMapInstance);
+      }, 100);
+    }
+
     let rotasMapInstance = null;
     function initRotasMap() {
       if (rotasMapInstance) return;
@@ -958,60 +1198,66 @@
         rotasMapInstance = L.map('rotasMap').setView([-20.465, -54.615], 13);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(rotasMapInstance);
         
-        const routePoints = [
-          [-20.455, -54.605],
-          [-20.465, -54.615],
-          [-20.475, -54.625]
-        ];
-        L.polyline(routePoints, { color: '#2563eb', weight: 5 }).addTo(rotasMapInstance);
+        const points = [[-20.455, -54.605], [-20.465, -54.615], [-20.475, -54.625]];
+        L.polyline(points, { color: '#2563eb', weight: 5 }).addTo(rotasMapInstance);
       }, 100);
     }
 
-    let ccoMapInstance = null;
-    function initCcoMap() {
-      if (ccoMapInstance) return;
-      setTimeout(() => {
-        ccoMapInstance = L.map('ccoFullMap').setView([-20.465, -54.615], 13);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(ccoMapInstance);
-        
-        // Add Live Trucks on Map
-        const trucks = [
-          { lat: -20.460, lng: -54.610, name: "CAM-101", vel: "42 km/h" },
-          { lat: -20.470, lng: -54.620, name: "CAM-102", vel: "38 km/h" },
-          { lat: -20.450, lng: -54.600, name: "CAM-104", vel: "29 km/h" }
-        ];
-
-        trucks.forEach(t => {
-          const icon = L.divIcon({
-            className: 'truck-marker',
-            html: t.name
-          });
-          L.marker([t.lat, t.lng], { icon: icon }).addTo(ccoMapInstance)
-            .bindPopup(`<b>${t.name}</b><br>Velocidade: ${t.vel}<br>Status: Coleta Domiciliar`);
-        });
-      }, 100);
+    // Modals Controls
+    function openModalGerarProgramacao() { document.getElementById('modalGerarProgramacao').classList.add('active'); }
+    function closeModalGerarProgramacao() { document.getElementById('modalGerarProgramacao').classList.remove('active'); }
+    function salvarGerarProgramacao(event) {
+      event.preventDefault();
+      closeModalGerarProgramacao();
+      alert('✅ PROGRAMAÇÃO DE COLETA PUBLICADA!');
     }
 
-    // Mobile Sim
-    function toggleMobileSim() {
-      document.getElementById('mobileSim').classList.toggle('minimized');
-    }
-    function openMobileSimForTruck(truckId) {
-      document.getElementById('mobileSim').classList.remove('minimized');
+    function openModalNovoVeiculo() { document.getElementById('modalNovoVeiculo').classList.add('active'); }
+    function closeModalNovoVeiculo() { document.getElementById('modalNovoVeiculo').classList.remove('active'); }
+    function salvarNovoVeiculo(event) {
+      event.preventDefault();
+      closeModalNovoVeiculo();
+      alert('✅ ATIVO CADASTRADO!');
     }
 
+    function openModalNovoMotorista() { document.getElementById('modalNovoMotorista').classList.add('active'); }
+    function closeModalNovoMotorista() { document.getElementById('modalNovoMotorista').classList.remove('active'); }
+    function salvarNovoMotorista(event) {
+      event.preventDefault();
+      closeModalNovoMotorista();
+      alert('✅ MOTORISTA CADASTRADO!');
+    }
+
+    function openModalNovoTiquete() { document.getElementById('modalNovoTiquete').classList.add('active'); }
+    function closeModalNovoTiquete() { document.getElementById('modalNovoTiquete').classList.remove('active'); }
+    function calcularPesoLiquido() {
+      const bruto = parseFloat(document.getElementById('inpTqBruto').value) || 0;
+      const tara = parseFloat(document.getElementById('inpTqTara').value) || 0;
+      const liq = bruto - tara;
+      document.getElementById('txtPesoLiquido').innerText = `${(liq / 1000).toFixed(3)} t`;
+    }
+    function salvarNovoTiquete(event) {
+      event.preventDefault();
+      closeModalNovoTiquete();
+      alert('⚖️ TÍQUETE HOMOLOGADO!');
+    }
+
+    function openModalDossieColeta() { document.getElementById('modalDossieColeta').classList.add('active'); }
+    function closeModalDossieColeta() { document.getElementById('modalDossieColeta').classList.remove('active'); }
+
+    function toggleMobileSim() { document.getElementById('mobileSim').classList.toggle('minimized'); }
     function filterFrotaTable() {
       const query = document.getElementById('searchFrota').value.toLowerCase();
-      const rows = document.querySelectorAll('#frotaFullTable tr');
-      rows.forEach(r => {
-        const text = r.innerText.toLowerCase();
-        r.style.display = text.includes(query) ? '' : 'none';
+      document.querySelectorAll('#frotaFullTable tr').forEach(r => {
+        r.style.display = r.innerText.toLowerCase().includes(query) ? '' : 'none';
       });
     }
 
     // Init
     renderFrota();
     renderRotas();
+    renderMotoristas();
+    renderTiquetes();
   </script>
 </body>
 </html>
