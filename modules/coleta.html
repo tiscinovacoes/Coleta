@@ -998,18 +998,8 @@
       <span>🚛 CABINE DO MOTORISTA (390px)</span>
       <i data-lucide="minimize-2" style="width: 14px;"></i>
     </div>
-    <div class="mobile-sim-body">
-      <div style="padding: 12px; background: #071724; color: white; display: flex; justify-content: space-between;">
-        <span style="font-weight: 700; font-size: 13px;">CAM-101 · João Paulo</span>
-        <span class="badge badge-success">GPS ON</span>
-      </div>
-      <div style="padding: 14px; display: flex; flex-direction: column; gap: 10px;">
-        <div style="background: white; border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px;">
-          <div style="font-size: 10px; font-weight: 700; color: #64748b;">ROTA EM EXECUÇÃO</div>
-          <div style="font-size: 14px; font-weight: 700; color: #0f172a;">RT-C01 · Centro Convencional</div>
-          <button class="btn btn-primary" style="width: 100%; margin-top: 12px;" onclick="alert('Ponto de coleta registrado!')">Registrar Ponto GPS</button>
-        </div>
-      </div>
+    <div class="mobile-sim-body" id="mobileSimContainer">
+      <!-- RENDERIZADO DINAMICAMENTE PELO FLUXO DO MOTORISTA -->
     </div>
   </div>
 
@@ -1029,7 +1019,6 @@
       { nome: "Matheus Nogueira", matricula: "M-4412", cnh: "Categoria D", validade: "05/04/2027", tox: "Em Dia", veiculo: "CAM-102", nota: "9.5 / 10", status: "Escalado" }
     ];
 
-    // MOCK DATASET FOR ROTAS 100% GARANTIDO
     const rotasColetaData = [
       { id: "RT-C01", nome: "RT-C01 · Centro Convencional A", tipo: "Domiciliar", turno: "Diurno (07h-15h) · Seg/Qua/Sex", distancia: "18,4 km", status: "Em Operação", badge: "success" },
       { id: "RT-C02", nome: "RT-C02 · Centro Convencional B", tipo: "Domiciliar", turno: "Noturno (19h-03h) · Diário", distancia: "21,2 km", status: "Em Operação", badge: "success" },
@@ -1042,8 +1031,233 @@
       { id: "TQ-2026-8891", veiculo: "CAM-101", motorista: "João Paulo Santos", hora: "24/08 14:20", bruto: "22.400 kg", tara: "10.200 kg", liquido: "12,200 t", destino: "Aterro Dom Antônio" }
     ];
 
+    // =========================================================================
+    // FLUXO COMPLETO DO APP DA CABINE DO MOTORISTA (390px)
+    // =========================================================================
+    let driverCurrentStep = 1;
+    let driverProgressPct = 0;
+    let activeTruckId = "CAM-101";
+
+    function renderDriverApp() {
+      const container = document.getElementById('mobileSimContainer');
+      if (!container) return;
+
+      if (driverCurrentStep === 1) {
+        container.innerHTML = `
+          <div style="padding: 12px; background: #071724; color: white; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <strong style="font-size: 13px; display: block;">${activeTruckId} · João Paulo</strong>
+              <span style="font-size: 10px; color: #94a3b8;">Habilitação Cat. E · Ativo OK</span>
+            </div>
+            <span class="badge badge-warning">CHECKLIST</span>
+          </div>
+
+          <div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px; margin: 12px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+            <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #64748b;">PASSO 1 DE 5 · INSPEÇÃO VEICULAR</div>
+            <h4 style="font-size: 14px; font-weight: 700; color: #0f172a; margin:0;">Checklist de Partida (${activeTruckId})</h4>
+            
+            <div style="font-size: 12px; display: flex; flex-direction: column; gap: 8px; margin-top: 4px;">
+              <label style="display: flex; align-items: center; gap: 8px;"><input type="checkbox" checked disabled> Nível de Óleo e Água do Radiador OK</label>
+              <label style="display: flex; align-items: center; gap: 8px;"><input type="checkbox" checked disabled> Pressão dos Pneus (110 PSI) Conforme</label>
+              <label style="display: flex; align-items: center; gap: 8px;"><input type="checkbox" checked disabled> Prensa Compactadora / Hidráulica OK</label>
+              <label style="display: flex; align-items: center; gap: 8px;"><input type="checkbox" checked disabled> Equipamentos de Proteção (EPIs) OK</label>
+            </div>
+
+            <button class="btn btn-primary" style="width: 100%; margin-top: 10px; padding: 12px; font-weight: 700;" onclick="driverBaterPonto()">
+              🟢 BATER PONTO (GPS + HORA 07:00)
+            </button>
+          </div>
+        `;
+      } else if (driverCurrentStep === 2) {
+        container.innerHTML = `
+          <div style="padding: 12px; background: #071724; color: white; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <strong style="font-size: 13px; display: block;">${activeTruckId} · João Paulo</strong>
+              <span style="font-size: 10px; color: #10b981;">PONTO REGISTRADO 07:00</span>
+            </div>
+            <span class="badge badge-success">GPS ON</span>
+          </div>
+
+          <div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px; margin: 12px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+            <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #64748b;">PASSO 2 DE 5 · ATRIBUIÇÃO DE ESCALA</div>
+            <h4 style="font-size: 14px; font-weight: 700; color: #0f172a; margin:0;">Rota RT-C01 · Centro Convencional</h4>
+            
+            <div style="background: #f1f5f9; padding: 10px; border-radius: 6px; font-size: 12px; display: flex; flex-direction: column; gap: 4px;" class="font-mono">
+              <div>Extensão Prevista: <strong>18,4 km</strong></div>
+              <div>Turno: <strong>Diurno (07:00 - 15:00)</strong></div>
+              <div>Coletores Alocados: <strong>Marcos S. / Pedro H.</strong></div>
+            </div>
+
+            <button class="btn btn-primary" style="width: 100%; margin-top: 10px; padding: 12px; font-weight: 700;" onclick="driverIniciarColeta()">
+              🚀 INICIAR EXECUÇÃO DA ROTA
+            </button>
+          </div>
+        `;
+      } else if (driverCurrentStep === 3) {
+        container.innerHTML = `
+          <div style="padding: 12px; background: #071724; color: white; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <strong style="font-size: 13px; display: block;">${activeTruckId} · RT-C01 Centro</strong>
+              <span style="font-size: 10px; color: #3b82f6;">EM EXECUÇÃO · VEL: 38 km/h</span>
+            </div>
+            <span class="badge badge-success">GPS ON</span>
+          </div>
+
+          <div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px; margin: 12px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 11px; font-weight: 700; color: #64748b;">PROGRESSO DA ROTA</span>
+              <strong class="font-mono" style="font-size: 14px; color: #2563eb;">${driverProgressPct}%</strong>
+            </div>
+
+            <div style="width: 100%; height: 10px; background: #e2e8f0; border-radius: 5px; overflow: hidden;">
+              <div style="width: ${driverProgressPct}%; height: 100%; background: #2563eb; transition: width 0.3s ease;"></div>
+            </div>
+
+            <div style="background: #eff6ff; padding: 10px; border-radius: 6px; border: 1px solid #bfdbfe; font-size: 12px;">
+              📍 Trecho: <strong>Rua 14 de Julho (Quadra ${Math.floor(driverProgressPct/25) + 1} de 4)</strong>
+            </div>
+
+            <button class="btn btn-primary" style="width: 100%; padding: 12px; font-weight: 700;" onclick="driverRegistrarPontoGPS()">
+              📍 REGISTRAR PONTO DE COLETA (+25%)
+            </button>
+
+            <button class="btn btn-secondary" style="width: 100%; margin-top: 4px;" onclick="driverReportarOcorrencia()">
+              ⚠️ REPORTAR OCORRÊNCIA EM CAMPO
+            </button>
+
+            <button class="btn btn-secondary" style="width: 100%; margin-top: 4px; border-color: #059669; color: #059669;" onclick="driverIrParaBalanca()">
+              ⚖️ IR PARA BALANÇA / DESCARREGAR
+            </button>
+          </div>
+        `;
+      } else if (driverCurrentStep === 4) {
+        container.innerHTML = `
+          <div style="padding: 12px; background: #071724; color: white; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <strong style="font-size: 13px; display: block;">BALANÇA ATERRO DOM ANTÔNIO</strong>
+              <span style="font-size: 10px; color: #f59e0b;">DESCARREGAMENTO</span>
+            </div>
+            <span class="badge badge-warning">PESAGEM</span>
+          </div>
+
+          <div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px; margin: 12px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+            <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #64748b;">PASSO 4 DE 5 · BALANÇA DIGITAL</div>
+            <h4 style="font-size: 14px; font-weight: 700; color: #0f172a; margin:0;">Homologar Pesagem do Veículo</h4>
+
+            <div style="background: #f8fafc; padding: 10px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 12px;" class="font-mono">
+              <div>Peso Bruto: <strong>22.400 kg</strong></div>
+              <div>Tara Veículo: <strong>10.200 kg</strong></div>
+              <div style="font-size: 14px; font-weight: 800; color: #059669; margin-top: 4px;">Peso Líquido: 12,200 t</div>
+            </div>
+
+            <button class="btn btn-primary" style="width: 100%; margin-top: 10px; padding: 12px; font-weight: 700;" onclick="driverGerarTiqueteBalanca()">
+              📄 LACRAR TÍQUETE & FINALIZAR
+            </button>
+          </div>
+        `;
+      } else if (driverCurrentStep === 5) {
+        container.innerHTML = `
+          <div style="padding: 12px; background: #059669; color: white; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <strong style="font-size: 13px; display: block;">VIAGEM CONCLUÍDA!</strong>
+              <span style="font-size: 10px; color: #e2e8f0;">TÍQUETE TQ-2026-8891 LACRADO</span>
+            </div>
+            <span class="badge badge-success">SUCESSO</span>
+          </div>
+
+          <div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px; margin: 12px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+            <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #64748b;">RESUMO DA EXECUÇÃO (${activeTruckId})</div>
+            
+            <div style="font-size: 12px; display: flex; flex-direction: column; gap: 6px;" class="font-mono">
+              <div>✅ Distância Percorrida: <strong>18,4 km</strong></div>
+              <div>✅ Total Descarregado: <strong style="color: #059669;">12,2 toneladas</strong></div>
+              <div>✅ Ocorrências Pendentes: <strong>0</strong></div>
+              <div>✅ Horário Término: <strong>14:45</strong></div>
+            </div>
+
+            <button class="btn btn-primary" style="width: 100%; margin-top: 12px; padding: 12px; font-weight: 700;" onclick="driverReiniciarApp()">
+              🏁 BATER PONTO SAÍDA / NOVO CICLO
+            </button>
+          </div>
+        `;
+      }
+
+      lucide.createIcons();
+    }
+
+    function driverBaterPonto() {
+      driverCurrentStep = 2;
+      renderDriverApp();
+      alert('🟢 PONTO GPS REGISTRADO COM SUCESSO!\n\n• Motorista: João Paulo Santos\n• Veículo: ' + activeTruckId + '\n• Horário: 07:00:14');
+    }
+
+    function driverIniciarColeta() {
+      driverCurrentStep = 3;
+      driverProgressPct = 25;
+      renderDriverApp();
+      alert('🚀 NAVEGAÇÃO DA ROTA RT-C01 INICIADA!\n\nTransmissão GPS de telemetria ativada a cada 5 segundos.');
+    }
+
+    function driverRegistrarPontoGPS() {
+      if (driverCurrentStep === 1) { driverBaterPonto(); return; }
+      if (driverCurrentStep === 2) { driverIniciarColeta(); return; }
+
+      if (driverProgressPct < 100) {
+        driverProgressPct += 25;
+        if (driverProgressPct >= 100) {
+          driverProgressPct = 100;
+          renderDriverApp();
+          setTimeout(() => {
+            alert('🎉 ROTA RT-C01 100% CONCLUÍDA!\n\nDeslocando caminhão ' + activeTruckId + ' para a Balança do Aterro Sanitário.');
+            driverCurrentStep = 4;
+            renderDriverApp();
+          }, 300);
+          return;
+        }
+      }
+      renderDriverApp();
+      alert(`📍 PONTO DE COLETA REGISTRADO NO GPS!\n\nProgresso atual da rota: ${driverProgressPct}%`);
+    }
+
+    function driverReportarOcorrencia() {
+      const tipo = prompt("Reportar Ocorrência em Campo:\n1 - Caçamba Obstruída por Veículo\n2 - Ponto de Lixo Irregular\n3 - Trânsito Interditado\n\nDigite o número da opção:");
+      if (tipo) alert("⚠️ OCORRÊNCIA TRANSMITIDA EM TEMPO REAL AO CCO DA PREFEITURA!");
+    }
+
+    function driverIrParaBalanca() {
+      driverCurrentStep = 4;
+      renderDriverApp();
+    }
+
+    function driverGerarTiqueteBalanca() {
+      driverCurrentStep = 5;
+      renderDriverApp();
+      alert("📄 TÍQUETE DE BALANÇA EMITIDO E LACRADO COM SUCESSO!");
+    }
+
+    function driverReiniciarApp() {
+      driverCurrentStep = 1;
+      driverProgressPct = 0;
+      renderDriverApp();
+      alert("🏁 JORNADA ENCERRADA COM SUCESSO!");
+    }
+
+    function openMobileSimForTruck(truckId) {
+      activeTruckId = truckId;
+      driverCurrentStep = 1;
+      driverProgressPct = 0;
+      const sim = document.getElementById('mobileSim');
+      if (sim.classList.contains('minimized')) sim.classList.remove('minimized');
+      renderDriverApp();
+    }
+
+    function toggleMobileSim() {
+      document.getElementById('mobileSim').classList.toggle('minimized');
+    }
+
     function renderFrota() {
       const tbody = document.getElementById('frotaFullTable');
+      if (!tbody) return;
       tbody.innerHTML = '';
       frotaData.forEach((ft, index) => {
         const tr = document.createElement('tr');
@@ -1075,6 +1289,7 @@
       document.getElementById('ftDrawerVel').innerText = ft.vel;
       document.getElementById('ftDrawerBadge').innerText = `${ft.status} (${ft.vel})`;
       document.getElementById('ftDrawerBadge').className = `badge badge-${ft.badge}`;
+      activeTruckId = ft.id;
     }
 
     function renderRotas() {
@@ -1147,7 +1362,6 @@
       });
     }
 
-    // Switch Tab Handler
     function switchTab(tabKey, event) {
       if (event) event.preventDefault();
 
@@ -1172,16 +1386,12 @@
 
       document.getElementById('currentBreadcrumb').innerText = titles[tabKey] || tabKey;
 
-      if (tabKey === 'rotas') {
-        renderRotas();
-        initRotasMap();
-      }
+      if (tabKey === 'rotas') { renderRotas(); initRotasMap(); }
       if (tabKey === 'motoristas') renderMotoristas();
       if (tabKey === 'destinacao') renderTiquetes();
       if (tabKey === 'visao-geral') initVisaoGeralMap();
     }
 
-    // Leaflet Maps
     let visaoGeralMapInstance = null;
     function initVisaoGeralMap() {
       if (visaoGeralMapInstance) return;
@@ -1197,55 +1407,35 @@
       setTimeout(() => {
         rotasMapInstance = L.map('rotasMap').setView([-20.465, -54.615], 13);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(rotasMapInstance);
-        
         const points = [[-20.455, -54.605], [-20.465, -54.615], [-20.475, -54.625]];
         L.polyline(points, { color: '#2563eb', weight: 5 }).addTo(rotasMapInstance);
       }, 100);
     }
 
-    // Modals Controls
     function openModalGerarProgramacao() { document.getElementById('modalGerarProgramacao').classList.add('active'); }
     function closeModalGerarProgramacao() { document.getElementById('modalGerarProgramacao').classList.remove('active'); }
-    function salvarGerarProgramacao(event) {
-      event.preventDefault();
-      closeModalGerarProgramacao();
-      alert('✅ PROGRAMAÇÃO DE COLETA PUBLICADA!');
-    }
+    function salvarGerarProgramacao(event) { event.preventDefault(); closeModalGerarProgramacao(); alert('✅ PROGRAMAÇÃO PUBLICADA!'); }
 
     function openModalNovoVeiculo() { document.getElementById('modalNovoVeiculo').classList.add('active'); }
     function closeModalNovoVeiculo() { document.getElementById('modalNovoVeiculo').classList.remove('active'); }
-    function salvarNovoVeiculo(event) {
-      event.preventDefault();
-      closeModalNovoVeiculo();
-      alert('✅ ATIVO CADASTRADO!');
-    }
+    function salvarNovoVeiculo(event) { event.preventDefault(); closeModalNovoVeiculo(); alert('✅ ATIVO CADASTRADO!'); }
 
     function openModalNovoMotorista() { document.getElementById('modalNovoMotorista').classList.add('active'); }
     function closeModalNovoMotorista() { document.getElementById('modalNovoMotorista').classList.remove('active'); }
-    function salvarNovoMotorista(event) {
-      event.preventDefault();
-      closeModalNovoMotorista();
-      alert('✅ MOTORISTA CADASTRADO!');
-    }
+    function salvarNovoMotorista(event) { event.preventDefault(); closeModalNovoMotorista(); alert('✅ MOTORISTA CADASTRADO!'); }
 
     function openModalNovoTiquete() { document.getElementById('modalNovoTiquete').classList.add('active'); }
     function closeModalNovoTiquete() { document.getElementById('modalNovoTiquete').classList.remove('active'); }
     function calcularPesoLiquido() {
       const bruto = parseFloat(document.getElementById('inpTqBruto').value) || 0;
       const tara = parseFloat(document.getElementById('inpTqTara').value) || 0;
-      const liq = bruto - tara;
-      document.getElementById('txtPesoLiquido').innerText = `${(liq / 1000).toFixed(3)} t`;
+      document.getElementById('txtPesoLiquido').innerText = `${((bruto - tara) / 1000).toFixed(3)} t`;
     }
-    function salvarNovoTiquete(event) {
-      event.preventDefault();
-      closeModalNovoTiquete();
-      alert('⚖️ TÍQUETE HOMOLOGADO!');
-    }
+    function salvarNovoTiquete(event) { event.preventDefault(); closeModalNovoTiquete(); alert('⚖️ TÍQUETE HOMOLOGADO!'); }
 
     function openModalDossieColeta() { document.getElementById('modalDossieColeta').classList.add('active'); }
     function closeModalDossieColeta() { document.getElementById('modalDossieColeta').classList.remove('active'); }
 
-    function toggleMobileSim() { document.getElementById('mobileSim').classList.toggle('minimized'); }
     function filterFrotaTable() {
       const query = document.getElementById('searchFrota').value.toLowerCase();
       document.querySelectorAll('#frotaFullTable tr').forEach(r => {
@@ -1258,6 +1448,7 @@
     renderRotas();
     renderMotoristas();
     renderTiquetes();
+    renderDriverApp();
   </script>
 </body>
 </html>
