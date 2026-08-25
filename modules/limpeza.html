@@ -3,26 +3,147 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Módulo Limpeza Urbana — Coleta Inteligente (UX Senior)</title>
+  <title>Limpeza Urbana — Suíte Operacional (Figma 1:1)</title>
   <!-- Design Tokens & CSS -->
   <link rel="stylesheet" href="../css/design-tokens.css">
   <link rel="stylesheet" href="../css/modules.css">
-  <!-- Leaflet CSS for Map -->
+  <!-- Leaflet CSS for Maps -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
-    /* Modal Styles (UX Master Solid & Opaque Modals) */
+    /* Figma 1:1 Layout Overrides */
+    .app-sidebar {
+      width: 260px;
+      background: #071724;
+      border-right: 1px solid #1e2d3d;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      color: #8b9fa8;
+      font-family: var(--font-sans);
+    }
+
+    .sidebar-brand-figma {
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid #1e2d3d;
+    }
+
+    .sidebar-brand-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: -0.2px;
+    }
+
+    .sidebar-section-hdr {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #475569;
+      letter-spacing: 0.8px;
+      padding: 14px 20px 6px 20px;
+    }
+
+    .sidebar-nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 20px;
+      color: #94a3b8;
+      text-decoration: none;
+      font-size: 12.5px;
+      font-weight: 500;
+      transition: all 0.15s ease;
+    }
+
+    .sidebar-nav-item:hover {
+      background: #0e2233;
+      color: #ffffff;
+    }
+
+    .sidebar-nav-item.active {
+      background: #0b2533;
+      color: #ffffff;
+      font-weight: 600;
+      border-left: 3px solid #3b82f6;
+    }
+
+    .sidebar-nav-subitem {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 7px 20px 7px 36px;
+      color: #94a3b8;
+      text-decoration: none;
+      font-size: 12px;
+      transition: all 0.15s ease;
+      cursor: pointer;
+    }
+
+    .sidebar-nav-subitem:hover {
+      color: #ffffff;
+      background: rgba(255,255,255,0.03);
+    }
+
+    .sidebar-nav-subitem.active {
+      color: #ffffff;
+      font-weight: 600;
+      background: #0b2533;
+      border-left: 3px solid #3b82f6;
+    }
+
+    .sidebar-user-card {
+      margin-top: auto;
+      padding: 14px 16px;
+      border-top: 1px solid #1e2d3d;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #071724;
+    }
+
+    .sidebar-user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #10b981;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 12px;
+    }
+
+    /* Figma Table Left Status Strip */
+    .data-table tbody tr {
+      position: relative;
+      transition: background 0.15s ease;
+    }
+
+    .status-left-strip {
+      width: 4px;
+      height: 100%;
+      position: absolute;
+      left: 0;
+      top: 0;
+    }
+
+    .strip-success { background: #10b981; }
+    .strip-warning { background: #f59e0b; }
+    .strip-danger  { background: #ef4444; }
+
+    /* Modal Solid Opaque Styles */
     .modal-overlay {
       position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
+      top: 0; left: 0; right: 0; bottom: 0;
       background: rgba(7, 23, 36, 0.75);
       backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
       z-index: 1000;
       display: flex;
       align-items: center;
@@ -32,11 +153,7 @@
       pointer-events: none;
       transition: opacity var(--transition-fast);
     }
-
-    .modal-overlay.active {
-      opacity: 1;
-      pointer-events: auto;
-    }
+    .modal-overlay.active { opacity: 1; pointer-events: auto; }
 
     .modal-card {
       background-color: #ffffff !important;
@@ -50,14 +167,7 @@
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      transform: translateY(20px);
-      transition: transform var(--transition-normal);
     }
-
-    .modal-overlay.active .modal-card {
-      transform: translateY(0);
-    }
-
     .modal-header {
       padding: 20px 24px;
       border-bottom: 1px solid #e2e8f0;
@@ -65,47 +175,28 @@
       align-items: center;
       justify-content: space-between;
       background-color: #ffffff !important;
-      color: #0f172a !important;
     }
-
-    .modal-header h2 {
-      color: #0f172a !important;
-    }
-
+    .modal-header h2 { color: #0f172a !important; }
     .modal-body {
       padding: 24px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 18px;
+      gap: 16px;
       background-color: #ffffff !important;
       color: #0f172a !important;
     }
-
     .modal-footer {
       padding: 16px 24px;
       border-top: 1px solid #e2e8f0;
       background-color: #f8fafc !important;
       display: flex;
-      align-items: center;
       justify-content: flex-end;
       gap: 12px;
     }
 
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .form-label {
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      color: #475569 !important;
-      letter-spacing: 0.5px;
-    }
-
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-label { font-size: 11px; font-weight: 700; text-transform: uppercase; color: #475569 !important; letter-spacing: 0.5px; }
     .form-control {
       padding: 10px 12px;
       border-radius: var(--radius-md);
@@ -116,114 +207,151 @@
       font-size: 13px;
       outline: none;
     }
-
     .form-control:focus {
-      border-color: var(--color-primary);
+      border-color: #10b981;
       background-color: #ffffff !important;
-      box-shadow: 0 0 0 3px var(--color-primary-glow);
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
     }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
+    /* Mobile Simulator Worker Widget */
+    .mobile-simulator-wrapper {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 390px;
+      height: 640px;
+      background: #ffffff;
+      border: 4px solid #071724;
+      border-radius: 36px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      z-index: 900;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
-
-    /* Print Document Styling for Official Report Modal */
-    .report-paper {
-      background: #ffffff !important;
-      color: #0f172a !important;
-      border: 1px solid #cbd5e1;
-      border-radius: 8px;
-      padding: 24px;
-      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
-    }
-
-    .report-header-banner {
+    .mobile-simulator-wrapper.minimized { height: 48px; overflow: hidden; border-radius: 12px; }
+    .mobile-sim-header {
+      background: #071724;
+      color: white;
+      padding: 12px 16px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border-bottom: 2px solid #0f172a;
-      padding-bottom: 16px;
-      margin-bottom: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
     }
+    .mobile-sim-body { flex: 1; display: flex; flex-direction: column; background: #f8fafc; overflow-y: auto; }
   </style>
 </head>
 <body>
 
   <div class="app-shell">
     
-    <!-- Sidebar Nível 2 — Módulo Limpeza Urbana -->
+    <!-- Figma 1:1 Sidebar (2 Níveis) -->
     <aside class="app-sidebar">
-      <div class="sidebar-header">
-        <div class="sidebar-logo">LU</div>
-        <div class="sidebar-title">Limpeza Urbana</div>
+      <div class="sidebar-brand-figma">
+        <div style="background: #10b981; width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center;">
+          <i data-lucide="sparkles" style="color: white; width: 16px;"></i>
+        </div>
+        <span class="sidebar-brand-title">Coleta Inteligente</span>
       </div>
 
-      <nav class="sidebar-nav">
-        <div class="nav-section-title">Planejamento & Escala</div>
-        <a href="#" class="nav-item active" id="nav-equipes" onclick="switchTab('equipes', event)">
-          <i data-lucide="users" class="nav-item-icon"></i>
-          <span>1. Equipes (RF-01)</span>
-          <span class="nav-item-badge" id="sidebarEquipesBadge">18</span>
+      <div style="overflow-y: auto; flex: 1;">
+        <!-- Section PLATAFORMA -->
+        <div class="sidebar-section-hdr">PLATAFORMA</div>
+        <a href="../index.html" class="sidebar-nav-item">
+          <i data-lucide="home" style="width: 15px;"></i>
+          <span>Início</span>
         </a>
-        <a href="#" class="nav-item" id="nav-itinerarios" onclick="switchTab('itinerarios', event)">
-          <i data-lucide="map-pin" class="nav-item-icon"></i>
-          <span>2. Itinerários (RF-02)</span>
-          <span class="nav-item-badge">42</span>
+        <a href="#" class="sidebar-nav-item">
+          <i data-lucide="users" style="width: 15px;"></i>
+          <span>Usuários</span>
         </a>
-        <a href="#" class="nav-item" id="nav-programacao" onclick="switchTab('programacao', event)">
-          <i data-lucide="calendar" class="nav-item-icon"></i>
-          <span>3. Programação (RF-08)</span>
-          <span class="nav-item-badge" style="background: rgba(16, 185, 129, 0.2); color: #34d399;">Semanal</span>
+        <a href="#" class="sidebar-nav-item">
+          <i data-lucide="settings" style="width: 15px;"></i>
+          <span>Configurações</span>
         </a>
 
-        <div class="nav-section-title" style="margin-top: 12px;">Operação em Tempo Real</div>
-        <a href="#" class="nav-item" id="nav-atividades" onclick="switchTab('atividades', event)">
-          <i data-lucide="activity" class="nav-item-icon"></i>
-          <span>4. Atividades ao Vivo (RF-03)</span>
-          <span class="nav-item-badge" style="background: rgba(59, 130, 246, 0.2); color: #60a5fa;">14 On</span>
-        </a>
-        <a href="#" class="nav-item" id="nav-indicadores" onclick="switchTab('indicadores', event)">
-          <i data-lucide="bar-chart-2" class="nav-item-icon"></i>
-          <span>5. Indicadores (RF-07)</span>
+        <!-- Section MÓDULOS -->
+        <div class="sidebar-section-hdr" style="margin-top: 8px;">MÓDULOS</div>
+        
+        <a href="coleta.html" class="sidebar-nav-item">
+          <i data-lucide="truck" style="width: 15px;"></i>
+          <span>Coleta Convencional</span>
         </a>
 
-        <div class="nav-section-title" style="margin-top: 12px;">Auditoria & Prestação</div>
-        <a href="#" class="nav-item" id="nav-prestacao" onclick="switchTab('prestacao', event)">
-          <i data-lucide="file-check-2" class="nav-item-icon"></i>
-          <span>6. Prestação de Contas (RF-09)</span>
-          <span class="nav-item-badge" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24;">Gestor</span>
-        </a>
-      </nav>
+        <!-- Active Module: Limpeza Urbana -->
+        <div class="sidebar-nav-item active" style="background: #064e3b;">
+          <i data-lucide="sparkles" style="width: 15px; color: #34d399;"></i>
+          <span style="color: #ffffff; font-weight: 700;">Limpeza Urbana</span>
+        </div>
 
-      <div class="sidebar-footer">
-        <a href="../index.html" class="btn-back-hub">
-          <i data-lucide="grid"></i>
-          <span>Voltar ao Hub de Módulos</span>
+        <!-- 7 Sub-items of Limpeza Urbana matching Figma 1:1 -->
+        <a href="#" class="sidebar-nav-subitem active" onclick="switchTab('visao-geral', event)" id="subnav-visao-geral">
+          <span>Visão Geral</span>
         </a>
+        <a href="#" class="sidebar-nav-subitem" onclick="switchTab('equipes', event)" id="subnav-equipes">
+          <span>Equipes</span>
+          <span class="badge badge-neutral" style="font-size: 9px; padding: 1px 5px;" id="badgeEquipesCount">14</span>
+        </a>
+        <a href="#" class="sidebar-nav-subitem" onclick="switchTab('itinerarios', event)" id="subnav-itinerarios">
+          <span>Itinerários</span>
+        </a>
+        <a href="#" class="sidebar-nav-subitem" onclick="switchTab('programacao', event)" id="subnav-programacao">
+          <span>Programação</span>
+        </a>
+        <a href="#" class="sidebar-nav-subitem" onclick="switchTab('atividades', event)" id="subnav-atividades">
+          <span>Atividades ao Vivo</span>
+          <span class="badge badge-success" style="font-size: 9px; padding: 1px 5px;">9 On</span>
+        </a>
+        <a href="#" class="sidebar-nav-subitem" onclick="switchTab('indicadores', event)" id="subnav-indicadores">
+          <span>Indicadores & SLA</span>
+        </a>
+        <a href="#" class="sidebar-nav-subitem" onclick="switchTab('relatorios', event)" id="subnav-relatorios">
+          <span>Relatórios & Dossiê</span>
+        </a>
+
+        <!-- Collapsed Other Modules -->
+        <div class="sidebar-section-hdr" style="margin-top: 12px;">OUTROS MÓDULOS</div>
+        <a href="fiscalizacao.html" class="sidebar-nav-item"><i data-lucide="shield" style="width: 15px;"></i><span>Fiscalização & CCO</span></a>
+        <a href="sac.html" class="sidebar-nav-item"><i data-lucide="phone-call" style="width: 15px;"></i><span>SAC & Cidadão</span></a>
+        <a href="ecoponto.html" class="sidebar-nav-item"><i data-lucide="package" style="width: 15px;"></i><span>Ecoponto</span></a>
+        <a href="ambiental.html" class="sidebar-nav-item"><i data-lucide="leaf" style="width: 15px;"></i><span>Ambiental</span></a>
+        <a href="compliance.html" class="sidebar-nav-item"><i data-lucide="file-text" style="width: 15px;"></i><span>Compliance & Auditoria</span></a>
+        <a href="inteligencia.html" class="sidebar-nav-item"><i data-lucide="bar-chart-3" style="width: 15px;"></i><span>Inteligência & Prefeito</span></a>
+      </div>
+
+      <!-- User Info Card -->
+      <div class="sidebar-user-card">
+        <div class="sidebar-user-avatar">CS</div>
+        <div style="flex: 1; min-width: 0;">
+          <strong style="display: block; font-size: 12px; color: #ffffff; truncate" title="Cláudio Silva">Cláudio Silva</strong>
+          <span style="font-size: 10px; color: #64748b;">Gestor de Limpeza Urbana</span>
+        </div>
+        <a href="../index.html" title="Sair do Módulo" style="color: #64748b;"><i data-lucide="log-out" style="width: 15px;"></i></a>
       </div>
     </aside>
 
     <!-- Main Content Area -->
     <main class="app-main">
       
-      <!-- Top Navbar (48px) -->
+      <!-- Top Navbar Figma 1:1 (48px) -->
       <header class="app-navbar">
         <div class="breadcrumb">
-          <span>Coleta Inteligente</span>
+          <span>Limpeza Urbana</span>
           <i data-lucide="chevron-right" style="width: 14px;"></i>
-          <span>Módulo Limpeza Urbana</span>
-          <i data-lucide="chevron-right" style="width: 14px;"></i>
-          <span class="breadcrumb-active" id="currentTabTitle">1. Gestão de Equipes (RF-LIMP-01)</span>
+          <span class="breadcrumb-active" id="currentBreadcrumb">Visão Geral Operacional</span>
         </div>
 
         <div class="navbar-controls">
           <div class="device-switcher">
-            <button class="device-btn active" id="btnDeskView" onclick="setDeviceView('desktop')">Desktop 1440</button>
-            <button class="device-btn" id="btnMobView" onclick="toggleMobileSim()">Simulador App Campo (390px)</button>
+            <button class="device-btn active" id="btnDeskView">Desktop 1440</button>
+            <button class="device-btn" onclick="toggleMobileSim()">App de Campo (390px)</button>
           </div>
-          <span class="badge badge-success">Conectado • Núcleo v1.1</span>
+          <span class="badge badge-success">GPS Varrição • CCO Online</span>
         </div>
       </header>
 
@@ -231,13 +359,103 @@
       <div class="content-area" id="tabContentArea">
         
         <!-- ========================================================================= -->
-        <!-- TAB 1: GESTÃO DE EQUIPES (RF-LIMP-01) -->
+        <!-- SUB-PAGE 1: VISÃO GERAL (FIGMA 1:1) -->
         <!-- ========================================================================= -->
-        <div id="tab-equipes" class="tab-pane active-pane">
+        <div id="tab-visao-geral" class="tab-pane active-pane">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Visão Geral de Limpeza Urbana</h1>
+              <p class="page-subtitle">Painel de controle com equipes em atividade, cobertura de varrição e ocorrências urgentes.</p>
+            </div>
+            <div style="display: flex; gap: 10px;">
+              <button class="btn btn-secondary" onclick="openModalNovaAtividade()">
+                <i data-lucide="plus" style="width: 16px;"></i>
+                <span>+ Nova Atividade</span>
+              </button>
+              <button class="btn btn-primary" onclick="openModalDossieLimpeza()">
+                <i data-lucide="file-check" style="width: 16px;"></i>
+                <span>Emitir Dossiê Oficial PDF</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 5 KPI Cards FIGMA 1:1 EXATOS -->
+          <div class="kpi-row" style="grid-template-columns: repeat(5, 1fr);">
+            <div class="kpi-card" onclick="switchTab('equipes', event)" style="cursor: pointer;">
+              <span class="kpi-label">EQUIPES EM ATIVIDADE</span>
+              <div class="kpi-value font-mono" style="color: #10b981;" id="kpiEquipesAtivas">9 / 14</div>
+              <span class="kpi-subtext" style="color: #10b981;">Ativas em campo</span>
+            </div>
+
+            <div class="kpi-card" onclick="switchTab('atividades', event)" style="cursor: pointer;">
+              <span class="kpi-label">ATIVIDADES CONCLUÍDAS</span>
+              <div class="kpi-value font-mono" style="color: #2563eb;">47 / 62</div>
+              <span class="kpi-subtext">75.8% progresso diário</span>
+            </div>
+
+            <div class="kpi-card" onclick="switchTab('itinerarios', event)" style="cursor: pointer;">
+              <span class="kpi-label">COBERTURA VARRIÇÃO</span>
+              <div class="kpi-value font-mono" style="color: #f59e0b;">78.5%</div>
+              <span class="kpi-subtext" style="color: #d97706;">Abaixo da meta urbana</span>
+            </div>
+
+            <div class="kpi-card" onclick="openModalOcorrenciasUrgentes()" style="cursor: pointer;">
+              <span class="kpi-label">OCORRÊNCIAS ABERTAS</span>
+              <div class="kpi-value font-mono" style="color: #ef4444;">6</div>
+              <span class="kpi-subtext" style="color: #ef4444;">Urgentes (Descarte Irregular)</span>
+            </div>
+
+            <div class="kpi-card" onclick="switchTab('indicadores', event)" style="cursor: pointer;">
+              <span class="kpi-label">PRODUTIVIDADE CAMPO</span>
+              <div class="kpi-value font-mono" style="color: #059669;">92%</div>
+              <span class="kpi-subtext">Excelente desempenho</span>
+            </div>
+          </div>
+
+          <!-- Figma 1:1 Dashboard Body: Left Column Table + Right Leaflet Map -->
+          <div class="split-workstation" style="height: 520px;">
+            <div class="table-container" style="flex: 1.4;">
+              <div style="padding: 12px 16px; background: #ffffff; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+                <strong style="font-size: 13px; color: #0f172a;">ATIVIDADE RECENTE EM CAMPO</strong>
+                <button class="btn btn-secondary btn-sm" onclick="verHistoricoCompleto()">Ver Histórico</button>
+              </div>
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>CÓDIGO</th>
+                    <th>TIPO</th>
+                    <th>LOCAL / ATIVIDADE</th>
+                    <th>EQUIPE / RESPONSÁVEL</th>
+                    <th>HORÁRIO</th>
+                    <th>SITUAÇÃO</th>
+                    <th>AÇÃO</th>
+                  </tr>
+                </thead>
+                <tbody id="visaoGeralAtividadesTable">
+                  <!-- Rendered via JS -->
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Leaflet Radar Map -->
+            <div style="flex: 1; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); overflow: hidden; display: flex; flex-direction: column; position: relative;">
+              <div style="padding: 12px 16px; background: var(--color-page); border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center;">
+                <strong style="font-size: 13px;">Radar de Cobertura de Varrição (GPS)</strong>
+                <span class="badge badge-success">9 Equipes Online</span>
+              </div>
+              <div id="visaoGeralLimpezaMap" style="flex: 1; background: #e2e8f0;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- SUB-PAGE 2: EQUIPES (RF-LIMP-01) -->
+        <!-- ========================================================================= -->
+        <div id="tab-equipes" class="tab-pane" style="display: none;">
           <div class="page-header">
             <div>
               <h1 class="page-title">Equipes de Limpeza Pública</h1>
-              <p class="page-subtitle">Cadastramento de equipes, composição de garis, encarregado responsável (RN001) e equipamentos.</p>
+              <p class="page-subtitle">Cadastramento de equipes, composição de garis, encarregado responsável (RN001) e veículos de apoio.</p>
             </div>
             <button class="btn btn-primary" onclick="openModalNovaEquipe()">
               <i data-lucide="plus" style="width: 16px;"></i>
@@ -245,310 +463,22 @@
             </button>
           </div>
 
-          <!-- 4 KPI Cards -->
-          <div class="kpi-row">
-            <div class="kpi-card">
-              <span class="kpi-label">EQUIPES ATIVAS</span>
-              <div class="kpi-value" id="kpiEquipesCount">18</div>
-              <span class="kpi-subtext">14 em operação · 4 em pausa</span>
-            </div>
-
-            <div class="kpi-card">
-              <span class="kpi-label">COLABORADORES</span>
-              <div class="kpi-value" id="kpiGarisCount">142</div>
-              <span class="kpi-subtext">Garis e auxiliares em campo</span>
-            </div>
-
-            <div class="kpi-card">
-              <span class="kpi-label">COBERTA HOJE</span>
-              <div class="kpi-value">84,2 km</div>
-              <span class="kpi-subtext" style="color: #059669;">68% do previsto no dia</span>
-            </div>
-
-            <div class="kpi-card">
-              <span class="kpi-label">ENCARREGADOS (RN001)</span>
-              <div class="kpi-value" id="kpiEncarregadosCount">18</div>
-              <span class="kpi-subtext">1 responsável por equipe</span>
-            </div>
-          </div>
-
-          <!-- Sticky Toolbar -->
-          <div class="toolbar-card">
-            <div style="display: flex; align-items: center; gap: 12px; flex: 1;">
-              <input type="text" class="search-input" id="searchEquipes" onkeyup="filterEquipesTable()" placeholder="Buscar por código, equipe, encarregado ou logradouro...">
-              <button class="btn btn-secondary" onclick="alert('Filtros Avançados: Selecione Serviço, Turno ou Região Urbana')">
-                <i data-lucide="filter" style="width: 14px;"></i>
-                <span>Filtros</span>
-              </button>
-              <span class="badge badge-neutral">Todos os serviços</span>
-              <span class="badge badge-neutral">Turno: Manhã</span>
-            </div>
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <button class="btn btn-secondary btn-sm" onclick="exportCSV('equipes')">Exportar CSV</button>
-            </div>
-          </div>
-
-          <!-- Split Workstation (Table 840px + Drawer 380px) -->
-          <div class="split-workstation">
-            <div class="table-container">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>CÓDIGO</th>
-                    <th>NOME DA EQUIPE</th>
-                    <th>ENCARREGADO (RN001)</th>
-                    <th>SERVIÇO PREDOMINANTE</th>
-                    <th>INTEGRANTES</th>
-                    <th>TURNO</th>
-                    <th>SITUAÇÃO</th>
-                  </tr>
-                </thead>
-                <tbody id="equipesFullTable">
-                  <!-- Dynamically Rendered -->
-                </tbody>
-              </table>
-            </div>
-
-            <!-- Detail Drawer -->
-            <div class="detail-drawer">
-              <div class="drawer-header">
-                <div class="drawer-avatar" id="eqDrawerAvatar">EQU</div>
-                <div>
-                  <h3 style="font-size: 15px; font-weight: 700;" id="eqDrawerNome">EQU-014 · Centro A</h3>
-                  <span class="badge badge-success" id="eqDrawerBadge">Em Operação</span>
-                </div>
-              </div>
-
-              <div>
-                <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--color-text-muted); margin-bottom: 6px;">ENCARREGADO RESPONSÁVEL (RN001)</div>
-                <div style="background: var(--color-page); padding: 10px; border-radius: var(--radius-md); border: 1px solid var(--color-border);">
-                  <strong style="display: block; font-size: 13px;" id="eqDrawerEncarregado">José Carlos Silva</strong>
-                  <span style="font-size: 11px; color: var(--color-text-muted);" id="eqDrawerMatricula">Matrícula: E-9912 • Tel: (67) 99812-4410</span>
-                </div>
-              </div>
-
-              <div>
-                <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--color-text-muted); margin-bottom: 6px;">COMPOSIÇÃO DE GARIS</div>
-                <ul style="list-style: none; display: flex; flex-direction: column; gap: 6px; font-size: 12px;" id="eqDrawerGaris">
-                  <!-- Rendered via JS -->
-                </ul>
-              </div>
-
-              <div>
-                <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--color-text-muted); margin-bottom: 6px;">EQUIPAMENTOS VINCULADOS</div>
-                <div style="display: flex; gap: 6px; flex-wrap: wrap;" id="eqDrawerEquipamentos">
-                  <span class="badge badge-neutral">2 Carrinhos Varrição</span>
-                  <span class="badge badge-neutral">1 Roçadeira Stihl</span>
-                </div>
-              </div>
-
-              <div style="margin-top: auto; padding-top: 16px; border-top: 1px solid var(--color-border); display: flex; gap: 10px;">
-                <button class="btn btn-secondary" style="flex: 1;" onclick="alert('Permissão de alteração de integrantes acionada!')">Editar Composição</button>
-                <button class="btn btn-primary" onclick="openMobileSimForTask('VAR-014')">Abrir no App Campo</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ========================================================================= -->
-        <!-- TAB 2: ITINERÁRIOS & CHECKPOINTS (RF-LIMP-02) -->
-        <!-- ========================================================================= -->
-        <div id="tab-itinerarios" class="tab-pane" style="display: none;">
-          <div class="page-header">
-            <div>
-              <h1 class="page-title">Itinerários & Checkpoints Mapeados</h1>
-              <p class="page-subtitle">Planejamento dos trajetos urbanos e ordenação sequencial de checkpoints em logradouros.</p>
-            </div>
-            <button class="btn btn-primary" onclick="alert('Criar novo itinerário no mapa!')">
-              <i data-lucide="map" style="width: 16px;"></i>
-              <span>Novo Itinerário</span>
-            </button>
-          </div>
-
-          <div class="kpi-row">
-            <div class="kpi-card">
-              <span class="kpi-label">ITINERÁRIOS CADASTRADOS</span>
-              <div class="kpi-value">42</div>
-              <span class="kpi-subtext">38 ativos · 4 em rascunho</span>
-            </div>
-            <div class="kpi-card">
-              <span class="kpi-label">EXTENSÃO TOTAL</span>
-              <div class="kpi-value">184,5 km</div>
-              <span class="kpi-subtext">Malha viária coberta</span>
-            </div>
-            <div class="kpi-card">
-              <span class="kpi-label">CHECKPOINTS MAPEADOS</span>
-              <div class="kpi-value">1.240</div>
-              <span class="kpi-subtext">Pontos georreferenciados</span>
-            </div>
-            <div class="kpi-card">
-              <span class="kpi-label">MÉDIA POR ITINERÁRIO</span>
-              <div class="kpi-value">29</div>
-              <span class="kpi-subtext">Checkpoints / trajeto</span>
-            </div>
-          </div>
-
-          <div class="split-workstation" style="height: 520px;">
-            <div class="table-container" style="flex: 1;">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>CÓDIGO</th>
-                    <th>NOME DO ITINERÁRIO</th>
-                    <th>LOGRADOURO PRINCIPAL</th>
-                    <th>EXTENSÃO</th>
-                    <th>CHECKPOINTS</th>
-                    <th>SITUAÇÃO</th>
-                  </tr>
-                </thead>
-                <tbody id="itinerariosTable">
-                  <!-- Rendered via JS -->
-                </tbody>
-              </table>
-            </div>
-
-            <!-- Right Interactive Map Panel -->
-            <div style="width: 480px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); overflow: hidden; display: flex; flex-direction: column;">
-              <div style="padding: 12px 16px; background: var(--color-page); border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center;">
-                <strong style="font-size: 13px;" id="mapItinerarioTitle">Itinerário VAR-014 · Eixo Afonso Pena</strong>
-                <span class="badge badge-success">24 Checkpoints</span>
-              </div>
-              <div id="itinerarioMap" style="flex: 1; background: #e2e8f0;"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ========================================================================= -->
-        <!-- TAB 3: PROGRAMAÇÃO SEMANAL (RF-LIMP-08 PROPOSTO) -->
-        <!-- ========================================================================= -->
-        <div id="tab-programacao" class="tab-pane" style="display: none;">
-          <div class="page-header">
-            <div>
-              <h1 class="page-title">Programação Semanal de Serviços (RF-LIMP-08)</h1>
-              <p class="page-subtitle">Escala prévia que conecta equipes, itinerários, datas e turnos operacionais para alimentar o App de Campo.</p>
-            </div>
-            <div style="display: flex; gap: 8px;">
-              <button class="btn btn-secondary" onclick="alert('Replicar padrão da semana anterior!')">Replicar Padrão</button>
-              <button class="btn btn-primary" onclick="alert('Agendar nova escala!')">Nova Programação</button>
-            </div>
-          </div>
-
-          <div class="kpi-row">
-            <div class="kpi-card">
-              <span class="kpi-label">PROGRAMADAS (SEMANA)</span>
-              <div class="kpi-value" style="color: #10b981;">128</div>
-              <span class="kpi-subtext">Atividades nos próximos 7 dias</span>
-            </div>
-            <div class="kpi-card">
-              <span class="kpi-label">EQUIPES ESCALADAS</span>
-              <div class="kpi-value">18 / 18</div>
-              <span class="kpi-subtext">100% da capacidade alocada</span>
-            </div>
-            <div class="kpi-card">
-              <span class="kpi-label">COBERTURA PREVISTA</span>
-              <div class="kpi-value">312 km</div>
-              <span class="kpi-subtext">Programada nesta semana</span>
-            </div>
-            <div class="kpi-card">
-              <span class="kpi-label">CONFLITOS DE TURNO</span>
-              <div class="kpi-value" style="color: #059669;">0</div>
-              <span class="kpi-subtext">Sem sobreposição de equipe</span>
-            </div>
-          </div>
-
-          <!-- Schedule Calendar Matrix -->
-          <div style="background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 16px; overflow-x: auto;">
-            <div style="display: grid; grid-template-columns: 200px repeat(7, 1fr); gap: 8px; min-width: 1000px; text-align: center; font-weight: 700; font-size: 12px; margin-bottom: 12px;">
-              <div style="text-align: left; color: var(--color-text-muted);">EQUIPE / TURNO</div>
-              <div style="background: var(--color-page); padding: 8px; border-radius: 4px;">SEG 24/08</div>
-              <div style="background: var(--color-page); padding: 8px; border-radius: 4px;">TER 25/08</div>
-              <div style="background: var(--color-page); padding: 8px; border-radius: 4px;">QUA 26/08</div>
-              <div style="background: var(--color-page); padding: 8px; border-radius: 4px;">QUI 27/08</div>
-              <div style="background: var(--color-page); padding: 8px; border-radius: 4px;">SEX 28/08</div>
-              <div style="background: var(--color-page); padding: 8px; border-radius: 4px;">SÁB 29/08</div>
-              <div style="background: var(--color-page); padding: 8px; border-radius: 4px;">DOM 30/08</div>
-            </div>
-
-            <!-- Row 1 -->
-            <div style="display: grid; grid-template-columns: 200px repeat(7, 1fr); gap: 8px; min-width: 1000px; margin-bottom: 8px; align-items: center;">
-              <div style="font-size: 12px;">
-                <strong>EQU-014 Centro A</strong><br>
-                <span style="font-size: 10px; color: var(--color-text-muted);">Manhã (07h-15h)</span>
-              </div>
-              <div style="background: #d1fae5; border: 1px solid #10b981; padding: 8px; border-radius: 6px; font-size: 11px; color: #065f46;">
-                <strong>VAR-014</strong><br>Centro A (24 CPs)
-              </div>
-              <div style="background: #d1fae5; border: 1px solid #10b981; padding: 8px; border-radius: 6px; font-size: 11px; color: #065f46;">
-                <strong>VAR-014</strong><br>Centro A (24 CPs)
-              </div>
-              <div style="background: #d1fae5; border: 1px solid #10b981; padding: 8px; border-radius: 6px; font-size: 11px; color: #065f46;">
-                <strong>VAR-014</strong><br>Centro A (24 CPs)
-              </div>
-              <div style="background: #d1fae5; border: 1px solid #10b981; padding: 8px; border-radius: 6px; font-size: 11px; color: #065f46;">
-                <strong>VAR-014</strong><br>Centro A (24 CPs)
-              </div>
-              <div style="background: #d1fae5; border: 1px solid #10b981; padding: 8px; border-radius: 6px; font-size: 11px; color: #065f46;">
-                <strong>VAR-014</strong><br>Centro A (24 CPs)
-              </div>
-              <div style="background: #f1f5f9; border: 1px dashed #cbd5e1; padding: 8px; border-radius: 6px; font-size: 11px; color: #94a3b8;">
-                Folga
-              </div>
-              <div style="background: #f1f5f9; border: 1px dashed #cbd5e1; padding: 8px; border-radius: 6px; font-size: 11px; color: #94a3b8;">
-                Folga
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ========================================================================= -->
-        <!-- TAB 4: ATIVIDADES AO VIVO (RF-LIMP-03) -->
-        <!-- ========================================================================= -->
-        <div id="tab-atividades" class="tab-pane" style="display: none;">
-          <div class="page-header">
-            <div>
-              <h1 class="page-title">Acompanhamento de Atividades ao Vivo</h1>
-              <p class="page-subtitle">Monitoramento de status de execução, desvios e intervenção do supervisor (RN009 Escape).</p>
-            </div>
-          </div>
-
-          <div class="kpi-row">
-            <div class="kpi-card">
-              <span class="kpi-label">EM EXECUÇÃO</span>
-              <div class="kpi-value" style="color: #3b82f6;">14</div>
-              <span class="kpi-subtext">Equipes em campo agora</span>
-            </div>
-            <div class="kpi-card">
-              <span class="kpi-label">PAUSADAS</span>
-              <div class="kpi-value" style="color: #f59e0b;">2</div>
-              <span class="kpi-subtext">Almoço / Parada técnica</span>
-            </div>
-            <div class="kpi-card">
-              <span class="kpi-label">CONCLUÍDAS HOJE</span>
-              <div class="kpi-value" style="color: #10b981;">8</div>
-              <span class="kpi-subtext">Com comprovante lacrado</span>
-            </div>
-            <div class="kpi-card">
-              <span class="kpi-label">NÃO REALIZADAS</span>
-              <div class="kpi-value" style="color: #ef4444;">1</div>
-              <span class="kpi-subtext">Aplicado na virada do dia</span>
-            </div>
-          </div>
-
           <div class="table-container">
             <table class="data-table">
               <thead>
                 <tr>
-                  <th>CÓDIGO ATIVIDADE</th>
-                  <th>EQUIPE</th>
-                  <th>ITINERÁRIO</th>
-                  <th>INÍCIO</th>
-                  <th>CHECKPOINTS</th>
-                  <th>PROGRESSO</th>
-                  <th>STATUS</th>
-                  <th>INTERVENÇÃO SUPERVISOR</th>
+                  <th style="width: 4px;"></th>
+                  <th>CÓDIGO EQUIPE</th>
+                  <th>TIPO DE SERVIÇO</th>
+                  <th>ENCARREGADO (RN001)</th>
+                  <th>QTD GARIS</th>
+                  <th>SETOR DE ATUAÇÃO</th>
+                  <th>VEÍCULO APOIO</th>
+                  <th>STATUS PONTO</th>
+                  <th>AÇÃO</th>
                 </tr>
               </thead>
-              <tbody id="atividadesTable">
+              <tbody id="equipesFullTable">
                 <!-- Rendered via JS -->
               </tbody>
             </table>
@@ -556,115 +486,106 @@
         </div>
 
         <!-- ========================================================================= -->
-        <!-- TAB 5: INDICADORES & COBERTURA (RF-LIMP-07) -->
+        <!-- SUB-PAGE 3: ITINERÁRIOS -->
         <!-- ========================================================================= -->
-        <div id="tab-indicadores" class="tab-pane" style="display: none;">
+        <div id="tab-itinerarios" class="tab-pane" style="display: none;">
           <div class="page-header">
             <div>
-              <h1 class="page-title">Indicadores & Cobertura de Limpeza</h1>
-              <p class="page-subtitle">Desempenho operacional por setor urbano, cumprimento de SLA e desvios.</p>
+              <h1 class="page-title">Itinerários de Varrição & Capina</h1>
+              <p class="page-subtitle">Mapeamento viário de sarjetas, meio-fio, praças e parques com metas de extensão em km.</p>
             </div>
+            <button class="btn btn-primary" onclick="openModalNovoItinerario()">
+              <i data-lucide="plus" style="width: 16px;"></i>
+              <span>Novo Itinerário</span>
+            </button>
           </div>
-
-          <div class="kpi-row">
-            <div class="kpi-card">
-              <span class="kpi-label">COBERTURA CIDADE</span>
-              <div class="kpi-value" style="color: #10b981;">94.2%</div>
-              <span class="kpi-subtext">Dos setores limpos no prazo</span>
-            </div>
-            <div class="kpi-card">
-              <span class="kpi-label">KM VARRIDOS (MÊS)</span>
-              <div class="kpi-value">2.418 km</div>
-              <span class="kpi-subtext">Malha viária apurada</span>
-            </div>
-            <div class="kpi-card">
-              <span class="kpi-label">DESVIOS DE RAIO GPS</span>
-              <div class="kpi-value" style="color: #f59e0b;">3.1%</div>
-              <span class="kpi-subtext">Checkpoints >180m do ponto</span>
-            </div>
-            <div class="kpi-card">
-              <span class="kpi-label">EVIDÊNCIAS FOTOGRÁFICAS</span>
-              <div class="kpi-value">6.840</div>
-              <span class="kpi-subtext">Fotos imutáveis armazenadas</span>
-            </div>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr><th>CÓDIGO</th><th>NOME DO ITINERÁRIO</th><th>REGIONAL</th><th>EXTENSÃO (KM)</th><th>FREQUÊNCIA</th><th>MÉTODO</th><th>AÇÃO</th></tr>
+              </thead>
+              <tbody id="itinerariosTable">
+                <!-- Rendered via JS -->
+              </tbody>
+            </table>
           </div>
         </div>
 
         <!-- ========================================================================= -->
-        <!-- TAB 6: PRESTAÇÃO DE CONTAS CONSOLIDADA (RF-LIMP-09 PROPOSTO) -->
+        <!-- SUB-PAGE 4: PROGRAMAÇÃO -->
         <!-- ========================================================================= -->
-        <div id="tab-prestacao" class="tab-pane" style="display: none;">
+        <div id="tab-programacao" class="tab-pane" style="display: none;">
           <div class="page-header">
-            <div>
-              <h1 class="page-title">Prestação de Contas (RF-LIMP-09)</h1>
-              <p class="page-subtitle">Consolidação oficial emitida pelo Gestor ao final do período para órgãos de controle (TCE / Câmara).</p>
-            </div>
-            <button class="btn btn-primary" onclick="openModalRelatorioEmitido()">
-              <i data-lucide="file-check" style="width: 16px;"></i>
-              <span>Emitir Relatório Oficial PDF</span>
+            <div><h1 class="page-title">Programação Semanal de Limpeza</h1></div>
+            <button class="btn btn-primary" onclick="openModalAgendarMutirao()">
+              <i data-lucide="calendar-plus" style="width: 16px;"></i>
+              <span>Agendar Mutirão</span>
             </button>
           </div>
-
-          <div class="toolbar-card">
-            <div style="display: flex; gap: 12px; align-items: center; flex: 1;">
-              <label style="font-weight: 600;">Período:</label>
-              <select style="padding: 6px 12px; border-radius: 6px; border: 1px solid #cbd5e1;">
-                <option>Julho / 2026 (Fechado)</option>
-                <option>Agosto / 2026 (Em Aberto)</option>
-              </select>
-              <label style="font-weight: 600;">Setor:</label>
-              <select style="padding: 6px 12px; border-radius: 6px; border: 1px solid #cbd5e1;">
-                <option>Todos os Setores Urbanos</option>
-                <option>Setor 01 - Centro</option>
-                <option>Setor 02 - Afonso Pena</option>
-              </select>
-            </div>
-            <div style="display: flex; gap: 8px;">
-              <button class="btn btn-secondary btn-sm" onclick="alert('Exportando em Excel XLS...')">Exportar Excel</button>
-              <button class="btn btn-secondary btn-sm" onclick="alert('Exportando em CSV...')">Exportar CSV</button>
-            </div>
-          </div>
-
-          <div class="table-container" style="margin-top: 16px;">
+          <div class="table-container">
             <table class="data-table">
-              <thead>
-                <tr>
-                  <th>SETOR URBANO</th>
-                  <th>ATIVIDADES EXECUTADAS</th>
-                  <th>EXTENSÃO LIMPA (KM)</th>
-                  <th>HORAS-EQUIPE</th>
-                  <th>ADERÊNCIA CHECKPOINTS</th>
-                  <th>OCORRÊNCIAS</th>
-                  <th>NÃO REALIZADAS</th>
-                  <th>DECLARAÇÃO DE RASTREABILIDADE</th>
-                  <th>AÇÃO</th>
-                </tr>
-              </thead>
+              <thead><tr><th>DIA / DATA</th><th>REGIONAL</th><th>TIPO ATIVIDADE</th><th>EQUIPE ESCALADA</th><th>STATUS</th><th>AÇÕES</th></tr></thead>
+              <tbody id="programacaoLimpezaTable">
+                <tr><td>25/08/2026 (Terça)</td><td>Anhanduízinho</td><td>Mutirão Capina & Entulho</td><td>Equipe Gama 2 + Delta 4</td><td><span class="badge badge-success">Escala Confirmada</span></td><td><button class="btn btn-secondary btn-sm" onclick="alert('Escala alterada!')">Editar Escala</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- SUB-PAGE 5: ATIVIDADES AO VIVO -->
+        <!-- ========================================================================= -->
+        <div id="tab-atividades" class="tab-pane" style="display: none;">
+          <div class="page-header">
+            <div><h1 class="page-title">Atividades em Execução ao Vivo</h1></div>
+            <button class="btn btn-secondary" onclick="openModalChuvaRN009()">
+              <i data-lucide="cloud-rain" style="width: 16px;"></i>
+              <span>⚠️ Reportar Chuva (RN009)</span>
+            </button>
+          </div>
+          <div class="table-container">
+            <table class="data-table">
+              <thead><tr><th>ORDEM DE SERVIÇO</th><th>TIPO</th><th>LOCAL</th><th>EQUIPE</th><th>INÍCIO</th><th>FOTOS ANTES/DEPOIS</th><th>SITUAÇÃO</th><th>AÇÃO</th></tr></thead>
               <tbody>
                 <tr>
-                  <td><strong>Setor 01 - Centro</strong></td>
-                  <td class="mono">214 atividades</td>
-                  <td class="mono">842,0 km</td>
-                  <td class="mono">920h</td>
-                  <td class="mono" style="color: #059669;">98,4%</td>
-                  <td class="mono">12 reg.</td>
-                  <td class="mono" style="color: #dc2626;">2 atividades</td>
-                  <td><span class="badge badge-success">1.820 fotos (Retenção 5 anos)</span></td>
-                  <td><button class="btn btn-secondary btn-sm" onclick="openModalRelatorioEmitido()">Ver Dossiê</button></td>
-                </tr>
-                <tr>
-                  <td><strong>Setor 02 - Afonso Pena</strong></td>
-                  <td class="mono">180 atividades</td>
-                  <td class="mono">620,5 km</td>
-                  <td class="mono">740h</td>
-                  <td class="mono" style="color: #059669;">96,8%</td>
-                  <td class="mono">8 reg.</td>
-                  <td class="mono" style="color: #dc2626;">1 atividade</td>
-                  <td><span class="badge badge-success">1.450 fotos (Retenção 5 anos)</span></td>
-                  <td><button class="btn btn-secondary btn-sm" onclick="openModalRelatorioEmitido()">Ver Dossiê</button></td>
+                  <td class="mono">OS-LMP-8819</td>
+                  <td>Varrição Manual</td>
+                  <td>Rua 14 de Julho</td>
+                  <td>Equipe Alpha 1</td>
+                  <td class="mono">07:15</td>
+                  <td><button class="btn btn-secondary btn-sm" onclick="openModalFotosAntesDepois('OS-LMP-8819')">Ver 2 Fotos</button></td>
+                  <td><span class="badge badge-success">Em Andamento</span></td>
+                  <td><button class="btn btn-primary btn-sm" onclick="alert('OS Concluída no CCO!')">Finalizar OS</button></td>
                 </tr>
               </tbody>
             </table>
+          </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- SUB-PAGE 6: INDICADORES & SLA -->
+        <!-- ========================================================================= -->
+        <div id="tab-indicadores" class="tab-pane" style="display: none;">
+          <div class="page-header">
+            <div><h1 class="page-title">Indicadores de Desempenho & SLA</h1></div>
+            <button class="btn btn-secondary" onclick="openModalDossieLimpeza()">Exportar Relatório SLA</button>
+          </div>
+          <div class="kpi-row">
+            <div class="kpi-card"><span class="kpi-label">KMS VARRIDOS/DIA</span><div class="kpi-value font-mono">148 km</div></div>
+            <div class="kpi-card"><span class="kpi-label">SLA DE ATENDIMENTO SAC</span><div class="kpi-value font-mono" style="color: #10b981;">96,4%</div></div>
+          </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- SUB-PAGE 7: RELATÓRIOS & DOSSIÊ -->
+        <!-- ========================================================================= -->
+        <div id="tab-relatorios" class="tab-pane" style="display: none;">
+          <div class="page-header">
+            <div><h1 class="page-title">Relatórios & Dossiê de Limpeza Urbana</h1></div>
+            <button class="btn btn-primary" onclick="openModalDossieLimpeza()">
+              <i data-lucide="file-check" style="width: 16px;"></i>
+              <span>Emitir Dossiê Limpeza PDF</span>
+            </button>
           </div>
         </div>
 
@@ -674,197 +595,159 @@
   </div>
 
   <!-- ========================================================================= -->
-  <!-- MODAL 1: CADASTRAR NOVA EQUIPE (RF-LIMP-01 FORM OVERLAY) -->
+  <!-- MODAIS INTERATIVOS FUNCIONAIS -->
   <!-- ========================================================================= -->
+
+  <!-- MODAL 1: NOVA EQUIPE -->
   <div class="modal-overlay" id="modalNovaEquipe">
     <div class="modal-card">
       <div class="modal-header">
-        <div>
-          <h2 style="font-size: 16px; font-weight: 700;">Cadastrar Nova Equipe de Limpeza</h2>
-          <span style="font-size: 11px; color: var(--color-text-muted);">RF-LIMP-01 · Atribuição obrigatória de 1 Encarregado (RN001)</span>
-        </div>
-        <button style="border: none; background: transparent; cursor: pointer;" onclick="closeModalNovaEquipe()">
-          <i data-lucide="x" style="width: 20px;"></i>
-        </button>
+        <div><h2 style="font-size: 16px; font-weight: 700;">Cadastrar Nova Equipe de Limpeza</h2><span style="font-size: 11px; color: var(--color-text-muted);">RF-LIMP-01 · Encarregado Responsável Obrigatório (RN001)</span></div>
+        <button style="border: none; background: transparent; cursor: pointer;" onclick="closeModalNovaEquipe()"><i data-lucide="x" style="width: 20px;"></i></button>
       </div>
-      <form id="formNovaEquipe" onsubmit="salvarNovaEquipe(event)">
+      <form onsubmit="salvarNovaEquipe(event)">
         <div class="modal-body">
           <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Código da Equipe</label>
-              <input type="text" class="form-control font-mono" id="inpEqpCodigo" value="EQU-017" required readonly>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Nome Identificador da Equipe</label>
-              <input type="text" class="form-control" id="inpEqpNome" placeholder="Ex: Equipe Capina Afonso Pena Sul" required>
-            </div>
+            <div class="form-group"><label class="form-label">Código da Equipe</label><input type="text" class="form-control font-mono" id="inpEqpCod" value="EQP-DELTA-04" readonly></div>
+            <div class="form-group"><label class="form-label">Tipo de Serviço</label><select class="form-control" id="inpEqpTipo"><option value="Varrição Manual">Varrição Manual</option><option value="Capina & Roçada">Capina & Roçada</option></select></div>
           </div>
-
-          <div class="form-group">
-            <label class="form-label">Encarregado Responsável (Obrigatório RN001)</label>
-            <select class="form-control" id="inpEqpEncarregado" required>
-              <option value="">Selecione um Encarregado habilitado...</option>
-              <option value="Marcos Vinícius (E-8810)">Marcos Vinícius — Matrícula E-8810 (CNH Cat B)</option>
-              <option value="Roberto Ramos (E-8814)">Roberto Ramos — Matrícula E-8814 (CNH Cat D)</option>
-              <option value="Luciana Bezerra (E-8902)">Luciana Bezerra — Matrícula E-8902 (CNH Cat B)</option>
-            </select>
-          </div>
-
           <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Serviço Predominante (RN003)</label>
-              <select class="form-control" id="inpEqpServico" required>
-                <option value="Varrição Manual">Varrição Manual</option>
-                <option value="Capina/Roçada">Capina e Roçada</option>
-                <option value="Limpeza de Bueiros">Limpeza de Bueiros</option>
-                <option value="Lavagem de Logradouros">Lavagem de Logradouros</option>
-                <option value="Poda de Árvores">Poda de Árvores</option>
-                <option value="Multisserviço">Multisserviço</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Turno de Operação</label>
-              <select class="form-control" id="inpEqpTurno" required>
-                <option value="Manhã">Manhã (07:00 às 15:00)</option>
-                <option value="Tarde">Tarde (13:00 às 21:00)</option>
-                <option value="Noite">Noite (22:00 às 05:00)</option>
-              </select>
-            </div>
+            <div class="form-group"><label class="form-label">Encarregado Responsável (RN001)</label><input type="text" class="form-control" id="inpEqpEncarregado" placeholder="Ex: Carlos Eduardo Silva" required></div>
+            <div class="form-group"><label class="form-label">Qtd Garis Alocados</label><input type="number" class="form-control font-mono" id="inpEqpGaris" value="6" required></div>
           </div>
-
-          <div class="form-group">
-            <label class="form-label">Integrantes da Equipe (Selecione os Garis)</label>
-            <div style="background: var(--color-page); padding: 12px; border-radius: var(--radius-md); border: 1px solid var(--color-border); display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 12px;">
-              <label><input type="checkbox" checked> Carlos Eduardo Lima</label>
-              <label><input type="checkbox" checked> Benedito Oliveira</label>
-              <label><input type="checkbox" checked> Antônio Marcos Santos</label>
-              <label><input type="checkbox" checked> Fernando Ribeiro</label>
-              <label><input type="checkbox" checked> Gabriel Duarte</label>
-              <label><input type="checkbox" checked> Paulo Henrique Costa</label>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Equipamentos Vinculados</label>
-            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-              <span class="badge badge-neutral"><input type="checkbox" checked> 2 Carrinhos Varrição</span>
-              <span class="badge badge-neutral"><input type="checkbox" checked> 1 Roçadeira Stihl</span>
-              <span class="badge badge-neutral"><input type="checkbox"> 1 Soprador de Folhas</span>
-            </div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Setor de Atuação</label><input type="text" class="form-control" id="inpEqpSetor" value="Região Anhanduízinho" required></div>
+            <div class="form-group"><label class="form-label">Veículo de Apoio</label><input type="text" class="form-control font-mono" id="inpEqpVeiculo" value="VW Delivery QAB-4412" required></div>
           </div>
         </div>
-
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" onclick="closeModalNovaEquipe()">Cancelar</button>
-          <button type="submit" class="btn btn-primary">
-            <i data-lucide="check" style="width: 16px;"></i>
-            <span>Salvar e Ativar Equipe</span>
-          </button>
+          <button type="submit" class="btn btn-primary">Salvar Equipe</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- ========================================================================= -->
-  <!-- MODAL 2: VISUALIZAÇÃO DO RELATÓRIO OFICIAL EMITIDO (RF-LIMP-09 DOSSIÊ) -->
-  <!-- ========================================================================= -->
-  <div class="modal-overlay" id="modalRelatorioEmitido">
-    <div class="modal-card" style="max-width: 840px;">
+  <!-- MODAL 2: NOVA ATIVIDADE / ORDEM DE SERVIÇO -->
+  <div class="modal-overlay" id="modalNovaAtividade">
+    <div class="modal-card">
       <div class="modal-header">
-        <div>
-          <h2 style="font-size: 16px; font-weight: 700;">Dossiê Oficial de Prestação de Contas — Limpeza Urbana</h2>
-          <span style="font-size: 11px; color: var(--color-text-muted);">RF-LIMP-09 · Documento de Controle Interno e Externo (TCE / IMASUL)</span>
+        <div><h2 style="font-size: 16px; font-weight: 700;">Lançar Nova Ordem de Serviço de Limpeza</h2></div>
+        <button style="border: none; background: transparent; cursor: pointer;" onclick="closeModalNovaAtividade()"><i data-lucide="x" style="width: 20px;"></i></button>
+      </div>
+      <form onsubmit="salvarNovaAtividade(event)">
+        <div class="modal-body">
+          <div class="form-group"><label class="form-label">Tipo de Atividade</label><select class="form-control" id="inpAtivTipo"><option value="Varrição Manual">Varrição Manual</option><option value="Capina & Roçada">Capina & Roçada</option><option value="Coleta de Entulho">Coleta de Entulho</option><option value="Pintura de Meio-Fio">Pintura de Meio-Fio</option></select></div>
+          <div class="form-group"><label class="form-label">Local / Logradouro Público</label><input type="text" class="form-control" id="inpAtivLocal" placeholder="Ex: Av. Afonso Pena (Bairro Amambaí)" required></div>
+          <div class="form-group"><label class="form-label">Equipe Designada</label><select class="form-control" id="inpAtivEquipe"><option value="Equipe Alpha 1">Equipe Alpha 1 (Marcos Silva)</option><option value="Equipe Beta 3">Equipe Beta 3 (Luciano Mendes)</option></select></div>
         </div>
-        <button style="border: none; background: transparent; cursor: pointer;" onclick="closeModalRelatorioEmitido()">
-          <i data-lucide="x" style="width: 20px;"></i>
-        </button>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModalNovaAtividade()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Lançar Ordem de Serviço</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 3: NOVO ITINERÁRIO -->
+  <div class="modal-overlay" id="modalNovoItinerario">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div><h2 style="font-size: 16px; font-weight: 700;">Cadastrar Novo Itinerário de Varrição</h2></div>
+        <button style="border: none; background: transparent; cursor: pointer;" onclick="closeModalNovoItinerario()"><i data-lucide="x" style="width: 20px;"></i></button>
+      </div>
+      <form onsubmit="salvarNovoItinerario(event)">
+        <div class="modal-body">
+          <div class="form-group"><label class="form-label">Nome do Itinerário</label><input type="text" class="form-control" id="inpItinNome" placeholder="Ex: Av. Duque de Caxias" required></div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Regional</label><input type="text" class="form-control" id="inpItinRegional" value="Imbirussú" required></div>
+            <div class="form-group"><label class="form-label">Extensão (km)</label><input type="number" class="form-control font-mono" id="inpItinExt" value="12.5" step="0.1" required></div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModalNovoItinerario()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Salvar Itinerário</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 4: AGENDAR MUTIRÃO -->
+  <div class="modal-overlay" id="modalAgendarMutirao">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div><h2 style="font-size: 16px; font-weight: 700;">Agendar Mutirão de Limpeza Urbana</h2></div>
+        <button style="border: none; background: transparent; cursor: pointer;" onclick="closeModalAgendarMutirao()"><i data-lucide="x" style="width: 20px;"></i></button>
+      </div>
+      <form onsubmit="salvarAgendarMutirao(event)">
+        <div class="modal-body">
+          <div class="form-group"><label class="form-label">Bairro / Regional do Mutirão</label><input type="text" class="form-control" id="inpMutiraoBairro" value="Bairro Moreninhas III" required></div>
+          <div class="form-group"><label class="form-label">Data Agendada</label><input type="date" class="form-control" id="inpMutiraoData" value="2026-08-28" required></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModalAgendarMutirao()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Publicar Mutirão</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 5: FOTOS ANTES E DEPOIS -->
+  <div class="modal-overlay" id="modalFotosAntesDepois">
+    <div class="modal-card" style="max-width: 720px;">
+      <div class="modal-header">
+        <div><h2 style="font-size: 16px; font-weight: 700;">Evidências Fotográficas — Antes e Depois</h2><span style="font-size: 11px; color: var(--color-text-muted);" id="txtFotosOsCode">OS-LMP-8819</span></div>
+        <button style="border: none; background: transparent; cursor: pointer;" onclick="closeModalFotosAntesDepois()"><i data-lucide="x" style="width: 20px;"></i></button>
       </div>
       <div class="modal-body">
-        <div class="report-paper">
-          
-          <div class="report-header-banner">
-            <div>
-              <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #64748b;">PREFEITURA MUNICIPAL DE CAMPO GRANDE / MS</div>
-              <h2 style="font-size: 18px; font-weight: 800; color: #0f172a;">SECRETARIA MUNICIPAL DE INFRAESTRUTURA E SERVIÇOS</h2>
-              <span style="font-size: 12px; color: #475569;">Relatório Consolidado de Prestação de Contas · Módulo Limpeza Urbana</span>
-            </div>
-            <div style="text-align: right;" class="font-mono">
-              <span class="badge badge-success">SISTEMA OFICIAL VERIFICADO</span><br>
-              <span style="font-size: 10px; color: #64748b;">Emissão: 24/08/2026 18:15</span>
-            </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div style="border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden; background: #f8fafc;">
+            <div style="background: #ef4444; color: white; padding: 6px 12px; font-weight: 700; font-size: 11px;">📷 ANTES DA LIMPEZA (07:15)</div>
+            <div style="padding: 40px 20px; text-align: center; color: #64748b; font-size: 13px;">[ Foto Georreferenciada de Lixo Irregular / Capina ]</div>
           </div>
-
-          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 20px; font-size: 12px; background: #f8fafc; padding: 12px; border-radius: 6px; border: 1px solid #e2e8f0;">
-            <div><strong>Período Apurado:</strong><br>Julho / 2026</div>
-            <div><strong>Recorte Administrativo:</strong><br>Setor 01 - Centro (Geral)</div>
-            <div><strong>Hash SHA-256 Imutável:</strong><br><span class="font-mono" style="font-size: 10px; color: #2563eb;">8f9a2b4c1e7d9910a3...</span></div>
+          <div style="border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden; background: #f8fafc;">
+            <div style="background: #10b981; color: white; padding: 6px 12px; font-weight: 700; font-size: 11px;">📷 DEPOIS DA LIMPEZA (10:30)</div>
+            <div style="padding: 40px 20px; text-align: center; color: #059669; font-size: 13px;">[ Foto Georreferenciada Conforme - Meio Fio Limpo ]</div>
           </div>
-
-          <h3 style="font-size: 14px; font-weight: 700; margin-bottom: 8px;">1. RESUMO EXECUTIVO DE EXECUÇÃO</h3>
-          <table style="width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 20px;">
-            <thead>
-              <tr style="background: #f1f5f9; text-align: left;">
-                <th style="padding: 8px; border: 1px solid #cbd5e1;">INDICADOR</th>
-                <th style="padding: 8px; border: 1px solid #cbd5e1;">VALOR APURADO</th>
-                <th style="padding: 8px; border: 1px solid #cbd5e1;">META CONTRATUAL</th>
-                <th style="padding: 8px; border: 1px solid #cbd5e1;">SITUAÇÃO</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td style="padding: 8px; border: 1px solid #cbd5e1;">Atividades Programadas vs. Executadas</td>
-                <td style="padding: 8px; border: 1px solid #cbd5e1;" class="font-mono">216 / 214 executadas</td>
-                <td style="padding: 8px; border: 1px solid #cbd5e1;" class="font-mono">216 atividades</td>
-                <td style="padding: 8px; border: 1px solid #cbd5e1;"><span class="badge badge-success">99.0% Cumprido</span></td>
-              </tr>
-              <tr>
-                <td style="padding: 8px; border: 1px solid #cbd5e1;">Extensão Total Limpa (Varrição/Capina)</td>
-                <td style="padding: 8px; border: 1px solid #cbd5e1;" class="font-mono">842,0 km</td>
-                <td style="padding: 8px; border: 1px solid #cbd5e1;" class="font-mono">850,0 km</td>
-                <td style="padding: 8px; border: 1px solid #cbd5e1;"><span class="badge badge-success">Conforme</span></td>
-              </tr>
-              <tr>
-                <td style="padding: 8px; border: 1px solid #cbd5e1;">Aderência a Checkpoints Georreferenciados</td>
-                <td style="padding: 8px; border: 1px solid #cbd5e1;" class="font-mono">98,4% nos trajetos</td>
-                <td style="padding: 8px; border: 1px solid #cbd5e1;" class="font-mono">Min 95.0%</td>
-                <td style="padding: 8px; border: 1px solid #cbd5e1;"><span class="badge badge-success">Conforme</span></td>
-              </tr>
-              <tr>
-                <td style="padding: 8px; border: 1px solid #cbd5e1;">Atividades Não Realizadas (Declaradas)</td>
-                <td style="padding: 8px; border: 1px solid #cbd5e1;" class="font-mono">2 atividades (Eventos)</td>
-                <td style="padding: 8px; border: 1px solid #cbd5e1;" class="font-mono">0 justificadas</td>
-                <td style="padding: 8px; border: 1px solid #cbd5e1;"><span class="badge badge-warning">Justificado em Anexo</span></td>
-              </tr>
-            </tbody>
-          </table>
-
-          <h3 style="font-size: 14px; font-weight: 700; margin-bottom: 8px;">2. RASTREABILIDADE & EVIDÊNCIAS FOTOGRÁFICAS (1.820 FOTOS)</h3>
-          <div style="font-size: 11px; color: #475569; margin-bottom: 12px;">
-            Declara-se que todas as 214 atividades concluídas possuem registros de geolocalização por coordenadas de satélite (GPS) e acervo fotográfico etiquetado (Início/Fim do serviço), armazenado sob guarda imutável da plataforma por 5 (cinco) anos.
-          </div>
-
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 30px; text-align: center; font-size: 11px;">
-            <div style="border-top: 1px solid #0f172a; padding-top: 6px;">
-              <strong>Eng. Carlos Eduardo Ramos</strong><br>
-              Gestor Operacional de Limpeza Urbana · CREA/MS 44192
-            </div>
-            <div style="border-top: 1px solid #0f172a; padding-top: 6px;">
-              <strong>Eng. Amanda Prado</strong><br>
-              Fiscal de Campo Municipal · Matrícula F-4412
-            </div>
-          </div>
-
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="window.print()">
-          <i data-lucide="printer" style="width: 14px;"></i>
-          <span>Imprimir Relatório</span>
-        </button>
-        <button class="btn btn-primary" onclick="alert('PDF Assinado digitalmente baixado com sucesso!'); closeModalRelatorioEmitido();">
-          <i data-lucide="download" style="width: 14px;"></i>
-          <span>Baixar PDF Assinado (Digital Cert)</span>
-        </button>
+        <button class="btn btn-primary" onclick="closeModalFotosAntesDepois()">Fechar Evidências</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 6: DOSSIÊ LIMPEZA PDF -->
+  <div class="modal-overlay" id="modalDossieLimpeza">
+    <div class="modal-card" style="max-width: 800px;">
+      <div class="modal-header">
+        <div><h2 style="font-size: 16px; font-weight: 700;">Dossiê Consolidado de Prestação de Contas — Limpeza Urbana</h2><span style="font-size: 11px; color: var(--color-text-muted);">RF-LIMP-09 · Documento Oficial com Certificado SHA-256</span></div>
+        <button style="border: none; background: transparent; cursor: pointer;" onclick="closeModalDossieLimpeza()"><i data-lucide="x" style="width: 20px;"></i></button>
+      </div>
+      <div class="modal-body">
+        <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 20px; color: #0f172a;">
+          <div style="display: flex; justify-content: space-between; border-bottom: 2px solid #0f172a; padding-bottom: 12px; margin-bottom: 16px;">
+            <div>
+              <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #64748b;">PREFEITURA MUNICIPAL DE CAMPO GRANDE / MS</div>
+              <h2 style="font-size: 16px; font-weight: 800;">SECRETARIA DE SERVIÇOS URBANOS & MEIO AMBIENTE</h2>
+              <span style="font-size: 12px; color: #475569;">Dossiê Mensal de Cumprimento de Metas de Varrição e Capina</span>
+            </div>
+            <div style="text-align: right;" class="mono">
+              <span class="badge badge-success">CERTIFICADO DIGITAL OK</span><br>
+              <span style="font-size: 10px; color: #64748b;">Julho / 2026</span>
+            </div>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; font-size: 12px; background: #f8fafc; padding: 10px; border-radius: 6px;" class="mono">
+            <div>Extensão Varrida: <strong>3.840 km</strong></div>
+            <div>Área de Capina: <strong>420.000 m²</strong></div>
+            <div>Ordens Concluídas: <strong>1.420 OSs</strong></div>
+            <div>Hash SHA-256: <strong style="color: #10b981;">9b8a7c6d5e4f...</strong></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="window.print()"><i data-lucide="printer" style="width: 14px;"></i> Imprimir Dossiê</button>
+        <button class="btn btn-primary" onclick="alert('Dossiê de Limpeza Urbana Baixado em PDF!'); closeModalDossieLimpeza();"><i data-lucide="download" style="width: 14px;"></i> Baixar PDF Assinado</button>
       </div>
     </div>
   </div>
@@ -872,128 +755,11 @@
   <!-- Mobile Simulator Widget (390px) -->
   <div class="mobile-simulator-wrapper" id="mobileSim">
     <div class="mobile-sim-header" onclick="toggleMobileSim()">
-      <span>📱 SIMULADOR APP DE CAMPO (390px)</span>
+      <span>🧹 APP DO GARI / CAMPO (390px)</span>
       <i data-lucide="minimize-2" style="width: 14px;"></i>
     </div>
-    
-    <div class="mobile-sim-body" id="mobileSimContent">
-      <!-- Step 1: Central de Tarefas -->
-      <div id="mob-step-1">
-        <div style="padding: 14px; background: #071724; color: white;">
-          <div style="font-size: 10px; color: #8b9fa8; text-transform: uppercase;">Central de Tarefas · Encarregado</div>
-          <div style="font-size: 15px; font-weight: 700;">José Carlos (EQU-014)</div>
-          <div style="display: flex; gap: 6px; margin-top: 6px;">
-            <span class="badge badge-success">Offline Sync OK</span>
-            <span class="badge badge-neutral">Turno Manhã</span>
-          </div>
-        </div>
-
-        <div style="padding: 14px; display: flex; flex-direction: column; gap: 10px;">
-          <div style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase;">TAREFA EM EXECUÇÃO AGORA</div>
-          
-          <div style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              <strong style="font-size: 13px;">VAR-014 · Eixo Afonso Pena</strong>
-              <span class="badge badge-warning">Em Execução</span>
-            </div>
-            <div style="font-size: 11px; color: #64748b; margin-top: 2px;">Varrição Manual · 3,8 km</div>
-
-            <div style="margin-top: 10px; background: #f8fafc; padding: 8px; border-radius: 6px; font-size: 11px;">
-              <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                <span>Progresso Checkpoints:</span>
-                <strong class="mono" id="mobProgressoTxt">17 / 24</strong>
-              </div>
-              <div style="width: 100%; height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden;">
-                <div id="mobProgressBar" style="width: 71%; height: 100%; background: #3b82f6;"></div>
-              </div>
-            </div>
-
-            <button class="btn btn-primary btn-sm" style="width: 100%; margin-top: 10px;" onclick="setMobileStep(2)">
-              <i data-lucide="play" style="width: 12px;"></i>
-              <span>Abrir Execução & Bater Ponto</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Step 2: Execução CP17 & Bater Ponto -->
-      <div id="mob-step-2" style="display: none;">
-        <div style="padding: 12px; background: #071724; color: white; display: flex; align-items: center; justify-content: space-between;">
-          <span style="font-weight: 700; font-size: 13px;">VAR-014 · Eixo Afonso Pena</span>
-          <span class="mono" style="font-size: 11px; color: #34d399;">01:52:40</span>
-        </div>
-
-        <div style="padding: 10px; background: #d1fae5; color: #065f46; font-size: 11px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
-          <i data-lucide="map-pin" style="width: 14px;"></i>
-          <span>GPS ativo · precisão 5 m · Av. Afonso Pena, 1640</span>
-        </div>
-
-        <div style="padding: 14px; display: flex; flex-direction: column; gap: 10px;">
-          <div style="background: white; border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px;">
-            <div style="font-size: 10px; font-weight: 700; color: #64748b;">PRÓXIMO CHECKPOINT</div>
-            <div style="font-size: 14px; font-weight: 700; color: #0f172a;" id="mobNextCpTxt">18 · Esq. c/ Rua Antônio Maria</div>
-            <div style="font-size: 11px; color: #059669; margin-top: 2px;">a 240 m da sua posição atual</div>
-
-            <button class="btn btn-primary" style="width: 100%; margin-top: 10px; padding: 12px; background: #2563eb; font-size: 14px;" onclick="baterPontoSimulator()">
-              <i data-lucide="camera" style="width: 16px;"></i>
-              <span>BATER PONTO (GPS + HORA)</span>
-            </button>
-          </div>
-
-          <div style="display: flex; gap: 8px;">
-            <button class="btn btn-secondary btn-sm" style="flex: 1;" onclick="setMobileStep(3)">
-              <i data-lucide="shield" style="width: 12px;"></i>
-              <span>Modo Fiscal</span>
-            </button>
-            <button class="btn btn-secondary btn-sm" style="flex: 1;" onclick="setMobileStep(4)">
-              <i data-lucide="check-square" style="width: 12px;"></i>
-              <span>Finalizar & Lacrar</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Step 3: Fiscalização de Campo -->
-      <div id="mob-step-3" style="display: none;">
-        <div style="padding: 12px; background: #581c87; color: white;">
-          <strong style="font-size: 13px;">Inspeção de Limpeza Urbana (Fiscal)</strong>
-        </div>
-        <div style="padding: 14px; display: flex; flex-direction: column; gap: 10px;">
-          <div style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; font-size: 12px;">
-            <strong>Resultado da Inspeção:</strong>
-            <div style="display: flex; gap: 12px; margin-top: 8px;">
-              <label><input type="radio" name="insp" checked> Conforme</label>
-              <label><input type="radio" name="insp"> Não Conforme</label>
-            </div>
-            <button class="btn btn-primary btn-sm" style="width: 100%; margin-top: 12px;" onclick="alert('Inspeção gravada no Núcleo! OS automatizada.'); setMobileStep(4);">
-              Registrar Inspeção
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Step 4: Encerramento e Lacração (RN010) -->
-      <div id="mob-step-4" style="display: none;">
-        <div style="padding: 16px; background: #065f46; color: white; text-align: center;">
-          <i data-lucide="check-circle" style="width: 36px; height: 36px; margin-bottom: 4px;"></i>
-          <h3 style="font-size: 16px; font-weight: 700;">Atividade Concluída</h3>
-          <span style="font-size: 11px; opacity: 0.9;">Comprovante Lacrado · VAR-014</span>
-        </div>
-        <div style="padding: 14px; font-size: 12px;">
-          <div style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px;">
-            <strong>Resumo da Execução:</strong>
-            <div style="margin-top: 8px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;" class="mono">
-              <div>Duração: <strong>04h20</strong></div>
-              <div>Checkpoints: <strong>24/24 (100%)</strong></div>
-              <div>Extensão: <strong>3,8 km</strong></div>
-              <div>Ocorrências: <strong>1 reg.</strong></div>
-            </div>
-          </div>
-          <button class="btn btn-secondary btn-sm" style="width: 100%; margin-top: 12px;" onclick="setMobileStep(1)">
-            Voltar às Tarefas do Dia
-          </button>
-        </div>
-      </div>
+    <div class="mobile-sim-body" id="mobileSimContainer">
+      <!-- RENDERIZADO DINAMICAMENTE -->
     </div>
   </div>
 
@@ -1001,188 +767,238 @@
   <script>
     lucide.createIcons();
 
-    // Data Store
+    // Mock Data Store
+    const atividadesVisaoGeralData = [
+      { cod: "LMP-2026-1048", tipo: "Varrição", local: "Centro Histórico - Av. Afonso Pena", equipe: "Equipe Alpha 1", hora: "10:42", status: "Em Execução", badge: "success" },
+      { cod: "LMP-2026-1047", tipo: "Capina", local: "Parque dos Poderes (Via Leste)", equipe: "Equipe Beta 3", hora: "10:15", status: "Em Execução", badge: "success" },
+      { cod: "LMP-2026-1046", tipo: "Coleta Entulho", local: "Bairro Nova Lima (Av. Ceará)", equipe: "Equipe Gama 2", hora: "09:30", status: "Concluída", badge: "success" },
+      { cod: "LMP-2026-1045", tipo: "Ocorrência", local: "Jardim dos Estados (Descarte)", equipe: "Fiscal Cláudio", hora: "08:15", status: "Atribuída", badge: "warning" },
+      { cod: "LMP-2026-1044", tipo: "Fiscalização", local: "Bairro Moreninhas (Área Verde)", equipe: "Fiscal Cláudio", hora: "07:50", status: "Concluída", badge: "success" }
+    ];
+
     const equipesData = [
-      { id: "EQU-014", nome: "EQU-014 · Centro A", encarregado: "José Carlos Silva", matricula: "E-9912", servico: "Varrição Manual", integrantes: 8, turno: "Manhã", situacao: "Em Operação", badge: "success", garis: ["Antônio Marcos Santos", "Benedito Oliveira", "Carlos Eduardo Lima", "Fernando Ribeiro", "Gabriel Duarte", "Lucas Scandola", "Matheus Pires", "Paulo Henrique"] },
-      { id: "EQU-015", nome: "EQU-015 · Jardim dos Estados", encarregado: "Marcos Souza", matricula: "E-9915", servico: "Capina/Roçada", integrantes: 12, turno: "Manhã", situacao: "Em Operação", badge: "success", garis: ["Antônio Silva", "Bruno Alves", "Caio Castro", "Daniel Farias"] },
-      { id: "EQU-016", nome: "EQU-016 · Barão do Rio Branco", encarregado: "Antônio Ferreira", matricula: "E-9840", servico: "Limpeza de Bueiros", integrantes: 6, turno: "Tarde", situacao: "Pausada", badge: "warning", garis: ["Eder Souza", "Fábio Junior", "Gilberto Mendes"] }
+      { cod: "EQP-ALPHA-01", tipo: "Varrição Manual & Mecanizada", encarregado: "Marcos Ribeiro Silva", garis: "8 Garis", setor: "Centro Histórico", veiculo: "VW Delivery QAB-1020", ponto: "Ponto GPS OK (07:00)", strip: "strip-success" },
+      { cod: "EQP-BETA-03", tipo: "Capina & Roçada Hidráulica", encarregado: "Luciano Mendes", garis: "6 Garis", setor: "Parque dos Poderes", veiculo: "Ford Cargo QAB-8819", ponto: "Ponto GPS OK (07:05)", strip: "strip-success" }
     ];
 
     const itinerariosData = [
-      { id: "VAR-014", nome: "VAR-014 · Eixo Afonso Pena", logradouro: "Av. Afonso Pena (Centro -> Jardim dos Estados)", extensao: "3,8 km", checkpoints: 24, situacao: "Ativo" },
-      { id: "VAR-015", nome: "VAR-015 · Calógeras & Barão", logradouro: "Av. Calógeras / Rua Barão do Rio Branco", extensao: "4,2 km", checkpoints: 30, situacao: "Ativo" }
+      { cod: "IT-VAR-01", nome: "Av. Afonso Pena (Centro a Shopping)", regional: "Centro", ext: "14,2 km", freq: "Diária (Noturno)", met: "Mecanizada" },
+      { cod: "IT-CAP-04", nome: "Parque dos Poderes (Avenida do Poeta)", regional: "Prosa", ext: "18,5 km", freq: "Quinzenal", met: "Manual / Roçadeira" }
     ];
 
-    const atividadesData = [
-      { id: "ATV-2026-0891", equipe: "EQU-014", itinerario: "VAR-014", inicio: "07:00", checkpoints: "18 / 24", progresso: 75, status: "Em Execução", badge: "primary" },
-      { id: "ATV-2026-0892", equipe: "EQU-015", itinerario: "VAR-015", inicio: "07:30", checkpoints: "22 / 30", progresso: 73, status: "Em Execução", badge: "primary" },
-      { id: "ATV-2026-0893", equipe: "EQU-016", itinerario: "CAP-008", inicio: "13:00", checkpoints: "5 / 18", progresso: 27, status: "Pausada", badge: "warning" }
-    ];
+    function renderVisaoGeralAtividades() {
+      const tbody = document.getElementById('visaoGeralAtividadesTable');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      atividadesVisaoGeralData.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="mono"><strong>${item.cod}</strong></td>
+          <td><span class="badge badge-neutral">${item.tipo}</span></td>
+          <td>${item.local}</td>
+          <td>${item.equipe}</td>
+          <td class="mono">${item.hora}</td>
+          <td><span class="badge badge-${item.badge}">${item.status}</span></td>
+          <td><button class="btn btn-secondary btn-sm" onclick="alert('Detalhes da Ordem ${item.cod}: ${item.local}')">Ver OS</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
 
-    // Render Equipes Table
-    function renderEquipes() {
+    function renderEquipesTable() {
       const tbody = document.getElementById('equipesFullTable');
+      if (!tbody) return;
       tbody.innerHTML = '';
-
-      equipesData.forEach((eqp, index) => {
+      equipesData.forEach(eqp => {
         const tr = document.createElement('tr');
-        if (index === 0) tr.classList.add('selected');
-        tr.onclick = () => selectEquipeRow(eqp, tr);
-
         tr.innerHTML = `
-          <td class="mono"><strong>${eqp.id}</strong></td>
-          <td><strong>${eqp.nome}</strong></td>
-          <td>${eqp.encarregado}</td>
-          <td>${eqp.servico}</td>
-          <td class="mono">${eqp.integrantes} garis</td>
-          <td><span class="badge badge-neutral">${eqp.turno}</span></td>
-          <td><span class="badge badge-${eqp.badge}">${eqp.situacao}</span></td>
+          <td style="padding:0; position:relative;"><div class="status-left-strip ${eqp.strip}"></div></td>
+          <td class="mono"><strong>${eqp.cod}</strong></td>
+          <td>${eqp.tipo}</td>
+          <td><strong>${eqp.encarregado}</strong> (RN001)</td>
+          <td class="mono">${eqp.garis}</td>
+          <td>${eqp.setor}</td>
+          <td class="mono">${eqp.veiculo}</td>
+          <td><span class="badge badge-success">${eqp.ponto}</span></td>
+          <td><button class="btn btn-primary btn-sm" onclick="openMobileSimForTruck('${eqp.cod}')">Abrir App Campo</button></td>
         `;
         tbody.appendChild(tr);
       });
-
-      // Update KPIs
-      document.getElementById('kpiEquipesCount').innerText = equipesData.length;
-      document.getElementById('sidebarEquipesBadge').innerText = equipesData.length;
+      document.getElementById('badgeEquipesCount').innerText = equipesData.length;
+      document.getElementById('kpiEquipesAtivas').innerText = `${equipesData.length} / 14`;
     }
 
-    function selectEquipeRow(eqp, tr) {
-      document.querySelectorAll('#equipesFullTable tr').forEach(r => r.classList.remove('selected'));
-      if (tr) tr.classList.add('selected');
-
-      document.getElementById('eqDrawerNome').innerText = eqp.nome;
-      document.getElementById('eqDrawerEncarregado').innerText = eqp.encarregado;
-      document.getElementById('eqDrawerMatricula').innerText = `Matrícula: ${eqp.matricula} • Tel: (67) 99812-4410`;
-      document.getElementById('eqDrawerBadge').innerText = eqp.situacao;
-      document.getElementById('eqDrawerBadge').className = `badge badge-${eqp.badge}`;
-
-      const garisUl = document.getElementById('eqDrawerGaris');
-      garisUl.innerHTML = '';
-      eqp.garis.forEach((gariName, idx) => {
-        const li = document.createElement('li');
-        li.style.cssText = 'padding: 6px 10px; background: var(--color-page); border-radius: 4px; display: flex; justify-content: space-between;';
-        li.innerHTML = `<span>${idx + 1}. ${gariName}</span> <span class="mono">Gari 0${idx + 1}</span>`;
-        garisUl.appendChild(li);
-      });
-    }
-
-    // Modal Nova Equipe
-    function openModalNovaEquipe() {
-      document.getElementById('modalNovaEquipe').classList.add('active');
-    }
-
-    function closeModalNovaEquipe() {
-      document.getElementById('modalNovaEquipe').classList.remove('active');
-    }
-
-    function salvarNovaEquipe(event) {
-      event.preventDefault();
-      
-      const nome = document.getElementById('inpEqpNome').value;
-      const encarregado = document.getElementById('inpEqpEncarregado').value;
-      const servico = document.getElementById('inpEqpServico').value;
-      const turno = document.getElementById('inpEqpTurno').value;
-
-      const newId = `EQU-0${equipesData.length + 14}`;
-
-      const newEquipe = {
-        id: newId,
-        nome: `${newId} · ${nome}`,
-        encarregado: encarregado.split(' — ')[0],
-        matricula: encarregado.split('Matrícula ')[1] ? encarregado.split('Matrícula ')[1].split(' ')[0] : 'E-9999',
-        servico: servico,
-        integrantes: 6,
-        turno: turno,
-        situacao: "Em Operação",
-        badge: "success",
-        garis: ["Carlos Eduardo Lima", "Benedito Oliveira", "Antônio Marcos Santos", "Fernando Ribeiro", "Gabriel Duarte", "Paulo Henrique"]
-      };
-
-      equipesData.unshift(newEquipe);
-      renderEquipes();
-      selectEquipeRow(newEquipe, document.querySelector('#equipesFullTable tr'));
-      closeModalNovaEquipe();
-
-      alert(`✅ NOVA EQUIPE CRIADA COM SUCESSO!\n\n• Código: ${newId}\n• Nome: ${newEquipe.nome}\n• Encarregado (RN001): ${newEquipe.encarregado}\n• Serviço: ${servico}\n\nA equipe já está pronta para receber escalas na Programação Semanal (RF-08)!`);
-    }
-
-    // Modal Relatório Emitido (RF-LIMP-09 Dossiê)
-    function openModalRelatorioEmitido() {
-      document.getElementById('modalRelatorioEmitido').classList.add('active');
-    }
-
-    function closeModalRelatorioEmitido() {
-      document.getElementById('modalRelatorioEmitido').classList.remove('active');
-    }
-
-    // Render Itinerarios
-    function renderItinerarios() {
+    function renderItinerariosTable() {
       const tbody = document.getElementById('itinerariosTable');
+      if (!tbody) return;
       tbody.innerHTML = '';
-
-      itinerariosData.forEach((itn, index) => {
+      itinerariosData.forEach(itin => {
         const tr = document.createElement('tr');
-        if (index === 0) tr.classList.add('selected');
-        tr.onclick = () => selectItinerarioRow(itn, tr);
-
         tr.innerHTML = `
-          <td class="mono"><strong>${itn.id}</strong></td>
-          <td><strong>${itn.nome}</strong></td>
-          <td>${itn.logradouro}</td>
-          <td class="mono">${itn.extensao}</td>
-          <td class="mono"><strong>${itn.checkpoints} CPs</strong></td>
-          <td><span class="badge badge-success">${itn.situacao}</span></td>
+          <td class="mono"><strong>${itin.cod}</strong></td>
+          <td><strong>${itin.nome}</strong></td>
+          <td>${itin.regional}</td>
+          <td class="mono"><strong>${itin.ext}</strong></td>
+          <td>${itin.freq}</td>
+          <td>${itin.met}</td>
+          <td><button class="btn btn-secondary btn-sm" onclick="alert('Ver traçado no mapa: ${itin.nome}')">Ver no Mapa</button></td>
         `;
         tbody.appendChild(tr);
       });
     }
 
-    function selectItinerarioRow(itn, tr) {
-      document.querySelectorAll('#itinerariosTable tr').forEach(r => r.classList.remove('selected'));
-      if (tr) tr.classList.add('selected');
-      document.getElementById('mapItinerarioTitle').innerText = `Itinerário ${itn.nome}`;
-    }
+    // App de Campo (390px)
+    let workerStep = 1;
+    let activeEquipeId = "EQP-ALPHA-01";
+    function renderWorkerApp() {
+      const container = document.getElementById('mobileSimContainer');
+      if (!container) return;
 
-    // Render Atividades
-    function renderAtividades() {
-      const tbody = document.getElementById('atividadesTable');
-      tbody.innerHTML = '';
-
-      atividadesData.forEach((atv) => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td class="mono"><strong>${atv.id}</strong></td>
-          <td>${atv.equipe}</td>
-          <td>${atv.itinerario}</td>
-          <td class="mono">${atv.inicio}</td>
-          <td class="mono">${atv.checkpoints}</td>
-          <td>
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <div style="width: 60px; height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden;">
-                <div style="width: ${atv.progresso}%; height: 100%; background: #3b82f6;"></div>
-              </div>
-              <span class="mono">${atv.progresso}%</span>
-            </div>
-          </td>
-          <td><span class="badge badge-${atv.badge}">${atv.status}</span></td>
-          <td>
-            <button class="btn btn-secondary btn-sm" onclick="intervirSupervisor('${atv.id}')">Escape RN009</button>
-          </td>
+      if (workerStep === 1) {
+        container.innerHTML = `
+          <div style="padding: 12px; background: #071724; color: white; display: flex; justify-content: space-between;">
+            <span style="font-weight: 700; font-size: 13px;">${activeEquipeId} · Marcos Silva</span>
+            <span class="badge badge-warning">CAMPO</span>
+          </div>
+          <div class="mobile-step-card" style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px; margin: 12px; display: flex; flex-direction: column; gap: 10px;">
+            <div style="font-size: 11px; font-weight: 700; color: #64748b;">PASSO 1 DE 3 · PONTO DA EQUIPE</div>
+            <h4 style="font-size: 14px; font-weight: 700; margin: 0; color: #0f172a;">Bater Ponto da Equipe (8 Garis)</h4>
+            <button class="btn btn-primary" style="width: 100%; margin-top: 10px; padding: 12px; font-weight: 700;" onclick="workerBaterPonto()">🟢 BATER PONTO (GPS + HORA 07:00)</button>
+          </div>
         `;
-        tbody.appendChild(tr);
-      });
+      } else if (workerStep === 2) {
+        container.innerHTML = `
+          <div style="padding: 12px; background: #071724; color: white; display: flex; justify-content: space-between;">
+            <span style="font-weight: 700; font-size: 13px;">${activeEquipeId} · Av. Afonso Pena</span>
+            <span class="badge badge-success">PONTO OK</span>
+          </div>
+          <div class="mobile-step-card" style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px; margin: 12px; display: flex; flex-direction: column; gap: 10px;">
+            <div style="font-size: 11px; font-weight: 700; color: #64748b;">PASSO 2 DE 3 · EXECUÇÃO</div>
+            <h4 style="font-size: 14px; font-weight: 700; margin: 0; color: #0f172a;">Varrição do Trecho (Av. Afonso Pena)</h4>
+            <button class="btn btn-primary" style="width: 100%; padding: 12px; font-weight: 700;" onclick="workerRegistrarTrecho()">📍 REGISTRAR PONTO DE VARRIÇÃO</button>
+            <button class="btn btn-secondary" style="width: 100%; margin-top: 4px;" onclick="openModalChuvaRN009()">⚠️ REPORTAR CHUVA (RN009)</button>
+            <button class="btn btn-secondary" style="width: 100%; margin-top: 4px; border-color: #059669; color: #059669;" onclick="workerFinalizarDia()">🏁 FINALIZAR DIA & FECHAR APP</button>
+          </div>
+        `;
+      }
+      lucide.createIcons();
     }
 
-    function intervirSupervisor(atvId) {
-      alert(`⚠️ INTERVENÇÃO ADMINISTRATIVA DE SUPERVISOR (RN009 Escape):\n\nAtividade ${atvId} liberada administrativamente. Motivo gravado na auditoria do Núcleo.`);
+    function workerBaterPonto() { workerStep = 2; renderWorkerApp(); alert('🟢 PONTO GPS REGISTRADO PARA A EQUIPE!'); }
+    function workerRegistrarTrecho() { alert('📍 REGISTRO DE VARRIÇÃO DE SARJETA GRAVADO COM SUCESSO!'); }
+    function workerFinalizarDia() { workerStep = 1; renderWorkerApp(); alert('🏁 JORNADA DE LIMPEZA ENCERRADA!'); }
+    function openMobileSimForTruck(eqpId) {
+      activeEquipeId = eqpId;
+      workerStep = 1;
+      const sim = document.getElementById('mobileSim');
+      if (sim.classList.contains('minimized')) sim.classList.remove('minimized');
+      renderWorkerApp();
     }
 
-    // Tab Switcher
+    // Modal Handlers
+    function openModalNovaEquipe() { document.getElementById('modalNovaEquipe').classList.add('active'); }
+    function closeModalNovaEquipe() { document.getElementById('modalNovaEquipe').classList.remove('active'); }
+    function salvarNovaEquipe(e) {
+      e.preventDefault();
+      const enc = document.getElementById('inpEqpEncarregado').value;
+      const garis = document.getElementById('inpEqpGaris').value;
+      const setor = document.getElementById('inpEqpSetor').value;
+      const tipo = document.getElementById('inpEqpTipo').value;
+      const veiculo = document.getElementById('inpEqpVeiculo').value;
+
+      const newEqp = {
+        cod: `EQP-DELTA-0${equipesData.length + 1}`,
+        tipo: tipo,
+        encarregado: enc,
+        garis: `${garis} Garis`,
+        setor: setor,
+        veiculo: veiculo,
+        ponto: "Ponto GPS OK (07:10)",
+        strip: "strip-success"
+      };
+      equipesData.unshift(newEqp);
+      renderEquipesTable();
+      closeModalNovaEquipe();
+      alert(`✅ NOVA EQUIPE DE LIMPEZA CADASTRADA!\n\n• Encarregado: ${enc}\n• Garis: ${garis}\n• Setor: ${setor}`);
+    }
+
+    function openModalNovaAtividade() { document.getElementById('modalNovaAtividade').classList.add('active'); }
+    function closeModalNovaAtividade() { document.getElementById('modalNovaAtividade').classList.remove('active'); }
+    function salvarNovaAtividade(e) {
+      e.preventDefault();
+      const tipo = document.getElementById('inpAtivTipo').value;
+      const local = document.getElementById('inpAtivLocal').value;
+      const equipe = document.getElementById('inpAtivEquipe').value;
+
+      const newAtiv = {
+        cod: `LMP-2026-${Math.floor(1050 + Math.random()*10)}`,
+        tipo: tipo,
+        local: local,
+        equipe: equipe,
+        hora: "11:00",
+        status: "Em Execução",
+        badge: "success"
+      };
+      atividadesVisaoGeralData.unshift(newAtiv);
+      renderVisaoGeralAtividades();
+      closeModalNovaAtividade();
+      alert(`✅ NOVA ORDEM DE SERVIÇO LANÇADA!\n\n• OS: ${newAtiv.cod}\n• Tipo: ${tipo}\n• Local: ${local}`);
+    }
+
+    function openModalNovoItinerario() { document.getElementById('modalNovoItinerario').classList.add('active'); }
+    function closeModalNovoItinerario() { document.getElementById('modalNovoItinerario').classList.remove('active'); }
+    function salvarNovoItinerario(e) {
+      e.preventDefault();
+      const nome = document.getElementById('inpItinNome').value;
+      const reg = document.getElementById('inpItinRegional').value;
+      const ext = document.getElementById('inpItinExt').value;
+
+      const newItin = {
+        cod: `IT-VAR-0${itinerariosData.length + 1}`,
+        nome: nome,
+        regional: reg,
+        ext: `${ext} km`,
+        freq: "Diária",
+        met: "Manual / Mecanizada"
+      };
+      itinerariosData.unshift(newItin);
+      renderItinerariosTable();
+      closeModalNovoItinerario();
+      alert(`✅ NOVO ITINERÁRIO CADASTRADO!\n\n• Nome: ${nome}\n• Regional: ${reg}\n• Extensão: ${ext} km`);
+    }
+
+    function openModalAgendarMutirao() { document.getElementById('modalAgendarMutirao').classList.add('active'); }
+    function closeModalAgendarMutirao() { document.getElementById('modalAgendarMutirao').classList.remove('active'); }
+    function salvarAgendarMutirao(e) {
+      e.preventDefault();
+      closeModalAgendarMutirao();
+      alert('✅ MUTIRÃO DE LIMPEZA URBANA AGENDADO E PUBLICADO!');
+    }
+
+    function openModalChuvaRN009() {
+      alert('⚠️ ESCAPE RN009 ATIVADO!\n\nParalisação preventiva de varrição por chuva/tempestade notificada ao CCO da Prefeitura!');
+    }
+
+    function openModalFotosAntesDepois(osCode) {
+      document.getElementById('txtFotosOsCode').innerText = osCode;
+      document.getElementById('modalFotosAntesDepois').classList.add('active');
+    }
+    function closeModalFotosAntesDepois() { document.getElementById('modalFotosAntesDepois').classList.remove('active'); }
+
+    function openModalDossieLimpeza() { document.getElementById('modalDossieLimpeza').classList.add('active'); }
+    function closeModalDossieLimpeza() { document.getElementById('modalDossieLimpeza').classList.remove('active'); }
+
+    function openModalOcorrenciasUrgentes() {
+      alert('⚠️ 6 OCORRÊNCIAS URGENTES EM ABERTO:\n\n1. Descarte Irregular de Entulho (Jardim dos Estados)\n2. Ponto de Queimada Urbana (Bairro Moreninhas)\n3. Bueiro Obstruído (Av. Ceará)');
+    }
+
+    function verHistoricoCompleto() { alert('📜 Histórico completo de Limpeza Urbana carregado no CCO!'); }
+
+    // Switch Tab Handler
     function switchTab(tabKey, event) {
       if (event) event.preventDefault();
-
-      document.querySelectorAll('.sidebar-nav .nav-item').forEach(el => el.classList.remove('active'));
-      const activeNav = document.getElementById(`nav-${tabKey}`);
+      document.querySelectorAll('.sidebar-nav-subitem').forEach(el => el.classList.remove('active'));
+      const activeNav = document.getElementById(`subnav-${tabKey}`);
       if (activeNav) activeNav.classList.add('active');
 
       document.querySelectorAll('.tab-pane').forEach(pane => pane.style.display = 'none');
@@ -1190,92 +1006,39 @@
       if (targetPane) targetPane.style.display = 'block';
 
       const titles = {
-        equipes: '1. Gestão de Equipes (RF-LIMP-01)',
-        itinerarios: '2. Gestão de Itinerários & Checkpoints (RF-LIMP-02)',
-        programacao: '3. Programação Semanal de Serviços (RF-LIMP-08)',
-        atividades: '4. Acompanhamento de Atividades ao Vivo (RF-LIMP-03)',
-        indicadores: '5. Indicadores & Cobertura (RF-LIMP-07)',
-        prestacao: '6. Prestação de Contas (RF-LIMP-09)'
+        'visao-geral': 'Visão Geral Operacional',
+        equipes: 'Equipes de Limpeza Pública',
+        itinerarios: 'Itinerários de Varrição & Capina',
+        programacao: 'Programação Semanal de Limpeza',
+        atividades: 'Atividades em Execução ao Vivo',
+        indicadores: 'Indicadores de Desempenho & SLA',
+        relatorios: 'Relatórios & Dossiê'
       };
 
-      document.getElementById('currentTabTitle').innerText = titles[tabKey] || tabKey;
+      document.getElementById('currentBreadcrumb').innerText = titles[tabKey] || tabKey;
 
-      if (tabKey === 'itinerarios') initItinerarioMap();
-      if (tabKey === 'atividades') renderAtividades();
+      if (tabKey === 'equipes') renderEquipesTable();
+      if (tabKey === 'itinerarios') renderItinerariosTable();
+      if (tabKey === 'visao-geral') { renderVisaoGeralAtividades(); initVisaoGeralLimpezaMap(); }
     }
 
-    // Leaflet Map for Itinerario
-    let mapInstance = null;
-    function initItinerarioMap() {
-      if (mapInstance) return;
+    let visaoGeralLimpezaMapInstance = null;
+    function initVisaoGeralLimpezaMap() {
+      if (visaoGeralLimpezaMapInstance) return;
       setTimeout(() => {
-        mapInstance = L.map('itinerarioMap').setView([-20.465, -54.615], 14);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapInstance);
-        
-        const points = [
-          [-20.460, -54.610],
-          [-20.465, -54.615],
-          [-20.470, -54.620]
-        ];
-        L.polyline(points, { color: '#3b82f6', weight: 4 }).addTo(mapInstance);
-        points.forEach((p, idx) => {
-          L.circleMarker(p, { radius: 6, color: '#10b981', fillColor: '#ffffff', fillOpacity: 1 }).addTo(mapInstance)
-            .bindPopup(`<b>Checkpoint ${idx+1}</b>`);
-        });
+        visaoGeralLimpezaMapInstance = L.map('visaoGeralLimpezaMap').setView([-20.465, -54.615], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(visaoGeralLimpezaMapInstance);
       }, 100);
     }
 
-    // Mobile Simulator Controls
-    let currentMobStep = 1;
-    let mobCheckpointCount = 17;
+    function toggleMobileSim() { document.getElementById('mobileSim').classList.toggle('minimized'); }
 
-    function toggleMobileSim() {
-      document.getElementById('mobileSim').classList.toggle('minimized');
-    }
-
-    function setMobileStep(step) {
-      currentMobStep = step;
-      document.getElementById('mob-step-1').style.display = step === 1 ? 'block' : 'none';
-      document.getElementById('mob-step-2').style.display = step === 2 ? 'block' : 'none';
-      document.getElementById('mob-step-3').style.display = step === 3 ? 'block' : 'none';
-      document.getElementById('mob-step-4').style.display = step === 4 ? 'block' : 'none';
-    }
-
-    function openMobileSimForTask(taskId) {
-      document.getElementById('mobileSim').classList.remove('minimized');
-      setMobileStep(2);
-    }
-
-    function baterPontoSimulator() {
-      mobCheckpointCount++;
-      if (mobCheckpointCount > 24) mobCheckpointCount = 24;
-
-      document.getElementById('mobProgressoTxt').innerText = `${mobCheckpointCount} / 24`;
-      document.getElementById('mobProgressBar').style.width = `${Math.round((mobCheckpointCount/24)*100)}%`;
-      
-      alert(`✅ CHECKPOINT ${mobCheckpointCount} BATIDO COM SUCESSO!\n\n📍 GPS: Av. Afonso Pena, 1640 (45m do ponto)\n⏰ Horário: ${new Date().toLocaleTimeString()}\n📷 Foto Georreferenciada Anexada!`);
-
-      if (mobCheckpointCount >= 24) {
-        setMobileStep(4);
-      }
-    }
-
-    function exportCSV(type) {
-      alert(`📄 EXPORTAÇÃO CSV (${type}): Arquivo gerado com sucesso contendo os registros do Módulo Limpeza Urbana.`);
-    }
-
-    function filterEquipesTable() {
-      const query = document.getElementById('searchEquipes').value.toLowerCase();
-      const rows = document.querySelectorAll('#equipesFullTable tr');
-      rows.forEach(r => {
-        const text = r.innerText.toLowerCase();
-        r.style.display = text.includes(query) ? '' : 'none';
-      });
-    }
-
-    // Initialize
-    renderEquipes();
-    renderItinerarios();
+    // Init
+    renderVisaoGeralAtividades();
+    renderEquipesTable();
+    renderItinerariosTable();
+    initVisaoGeralLimpezaMap();
+    renderWorkerApp();
   </script>
 </body>
 </html>
