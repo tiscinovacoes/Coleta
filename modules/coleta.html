@@ -309,6 +309,10 @@
         <a href="#" class="sidebar-nav-subitem" onclick="switchTab('motoristas', event)" id="subnav-motoristas">
           <span>Motoristas</span>
         </a>
+        <a href="#" class="sidebar-nav-subitem" onclick="switchTab('setores', event)" id="subnav-setores">
+          <span>Setores</span>
+          <span class="badge badge-neutral" style="font-size: 9px; padding: 1px 5px;">24</span>
+        </a>
         <!-- NOME ATUALIZADO: APENAS 'Rotas' -->
         <a href="#" class="sidebar-nav-subitem" onclick="switchTab('rotas', event)" id="subnav-rotas">
           <span>Rotas</span>
@@ -399,7 +403,9 @@
             <button class="btn btn-secondary" onclick="openModalDossieColeta()">Exportar Dossiê Oficial</button>
           </div>
 
-          <div class="kpi-row">
+          <!-- ===== BI / INDICADORES ===== -->
+          <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin:0 0 10px;">Indicadores Operacionais</div>
+          <div class="kpi-row" style="grid-template-columns: repeat(5, 1fr);">
             <div class="kpi-card">
               <span class="kpi-label">TOTAL COLETADO HOJE</span>
               <div class="kpi-value font-mono" id="kpiTotalHoje" style="color: #10b981;">480,5 t</div>
@@ -407,12 +413,17 @@
             </div>
             <div class="kpi-card">
               <span class="kpi-label">ROTAS EM ANDAMENTO</span>
-              <div class="kpi-value font-mono" style="color: #3b82f6;">34 / 47</div>
-              <span class="kpi-subtext">72,3% das rotas concluídas</span>
+              <div class="kpi-value font-mono" style="color: #3b82f6;">13</div>
+              <span class="kpi-subtext">de 47 rotas do dia</span>
+            </div>
+            <div class="kpi-card">
+              <span class="kpi-label">ROTAS CONCLUÍDAS</span>
+              <div class="kpi-value font-mono" style="color: #059669;">34 / 47</div>
+              <span class="kpi-subtext">72,3% do dia concluído</span>
             </div>
             <div class="kpi-card">
               <span class="kpi-label">FROTA EM OPERAÇÃO</span>
-              <div class="kpi-value font-mono">34 Veículos</div>
+              <div class="kpi-value font-mono">34</div>
               <span class="kpi-subtext">4 em oficina · 10 de reserva</span>
             </div>
             <div class="kpi-card">
@@ -422,13 +433,36 @@
             </div>
           </div>
 
-          <div style="height: 480px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); overflow: hidden; position: relative;">
+          <!-- Progresso das rotas do dia -->
+          <div style="margin:14px 0 4px;">
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);margin-bottom:6px;">
+              <span>Progresso das rotas do dia</span>
+              <span><b style="color:var(--text-primary);">34 concluídas</b> · 13 em andamento · 0 pendentes</span>
+            </div>
+            <div style="display:flex;height:8px;border-radius:999px;overflow:hidden;background:var(--surface-active);">
+              <div style="width:72.3%;background:#059669;"></div>
+              <div style="width:27.7%;background:#3b82f6;"></div>
+            </div>
+          </div>
+
+          <!-- ===== MAPA (separado do BI) ===== -->
+          <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin:24px 0 10px;">Mapa Operacional em Tempo Real</div>
+          <div style="height: 380px; background: var(--surface-card); border: 1px solid var(--border-default); border-radius: var(--radius-lg); overflow: hidden; position: relative;">
             <div id="visaoGeralMap" style="width: 100%; height: 100%;"></div>
             <div style="position: absolute; top: 16px; left: 16px; z-index: 500; background: rgba(7, 23, 36, 0.9); backdrop-filter: blur(8px); padding: 12px 16px; border-radius: 8px; color: white; display: flex; gap: 16px; font-size: 12px;">
               <div>🟢 <strong>34</strong> Veículos Online</div>
               <div>⚡ <strong>28 km/h</strong> Vel. Média</div>
               <div>📍 <strong>18,4 km</strong> Raio de Cobertura</div>
             </div>
+          </div>
+
+          <!-- ===== ROTAS EM EXECUÇÃO (abaixo do mapa) ===== -->
+          <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin:24px 0 10px;">Rotas em Execução <span style="font-weight:400;text-transform:none;letter-spacing:0;">— acompanhamento ao vivo</span></div>
+          <div class="table-container">
+            <table class="data-table">
+              <thead><tr><th>ROTA / SETOR</th><th>VEÍCULO</th><th>MOTORISTA</th><th>PROGRESSO</th><th>ETA</th><th>STATUS</th></tr></thead>
+              <tbody id="rotasExecucaoTable"><!-- render via JS --></tbody>
+            </table>
           </div>
         </div>
 
@@ -608,7 +642,7 @@
             </div>
           </div>
 
-          <div class="split-workstation">
+          <div class="split-workstation" style="display:block;">
             <div class="table-container">
               <table class="data-table">
                 <thead>
@@ -630,8 +664,8 @@
               </table>
             </div>
 
-            <!-- Detail Drawer (380px) -->
-            <div class="detail-drawer">
+            <!-- Detail Drawer (380px) — substituído pela página de detalhe cheia -->
+            <div class="detail-drawer" style="display:none;">
               <div class="drawer-header">
                 <div class="drawer-avatar" style="background: #2563eb;" id="ftDrawerAvatar">CAM</div>
                 <div>
@@ -677,6 +711,13 @@
         </div>
 
         <!-- ========================================================================= -->
+        <!-- FROTA — DETALHE (página cheia com abas) -->
+        <!-- ========================================================================= -->
+        <div id="tab-frota-detalhe" class="tab-pane" style="display: none;">
+          <div id="frotaDetalheContent"></div>
+        </div>
+
+        <!-- ========================================================================= -->
         <!-- SUB-PAGE 5: MOTORISTAS -->
         <!-- ========================================================================= -->
         <div id="tab-motoristas" class="tab-pane" style="display: none;">
@@ -713,6 +754,59 @@
         </div>
 
         <!-- ========================================================================= -->
+        <!-- MOTORISTA — DETALHE (página cheia com abas) -->
+        <!-- ========================================================================= -->
+        <div id="tab-motorista-detalhe" class="tab-pane" style="display: none;">
+          <div id="motoristaDetalheContent"></div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- SUB-PAGE: SETORES -->
+        <!-- ========================================================================= -->
+        <div id="tab-setores" class="tab-pane" style="display: none;">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Setores</h1>
+              <p class="page-subtitle">Mapeamento e limites de coleta — cobertura, abrangência e rotas vinculadas.</p>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <button class="btn btn-secondary" onclick="alert('Exportar setores (protótipo)')">Exportar</button>
+              <button class="btn btn-secondary" onclick="alert('Importar shapefile/GeoJSON (protótipo)')">Importar arquivo geográfico</button>
+              <button class="btn btn-primary" onclick="openModalNovoSetor()"><i data-lucide="plus" style="width:16px;"></i><span>Novo setor</span></button>
+            </div>
+          </div>
+
+          <div class="kpi-row">
+            <div class="kpi-card"><span class="kpi-label">TOTAL</span><div class="kpi-value font-mono" id="kpiSetTotal">0</div><span class="kpi-subtext">Setores mapeados</span></div>
+            <div class="kpi-card"><span class="kpi-label">COBERTOS</span><div class="kpi-value font-mono" id="kpiSetCobertos" style="color:#10b981;">0</div><span class="kpi-subtext">Com rota vinculada ativa</span></div>
+            <div class="kpi-card"><span class="kpi-label">DESCOBERTOS</span><div class="kpi-value font-mono" id="kpiSetDescobertos" style="color:#ef4444;">0</div><span class="kpi-subtext">Sem rota operacional</span></div>
+            <div class="kpi-card"><span class="kpi-label">COBERTURA PARCIAL</span><div class="kpi-value font-mono" id="kpiSetParcial" style="color:#f59e0b;">0</div><span class="kpi-subtext">Rotas sub-dimensionadas</span></div>
+          </div>
+
+          <div style="display:flex; gap:10px; align-items:center; margin:16px 0 12px; flex-wrap:wrap;">
+            <input type="text" class="form-control" id="setBusca" placeholder="Buscar por nome ou código..." style="max-width:260px;" oninput="renderSetores()">
+            <select class="form-control" id="setFiltroTipo" style="max-width:170px;" onchange="renderSetores()">
+              <option value="">Todos os tipos</option><option>Convencional</option><option>Seletiva</option><option>Misto</option>
+            </select>
+            <select class="form-control" id="setFiltroCob" style="max-width:170px;" onchange="renderSetores()">
+              <option value="">Toda cobertura</option><option>Coberto</option><option>Parcial</option><option>Descoberto</option>
+            </select>
+            <button class="btn btn-secondary btn-sm" onclick="limparFiltrosSetores()">Limpar filtros</button>
+          </div>
+
+          <div style="display:grid; grid-template-columns: 1fr 360px; gap:16px; align-items:start;">
+            <div class="table-container" style="margin:0;">
+              <table class="data-table">
+                <thead><tr><th style="width:4px;"></th><th>SETOR</th><th>TIPO</th><th>MUNICÍPIO</th><th>POPULAÇÃO</th><th>COBERTURA</th></tr></thead>
+                <tbody id="setoresTable"></tbody>
+              </table>
+              <div id="setoresEmpty" style="display:none; padding:24px; text-align:center; color:var(--text-muted); font-size:13px;">Nenhum setor encontrado.</div>
+            </div>
+            <div id="setorDetailPanel" style="border:1px solid var(--border-default); border-radius:var(--radius-lg); background:var(--surface-card); box-shadow:var(--shadow-sm); overflow:hidden; position:sticky; top:16px;"></div>
+          </div>
+        </div>
+
+        <!-- ========================================================================= -->
         <!-- SUB-PAGE 6: ROTAS (MOCADO 100% GARANTIDO) -->
         <!-- ========================================================================= -->
         <div id="tab-rotas" class="tab-pane" style="display: none;">
@@ -721,7 +815,7 @@
               <h1 class="page-title">Mapeamento de Rotas Operacionais</h1>
               <p class="page-subtitle">Cadastro de itinerários de coleta domiciliar, seletiva e hospitalar com traçado viário georreferenciado.</p>
             </div>
-            <button class="btn btn-primary" onclick="alert('Criar nova rota no mapa!')">
+            <button class="btn btn-primary" onclick="openModalNovaRota()">
               <i data-lucide="plus" style="width: 16px;"></i>
               <span>Nova Rota</span>
             </button>
@@ -787,45 +881,63 @@
         <div id="tab-destinacao" class="tab-pane" style="display: none;">
           <div class="page-header">
             <div>
-              <h1 class="page-title">Locais de Destinação & Balança Eletrônica</h1>
-              <p class="page-subtitle">Controle de entrada e pesagem no Aterro Dom Antônio Barbosa e Unidade de Triagem (UTR).</p>
+              <h1 class="page-title">Locais de Destinação</h1>
+              <p class="page-subtitle">Cadastro de aterros, transbordos e unidades de triagem — capacidade, licenciamento e situação operacional.</p>
             </div>
-            <button class="btn btn-primary" onclick="openModalNovoTiquete()">
-              <i data-lucide="scale" style="width: 16px;"></i>
-              <span>Emitir Tíquete Balança</span>
+            <button class="btn btn-primary" onclick="alert('Cadastro de novo local (protótipo)')">
+              <i data-lucide="plus" style="width: 16px;"></i>
+              <span>Novo Local</span>
             </button>
           </div>
 
           <div class="kpi-row">
             <div class="kpi-card">
-              <span class="kpi-label">PESO TOTAL HOJE</span>
-              <div class="kpi-value font-mono" id="kpiPesoTotalBalanica" style="color: #10b981;">480,5 t</div>
-              <span class="kpi-subtext">Resíduos pesados na balança</span>
+              <span class="kpi-label">TOTAL DE LOCAIS</span>
+              <div class="kpi-value font-mono" id="kpiLocaisTotal">0</div>
+              <span class="kpi-subtext">Locais cadastrados</span>
             </div>
             <div class="kpi-card">
-              <span class="kpi-label">TÍQUETES EMITIDOS</span>
-              <div class="kpi-value font-mono" id="kpiTiquetesCount">64</div>
-              <span class="kpi-subtext">Descarregamentos hoje</span>
+              <span class="kpi-label">LOCAIS ATIVOS</span>
+              <div class="kpi-value font-mono" id="kpiLocaisAtivos" style="color: #10b981;">0</div>
+              <span class="kpi-subtext">Em operação</span>
             </div>
             <div class="kpi-card">
-              <span class="kpi-label">ATERRO DOM ANTÔNIO</span>
-              <div class="kpi-value font-mono">410,0 t</div>
-              <span class="kpi-subtext">Resíduo Orgânico / Rejeito</span>
+              <span class="kpi-label">LICENÇAS A REGULARIZAR</span>
+              <div class="kpi-value font-mono" id="kpiLocaisLic" style="color: #f59e0b;">0</div>
+              <span class="kpi-subtext">A vencer ou vencidas</span>
             </div>
             <div class="kpi-card">
-              <span class="kpi-label">UTR SELETIVA</span>
-              <div class="kpi-value font-mono" style="color: #3b82f6;">70,5 t</div>
-              <span class="kpi-subtext">Materiais Recicláveis</span>
+              <span class="kpi-label">OCUPAÇÃO MÉDIA</span>
+              <div class="kpi-value font-mono" id="kpiLocaisOcup" style="color: #3b82f6;">0%</div>
+              <span class="kpi-subtext">Capacidade utilizada</span>
             </div>
+          </div>
+
+          <div style="display:flex; gap:10px; align-items:center; margin:16px 0 12px; flex-wrap:wrap;">
+            <input type="text" class="form-control" id="locBusca" placeholder="Buscar nome ou responsável..." style="max-width:260px;" oninput="renderLocais()">
+            <select class="form-control" id="locFiltroMunicipio" style="max-width:170px;" onchange="renderLocais()">
+              <option value="">Todos os municípios</option>
+              <option>Campo Grande</option><option>Terenos</option><option>Sidrolândia</option>
+            </select>
+            <select class="form-control" id="locFiltroTipo" style="max-width:170px;" onchange="renderLocais()">
+              <option value="">Todos os tipos</option>
+              <option>Aterro Sanitário</option><option>Transbordo</option><option>Outro</option>
+            </select>
+            <select class="form-control" id="locFiltroSit" style="max-width:150px;" onchange="renderLocais()">
+              <option value="">Todas situações</option>
+              <option>Ativo</option><option>Inativo</option>
+            </select>
+            <button class="btn btn-secondary btn-sm" onclick="limparFiltrosLocais()">Limpar filtros</button>
           </div>
 
           <div class="table-container">
             <table class="data-table">
               <thead>
-                <tr><th>Nº TÍQUETE</th><th>VEÍCULO</th><th>MOTORISTA</th><th>DATA ENT.</th><th>PESO BRUTO</th><th>TARA</th><th>PESO LÍQUIDO</th><th>DESTINO</th><th>AÇÃO</th></tr>
+                <tr><th style="width:4px;"></th><th>LOCAL</th><th>TIPO</th><th>MUNICÍPIO</th><th>RESPONSÁVEL</th><th>OCUPAÇÃO</th><th>LICENÇA</th><th>SITUAÇÃO</th></tr>
               </thead>
-              <tbody id="tiquetesTable"></tbody>
+              <tbody id="locaisTable"></tbody>
             </table>
+            <div id="locaisEmpty" style="display:none; padding:24px; text-align:center; color:var(--text-muted); font-size:13px;">Nenhum local encontrado para os filtros.</div>
           </div>
         </div>
 
@@ -902,25 +1014,48 @@
   </div>
 
   <div class="modal-overlay" id="modalNovoVeiculo">
-    <div class="modal-card">
+    <div class="modal-card" style="max-width: 640px;">
       <div class="modal-header">
-        <div><h2 style="font-size: 16px; font-weight: 700;">Cadastrar Novo Ativo da Frota</h2></div>
+        <div><h2 style="font-size: 16px; font-weight: 700;">Cadastrar Novo Ativo da Frota</h2><span style="font-size:11px;color:var(--text-muted);">Preencha os campos obrigatórios para habilitar o veículo à escala.</span></div>
         <button style="border: none; background: transparent; cursor: pointer;" onclick="closeModalNovoVeiculo()"><i data-lucide="x" style="width: 20px;"></i></button>
       </div>
       <form id="formNovoVeiculo" onsubmit="salvarNovoVeiculo(event)">
-        <div class="modal-body">
+        <div class="modal-body" style="max-height:72vh;overflow-y:auto;">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin:0 0 8px;">Identificação</div>
           <div class="form-row">
             <div class="form-group"><label class="form-label">Prefixo</label><input type="text" class="form-control font-mono" id="inpFtPrefixo" value="CAM-105" readonly></div>
-            <div class="form-group"><label class="form-label">Placa</label><input type="text" class="form-control font-mono" id="inpFtPlaca" placeholder="Ex: QAA-8812" required></div>
+            <div class="form-group"><label class="form-label">Placa *</label><input type="text" class="form-control font-mono" id="inpFtPlaca" placeholder="Ex: QAA-8812" required></div>
           </div>
           <div class="form-row">
-            <div class="form-group"><label class="form-label">Modelo & Marca</label><input type="text" class="form-control" id="inpFtModelo" placeholder="Ex: Mercedes-Benz Atego 1719" required></div>
-            <div class="form-group"><label class="form-label">Tipo</label><select class="form-control" id="inpFtTipo"><option value="Compactador 15m³">Compactador 15m³</option></select></div>
+            <div class="form-group"><label class="form-label">Tipo de ativo</label><select class="form-control" id="inpFtTipoAtivo"><option>Veículo</option><option>Equipamento</option></select></div>
+            <div class="form-group"><label class="form-label">Tipo *</label><select class="form-control" id="inpFtTipo"><option>Compactador 15m³</option><option>Compactador 19m³</option><option>Caçamba Roll-On 30m³</option><option>Baú / Carroceria</option><option>Pipa</option></select></div>
+          </div>
+
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin:16px 0 8px;">Especificação técnica</div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Marca / Modelo *</label><input type="text" class="form-control" id="inpFtModelo" placeholder="Ex: Mercedes-Benz Atego 1719" required></div>
+            <div class="form-group"><label class="form-label">Ano</label><input type="number" class="form-control font-mono" id="inpFtAno" value="2021"></div>
           </div>
           <div class="form-row">
-            <div class="form-group"><label class="form-label">Capacidade (t)</label><input type="number" class="form-control font-mono" id="inpFtCapacidade" value="15" required></div>
-            <div class="form-group"><label class="form-label">Motorista</label><select class="form-control" id="inpFtMotorista"><option value="João Paulo Santos">João Paulo Santos</option></select></div>
+            <div class="form-group"><label class="form-label">Combustível</label><select class="form-control" id="inpFtCombustivel"><option>Diesel S10</option><option>Diesel S500</option><option>Elétrico</option><option>GNV</option></select></div>
+            <div class="form-group"><label class="form-label">Capacidade (t) *</label><input type="number" class="form-control font-mono" id="inpFtCapacidade" value="15" required></div>
           </div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Tara (t)</label><input type="number" step="0.1" class="form-control font-mono" id="inpFtTara" value="7.2"></div>
+            <div class="form-group"><label class="form-label">Motorista alocado</label><select class="form-control" id="inpFtMotorista"><option>João Paulo Santos</option><option>Matheus Nogueira</option><option>Rafael Alencar</option><option>— Sem alocação —</option></select></div>
+          </div>
+
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin:16px 0 8px;">Uso operacional</div>
+          <div class="form-group"><label class="form-label">Tipo de operação *</label><select class="form-control" id="inpFtUso"><option>Coleta Convencional</option><option>Coleta Seletiva</option><option>Cata-Treco</option><option>Apoio</option></select></div>
+
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin:16px 0 8px;">Telemetria</div>
+          <div class="form-group"><label class="form-label">Dispositivo de rastreamento (opcional)</label><input type="text" class="form-control" id="inpFtTelemetria" placeholder="Buscar dispositivo por ID ou modelo"></div>
+
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin:16px 0 8px;">Documentação</div>
+          <div class="form-group"><div style="font-size:12px;color:var(--text-muted);border:1px dashed var(--border-default);border-radius:6px;padding:12px;text-align:center;">Nenhum documento cadastrado — cadastre o CRLV para habilitar a escala deste ativo.</div></div>
+
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin:16px 0 8px;">Situação operacional</div>
+          <div class="form-group"><label class="form-label">Situação inicial</label><select class="form-control" id="inpFtSituacao"><option>Ativo</option><option>Manutenção</option><option>Inativo</option></select></div>
         </div>
         <div class="modal-footer"><button type="button" class="btn btn-secondary" onclick="closeModalNovoVeiculo()">Cancelar</button><button type="submit" class="btn btn-primary">Salvar Ativo</button></div>
       </form>
@@ -928,24 +1063,188 @@
   </div>
 
   <div class="modal-overlay" id="modalNovoMotorista">
-    <div class="modal-card">
+    <div class="modal-card" style="max-width: 640px;">
       <div class="modal-header">
-        <div><h2 style="font-size: 16px; font-weight: 700;">Cadastrar Novo Motorista de Coleta</h2></div>
+        <div><h2 style="font-size: 16px; font-weight: 700;">Cadastrar Novo Motorista</h2><span style="font-size:11px;color:var(--text-muted);">Preencha os dados obrigatórios para ativar o motorista e vinculá-lo às coletas.</span></div>
         <button style="border: none; background: transparent; cursor: pointer;" onclick="closeModalNovoMotorista()"><i data-lucide="x" style="width: 20px;"></i></button>
       </div>
       <form onsubmit="salvarNovoMotorista(event)">
-        <div class="modal-body">
+        <div class="modal-body" style="max-height:72vh;overflow-y:auto;">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin:0 0 8px;">Dados pessoais</div>
           <div class="form-row">
-            <div class="form-group"><label class="form-label">Nome Completo</label><input type="text" class="form-control" id="inpMotNome" required></div>
-            <div class="form-group"><label class="form-label">Matrícula</label><input type="text" class="form-control font-mono" id="inpMotMatricula" value="M-4415" readonly></div>
+            <div class="form-group"><label class="form-label">Nome completo *</label><input type="text" class="form-control" id="inpMotNome" placeholder="Nome completo do motorista" required></div>
+            <div class="form-group"><label class="form-label">CPF *</label><input type="text" class="form-control font-mono" id="inpMotCpf" placeholder="000.000.000-00" required></div>
           </div>
           <div class="form-row">
-            <div class="form-group"><label class="form-label">CNH</label><select class="form-control" id="inpMotCnhCat"><option value="Categoria E">Categoria E</option><option value="Categoria D">Categoria D</option></select></div>
-            <div class="form-group"><label class="form-label">Validade</label><input type="date" class="form-control" id="inpMotValidade" value="2028-10-15" required></div>
+            <div class="form-group"><label class="form-label">Data de nascimento</label><input type="date" class="form-control" id="inpMotNasc"></div>
+            <div class="form-group"><label class="form-label">Matrícula</label><input type="text" class="form-control font-mono" id="inpMotMatricula" value="M-4416" readonly></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Telefone</label><input type="text" class="form-control font-mono" id="inpMotTel" placeholder="(00) 00000-0000"></div>
+            <div class="form-group"><label class="form-label">E-mail</label><input type="email" class="form-control" id="inpMotEmail" placeholder="exemplo@coleta.ms"></div>
+          </div>
+          <div class="form-group"><label class="form-label">Status</label><select class="form-control" id="inpMotStatus"><option>Ativo</option><option>Inativo</option></select></div>
+
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin:16px 0 8px;">CNH (Habilitação)</div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Categoria *</label><select class="form-control" id="inpMotCnhCat"><option>Categoria E</option><option>Categoria D</option><option>Categoria C</option><option>Categoria B</option></select></div>
+            <div class="form-group"><label class="form-label">Número de registro *</label><input type="text" class="form-control font-mono" id="inpMotRegistro" placeholder="Nº da CNH" required></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Validade da CNH *</label><input type="date" class="form-control" id="inpMotValidade" value="2028-10-15" required></div>
+            <div class="form-group"><label class="form-label">Órgão emissor</label><input type="text" class="form-control" id="inpMotOrgao" value="DETRAN-MS"></div>
+          </div>
+          <div class="form-group"><label class="form-label">Upload do documento da CNH</label><div style="font-size:12px;color:var(--text-muted);border:1px dashed var(--border-default);border-radius:6px;padding:16px;text-align:center;cursor:pointer;" onclick="alert('Upload de documento (protótipo)')">Arraste ou clique para enviar · PDF ou imagem até 5MB</div></div>
+
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin:16px 0 8px;">Atribuição operacional</div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Equipe</label><select class="form-control" id="inpMotEquipe"><option>Selecione uma equipe</option><option>Coleta Convencional A</option><option>Coleta Seletiva</option></select></div>
+            <div class="form-group"><label class="form-label">Veículo preferencial</label><select class="form-control" id="inpMotVeic"><option>Selecione (opcional)</option><option>CAM-101</option><option>CAM-102</option><option>CAM-103</option></select></div>
           </div>
         </div>
         <div class="modal-footer"><button type="button" class="btn btn-secondary" onclick="closeModalNovoMotorista()">Cancelar</button><button type="submit" class="btn btn-primary">Cadastrar Condutor</button></div>
       </form>
+    </div>
+  </div>
+
+  <!-- MODAL: NOVO SETOR (desenho de polígono) -->
+  <div class="modal-overlay" id="modalNovoSetor">
+    <div class="modal-card" style="max-width: 780px;">
+      <div class="modal-header">
+        <div><h2 style="font-size: 16px; font-weight: 700;">Novo setor</h2><span style="font-size:11px;color:var(--text-muted);">Desenhe o polígono do setor — área, perímetro e logradouros são calculados.</span></div>
+        <button style="border: none; background: transparent; cursor: pointer;" onclick="closeModalNovoSetor()"><i data-lucide="x" style="width: 20px;"></i></button>
+      </div>
+      <form onsubmit="salvarNovoSetor(event)">
+        <div class="modal-body" style="max-height:74vh;overflow-y:auto;">
+          <div style="display:grid; grid-template-columns: 1fr 250px; gap:16px;">
+            <div>
+              <label class="form-label">Desenho geográfico do setor <span style="color:var(--text-muted);font-weight:400;">— clique para adicionar vértices</span></label>
+              <div style="border:1px solid var(--border-default); border-radius:var(--radius-md); overflow:hidden; background:#eef2f7;">
+                <svg id="setSvg" viewBox="0 0 520 320" style="width:100%; height:320px; display:block; cursor:crosshair;" onclick="setAddVertex(event)">
+                  <defs><pattern id="setGrid" width="26" height="26" patternUnits="userSpaceOnUse"><path d="M 26 0 L 0 0 0 26" fill="none" stroke="#dde5ee" stroke-width="1"/></pattern></defs>
+                  <rect width="520" height="320" fill="url(#setGrid)"/>
+                  <g id="setLayer"></g>
+                </svg>
+              </div>
+              <div style="display:flex; gap:10px; margin-top:8px; flex-wrap:wrap; align-items:center;">
+                <div style="flex:1;min-width:90px;"><div style="font-size:9px;font-weight:700;color:var(--text-muted);text-transform:uppercase;">Área calculada</div><div class="font-mono" id="setArea" style="font-weight:700;">-- km²</div></div>
+                <div style="flex:1;min-width:80px;"><div style="font-size:9px;font-weight:700;color:var(--text-muted);text-transform:uppercase;">Perímetro</div><div class="font-mono" id="setPerim" style="font-weight:700;">-- km</div></div>
+                <div style="flex:1;min-width:90px;"><div style="font-size:9px;font-weight:700;color:var(--text-muted);text-transform:uppercase;">Logradouros</div><div class="font-mono" id="setLog" style="font-weight:700;">0</div></div>
+                <div style="display:flex;gap:6px;">
+                  <button type="button" class="btn btn-secondary btn-sm" onclick="setUndo()">Desfazer</button>
+                  <button type="button" class="btn btn-secondary btn-sm" onclick="setClear()">Limpar</button>
+                </div>
+              </div>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:10px;">
+              <div class="form-group"><label class="form-label">Código *</label><input id="inpSetCod" class="form-control font-mono" readonly></div>
+              <div class="form-group"><label class="form-label">Nome do setor *</label><input id="inpSetNome" class="form-control" placeholder="Ex: Setor Centro 01" required></div>
+              <div class="form-group"><label class="form-label">Município *</label><select id="inpSetMunicipio" class="form-control"><option>Campo Grande</option><option>Terenos</option><option>Sidrolândia</option></select></div>
+              <div class="form-group"><label class="form-label">Tipo</label><select id="inpSetTipo" class="form-control"><option>Convencional</option><option>Seletiva</option><option>Misto</option></select></div>
+              <div class="form-group"><label class="form-label">Bairros abrangidos</label><input id="inpSetBairros" class="form-control" placeholder="Ex: Vila Nova, Coophavila II"></div>
+              <div class="form-group"><label class="form-label">População estimada</label><input id="inpSetPop" type="number" class="form-control font-mono" placeholder="0"></div>
+              <div class="form-group"><label class="form-label">Qtd domicílios</label><input id="inpSetDom" type="number" class="form-control font-mono" placeholder="0"></div>
+              <div class="form-group"><label class="form-label">Situação</label><select id="inpSetSit" class="form-control"><option>Ativo</option><option>Inativo</option></select></div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModalNovoSetor()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Salvar setor</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: NOVA ROTA (traçado desenhado) -->
+  <div class="modal-overlay" id="modalNovaRota">
+    <div class="modal-card" style="max-width: 840px;">
+      <div class="modal-header">
+        <div><h2 style="font-size: 16px; font-weight: 700;">Nova rota</h2><span style="font-size:11px;color:var(--text-muted);">Defina o traçado e a programação — distância e tempo são calculados.</span></div>
+        <button style="border: none; background: transparent; cursor: pointer;" onclick="closeModalNovaRota()"><i data-lucide="x" style="width: 20px;"></i></button>
+      </div>
+      <form onsubmit="salvarNovaRota(event)">
+        <div class="modal-body" style="max-height:74vh;overflow-y:auto;">
+          <div style="display:grid; grid-template-columns: 1fr 280px; gap:16px;">
+            <div>
+              <label class="form-label">Traçado da rota <span style="color:var(--text-muted);font-weight:400;">— clique no mapa para desenhar</span></label>
+              <div style="border:1px solid var(--border-default); border-radius:var(--radius-md); overflow:hidden; background:#eef2f7;">
+                <svg id="rotaSvg" viewBox="0 0 560 320" style="width:100%; height:320px; display:block; cursor:crosshair;" onclick="rotaAddPoint(event)">
+                  <defs><pattern id="rotaGrid" width="28" height="28" patternUnits="userSpaceOnUse"><path d="M 28 0 L 0 0 0 28" fill="none" stroke="#dde5ee" stroke-width="1"/></pattern></defs>
+                  <rect width="560" height="320" fill="url(#rotaGrid)"/>
+                  <g id="rotaLayer"></g>
+                </svg>
+              </div>
+              <div style="display:flex; gap:10px; margin-top:8px; flex-wrap:wrap; align-items:center;">
+                <div style="flex:1;min-width:110px;"><div style="font-size:9px;font-weight:700;color:var(--text-muted);text-transform:uppercase;">Distância prevista</div><div class="font-mono" id="rotaDist" style="font-weight:700;">-- km</div></div>
+                <div style="flex:1;min-width:100px;"><div style="font-size:9px;font-weight:700;color:var(--text-muted);text-transform:uppercase;">Tempo previsto</div><div class="font-mono" id="rotaTempo" style="font-weight:700;">-- min</div></div>
+                <div style="display:flex;gap:6px;">
+                  <button type="button" class="btn btn-secondary btn-sm" onclick="rotaUndo()">Desfazer</button>
+                  <button type="button" class="btn btn-secondary btn-sm" onclick="rotaClear()">Limpar</button>
+                </div>
+              </div>
+              <input type="hidden" id="inpRotaDist" value="0">
+            </div>
+            <div style="display:flex; flex-direction:column; gap:10px;">
+              <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);">Identificação</div>
+              <div class="form-group"><label class="form-label">Código *</label><input id="inpRotaCod" class="form-control font-mono" readonly></div>
+              <div class="form-group"><label class="form-label">Nome *</label><input id="inpRotaNome" class="form-control" placeholder="Nome da rota" required></div>
+              <div class="form-group"><label class="form-label">Município *</label><select id="inpRotaMun" class="form-control"><option>Campo Grande</option><option>Terenos</option><option>Sidrolândia</option></select></div>
+              <div class="form-group"><label class="form-label">Tipo de coleta *</label><select id="inpRotaTipo" class="form-control"><option>Domiciliar</option><option>Seletiva (Recicláveis)</option><option>Cata-Treco</option><option>Hospitalar (Infectante)</option></select></div>
+
+              <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-top:6px;">Programação</div>
+              <div class="form-group"><label class="form-label">Dias</label>
+                <div id="rotaDias" style="display:flex;flex-wrap:wrap;gap:4px;">
+                  <label style="font-size:11px;display:flex;align-items:center;gap:3px;"><input type="checkbox" value="Seg" checked>Seg</label>
+                  <label style="font-size:11px;display:flex;align-items:center;gap:3px;"><input type="checkbox" value="Ter">Ter</label>
+                  <label style="font-size:11px;display:flex;align-items:center;gap:3px;"><input type="checkbox" value="Qua" checked>Qua</label>
+                  <label style="font-size:11px;display:flex;align-items:center;gap:3px;"><input type="checkbox" value="Qui">Qui</label>
+                  <label style="font-size:11px;display:flex;align-items:center;gap:3px;"><input type="checkbox" value="Sex" checked>Sex</label>
+                  <label style="font-size:11px;display:flex;align-items:center;gap:3px;"><input type="checkbox" value="Sáb">Sáb</label>
+                  <label style="font-size:11px;display:flex;align-items:center;gap:3px;"><input type="checkbox" value="Dom">Dom</label>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group"><label class="form-label">Início</label><input type="time" id="inpRotaHIni" class="form-control" value="07:00"></div>
+                <div class="form-group"><label class="form-label">Término</label><input type="time" id="inpRotaHFim" class="form-control" value="15:00"></div>
+              </div>
+
+              <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-top:6px;">Atribuição</div>
+              <div class="form-group"><label class="form-label">Setor(es) atendido(s)</label><select id="inpRotaSetor" class="form-control"><option>Setor Centro 01</option><option>Setor Norte 05</option><option>Setor Leste 03</option></select></div>
+              <div class="form-group"><label class="form-label">Veículo</label><select id="inpRotaVeic" class="form-control"><option>CAM-101</option><option>CAM-102</option><option>CAM-103</option></select></div>
+              <div class="form-group"><label class="form-label">Equipe / Motorista</label><select id="inpRotaMot" class="form-control"><option>João Paulo Santos</option><option>Matheus Nogueira</option><option>Rafael Alencar</option></select></div>
+
+              <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-top:6px;">Situação</div>
+              <div class="form-group"><select id="inpRotaSit" class="form-control"><option>Ativo</option><option>Inativo</option></select></div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModalNovaRota()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Salvar rota</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: DETALHE DA ROTA -->
+  <div class="modal-overlay" id="modalRotaDetalhe">
+    <div class="modal-card" style="max-width: 720px;">
+      <div class="modal-header">
+        <div><h2 id="rotaDetTitulo" style="font-size: 16px; font-weight: 700;">Detalhe da Rota</h2><span id="rotaDetSub" style="font-size: 11px; color: var(--text-muted);"></span></div>
+        <button style="border: none; background: transparent; cursor: pointer;" onclick="closeRotaDetalhe()"><i data-lucide="x" style="width: 20px;"></i></button>
+      </div>
+      <div class="modal-body">
+        <div style="border:1px solid var(--border-default); border-radius:var(--radius-md); overflow:hidden; background:#eef2f7;">
+          <svg id="rotaDetSvg" viewBox="0 0 560 320" style="width:100%; height:300px; display:block;">
+            <defs><pattern id="rotaGridV" width="28" height="28" patternUnits="userSpaceOnUse"><path d="M 28 0 L 0 0 0 28" fill="none" stroke="#dde5ee" stroke-width="1"/></pattern></defs>
+            <rect width="560" height="320" fill="url(#rotaGridV)"/>
+            <g id="rotaDetLayer"></g>
+          </svg>
+        </div>
+        <div id="rotaDetInfo" style="margin-top:12px; display:grid; grid-template-columns:repeat(2,1fr); gap:10px;"></div>
+      </div>
+      <div class="modal-footer"><button type="button" class="btn btn-primary" onclick="closeRotaDetalhe()">Fechar</button></div>
     </div>
   </div>
 
@@ -1015,16 +1314,20 @@
     ];
 
     const motoristasData = [
-      { nome: "João Paulo Santos", matricula: "M-4410", cnh: "Categoria E", validade: "11/11/2028", tox: "Em Dia", veiculo: "CAM-101", nota: "9.8 / 10", status: "Escalado" },
-      { nome: "Matheus Nogueira", matricula: "M-4412", cnh: "Categoria D", validade: "05/04/2027", tox: "Em Dia", veiculo: "CAM-102", nota: "9.5 / 10", status: "Escalado" }
+      { nome: "João Paulo Santos", matricula: "M-4410", cnh: "Categoria E", validade: "11/11/2028", tox: "Em Dia", veiculo: "CAM-101", nota: "9.8 / 10", status: "Escalado",
+        cpf: "023.456.789-11", nascimento: "12/03/1985", telefone: "(67) 99999-0001", email: "joao.santos@coleta.ms", registro: "04521987654", orgao: "DETRAN-MS", primeiraHab: "12/03/2010", turno: "06:00 – 14:00", rota: "RT-C01 Centro", apto: true },
+      { nome: "Matheus Nogueira", matricula: "M-4412", cnh: "Categoria D", validade: "05/04/2027", tox: "Em Dia", veiculo: "CAM-102", nota: "9.5 / 10", status: "Escalado",
+        cpf: "034.567.890-22", nascimento: "22/07/1990", telefone: "(67) 99999-0002", email: "matheus.nogueira@coleta.ms", registro: "04521987655", orgao: "DETRAN-MS", primeiraHab: "05/04/2012", turno: "08:00 – 16:00", rota: "RT-S01 Seletiva", apto: true },
+      { nome: "Rafael Alencar", matricula: "M-4415", cnh: "Categoria D", validade: "12/03/2026", tox: "A vencer", veiculo: "CAM-103", nota: "9.1 / 10", status: "Impedido",
+        cpf: "045.678.901-33", nascimento: "30/09/1988", telefone: "(67) 99999-0003", email: "rafael.alencar@coleta.ms", registro: "04521987656", orgao: "DETRAN-SP", primeiraHab: "18/09/2011", turno: "—", rota: "—", apto: false }
     ];
 
     const rotasColetaData = [
-      { id: "RT-C01", nome: "RT-C01 · Centro Convencional A", tipo: "Domiciliar", turno: "Diurno (07h-15h) · Seg/Qua/Sex", distancia: "18,4 km", status: "Em Operação", badge: "success" },
-      { id: "RT-C02", nome: "RT-C02 · Centro Convencional B", tipo: "Domiciliar", turno: "Noturno (19h-03h) · Diário", distancia: "21,2 km", status: "Em Operação", badge: "success" },
-      { id: "RT-S01", nome: "RT-S01 · Afonso Pena Seletiva", tipo: "Seletiva (Recicláveis)", turno: "Diurno (08h-16h) · Ter/Qui/Sáb", distancia: "24,0 km", status: "Em Operação", badge: "success" },
-      { id: "RT-N01", nome: "RT-N01 · Setor Norte Domiciliar", tipo: "Domiciliar", turno: "Diurno (07h-15h) · Seg/Qua/Sex", distancia: "32,5 km", status: "Ativa", badge: "primary" },
-      { id: "RT-H01", nome: "RT-H01 · Rota Hospitalar RSU", tipo: "Hospitalar (Infectante)", turno: "Noturno (22h-05h) · Diário", distancia: "12,8 km", status: "Ativa", badge: "primary" }
+      { id: "RT-C01", nome: "RT-C01 · Centro Convencional A", tipo: "Domiciliar", turno: "Diurno (07h-15h) · Seg/Qua/Sex", distancia: "18,4 km", status: "Em Operação", badge: "success", cp: [{ x: 60, y: 240 }, { x: 160, y: 200 }, { x: 250, y: 210 }, { x: 340, y: 140 }, { x: 460, y: 120 }] },
+      { id: "RT-C02", nome: "RT-C02 · Centro Convencional B", tipo: "Domiciliar", turno: "Noturno (19h-03h) · Diário", distancia: "21,2 km", status: "Em Operação", badge: "success", cp: [{ x: 80, y: 90 }, { x: 180, y: 130 }, { x: 200, y: 230 }, { x: 320, y: 250 }, { x: 480, y: 200 }] },
+      { id: "RT-S01", nome: "RT-S01 · Afonso Pena Seletiva", tipo: "Seletiva (Recicláveis)", turno: "Diurno (08h-16h) · Ter/Qui/Sáb", distancia: "24,0 km", status: "Em Operação", badge: "success", cp: [{ x: 60, y: 160 }, { x: 200, y: 160 }, { x: 340, y: 160 }, { x: 470, y: 90 }] },
+      { id: "RT-N01", nome: "RT-N01 · Setor Norte Domiciliar", tipo: "Domiciliar", turno: "Diurno (07h-15h) · Seg/Qua/Sex", distancia: "32,5 km", status: "Ativa", badge: "success", cp: [{ x: 70, y: 260 }, { x: 130, y: 160 }, { x: 240, y: 120 }, { x: 360, y: 180 }, { x: 470, y: 250 }] },
+      { id: "RT-H01", nome: "RT-H01 · Rota Hospitalar RSU", tipo: "Hospitalar (Infectante)", turno: "Noturno (22h-05h) · Diário", distancia: "12,8 km", status: "Ativa", badge: "success", cp: [{ x: 120, y: 100 }, { x: 260, y: 140 }, { x: 300, y: 240 }] }
     ];
 
     const tiquetesData = [
@@ -1261,8 +1564,8 @@
       tbody.innerHTML = '';
       frotaData.forEach((ft, index) => {
         const tr = document.createElement('tr');
-        if (index === 0) tr.classList.add('selected');
-        tr.onclick = () => selectFrotaRow(ft, tr);
+        tr.style.cursor = 'pointer';
+        tr.onclick = () => openFrotaDetalhe(ft.id);
 
         tr.innerHTML = `
           <td style="padding:0; position:relative;"><div class="status-left-strip ${ft.strip}"></div></td>
@@ -1282,14 +1585,175 @@
     function selectFrotaRow(ft, tr) {
       document.querySelectorAll('#frotaFullTable tr').forEach(r => r.classList.remove('selected'));
       if (tr) tr.classList.add('selected');
-
-      document.getElementById('ftDrawerPrefixo').innerText = `${ft.id} · ${ft.tipo}`;
-      document.getElementById('ftDrawerPlaca').innerText = ft.placa;
-      document.getElementById('ftDrawerMotorista').innerText = ft.motorista;
-      document.getElementById('ftDrawerVel').innerText = ft.vel;
-      document.getElementById('ftDrawerBadge').innerText = `${ft.status} (${ft.vel})`;
-      document.getElementById('ftDrawerBadge').className = `badge badge-${ft.badge}`;
       activeTruckId = ft.id;
+    }
+
+    // ===== FROTA — página de detalhe com abas =====
+    let frotaDetActiveTab = 'visao';
+    function openFrotaDetalhe(id) {
+      const ft = frotaData.find(f => f.id === id);
+      if (!ft) return;
+      activeTruckId = ft.id;
+      frotaDetActiveTab = 'visao';
+      document.querySelectorAll('.tab-pane').forEach(p => p.style.display = 'none');
+      const pane = document.getElementById('tab-frota-detalhe');
+      pane.style.display = 'block';
+      const bc = document.getElementById('currentBreadcrumb'); if (bc) bc.innerText = `Ativos Móveis · ${ft.id}`;
+      renderFrotaDetalhe(ft);
+      if (window.lucide) lucide.createIcons();
+    }
+    function closeFrotaDetalhe() { switchTab('frota'); renderFrota(); }
+    function frotaDetTab(name) {
+      frotaDetActiveTab = name;
+      document.querySelectorAll('.fd-tabbtn').forEach(t => {
+        const on = t.dataset.tab === name;
+        t.style.borderBottom = on ? '2px solid var(--primary-500)' : '2px solid transparent';
+        t.style.color = on ? 'var(--text-primary)' : 'var(--text-muted)';
+        t.style.fontWeight = on ? '700' : '500';
+      });
+      document.querySelectorAll('.fd-panel').forEach(p => p.style.display = p.dataset.panel === name ? 'block' : 'none');
+    }
+    function renderFrotaDetalhe(ft) {
+      const box = document.getElementById('frotaDetalheContent');
+      if (!box) return;
+      const pront = (ft.status === 'Manutenção' || ft.status === 'Inativo') ? 4 : 5;
+      const prontBars = Array.from({ length: 5 }, (_, i) => `<div style="width:26px;height:6px;border-radius:3px;background:${i < pront ? '#10b981' : 'var(--surface-active)'};"></div>`).join('');
+      const card = (title, body) => `<div style="background:var(--surface-card);border:1px solid var(--border-default);border-radius:var(--radius-lg);padding:14px 16px;"><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:10px;">${title}</div>${body}</div>`;
+      const kv = (k, v, cor) => `<div style="display:flex;justify-content:space-between;gap:10px;font-size:12px;padding:3px 0;"><span style="color:var(--text-muted);">${k}</span><span style="font-weight:600;${cor ? 'color:' + cor : ''}">${v}</span></div>`;
+      const check = (ok, txt) => `<div style="display:flex;align-items:center;gap:8px;font-size:12px;padding:3px 0;"><span style="color:${ok ? '#10b981' : '#ef4444'};font-weight:700;">${ok ? '✓' : '✕'}</span><span>${txt}</span></div>`;
+
+      const tabs = [['visao', 'Visão geral'], ['telemetria', 'Telemetria'], ['execucoes', 'Execuções'], ['manutencao', 'Manutenção'], ['documentos', 'Documentos'], ['custos', 'Custos'], ['auditoria', 'Auditoria']];
+      const tabBar = `<div style="display:flex;gap:4px;border-bottom:1px solid var(--border-default);margin-bottom:16px;overflow-x:auto;">
+        ${tabs.map(([k, l]) => `<button class="fd-tabbtn" data-tab="${k}" onclick="frotaDetTab('${k}')" style="background:none;border:none;border-bottom:2px solid transparent;padding:8px 12px;font-size:13px;color:var(--text-muted);font-weight:500;cursor:pointer;white-space:nowrap;">${l}</button>`).join('')}
+      </div>`;
+
+      const emManut = ft.status === 'Manutenção';
+      const inativo = ft.status === 'Inativo';
+
+      // Painel Visão geral
+      const visaoPanel = `
+        <div style="display:grid;grid-template-columns:1fr 320px;gap:16px;align-items:start;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+            ${card('Disponibilidade', `
+              ${check(true, 'Documentação veicular válida')}
+              ${check(true, 'Rastreador ativo e transmitindo')}
+              ${check(true, 'Condutor habilitado vinculado')}
+              ${check(!emManut, emManut ? 'Manutenção preventiva em dia' : 'Manutenção preventiva em dia')}
+              ${check(!inativo, inativo ? 'Situação bloqueada' : 'Ativo para escala')}
+            `)}
+            ${card('Especificação técnica', `
+              ${kv('Marca / Modelo', ft.modelo)}
+              ${kv('Tipo de ativo', ft.tipo)}
+              ${kv('Capacidade', ft.capacidade)}
+              ${kv('Combustível', 'Diesel S10')}
+              ${kv('Ano fabricação', '2021')}
+            `)}
+            ${card('Dispositivo de telemetria', `
+              ${kv('Modelo', 'Suntech ST-940')}
+              ${kv('IMEI', '3512345678', '')}
+              ${kv('Sinal', ft.vel === '0 km/h' ? 'Parado' : 'Transmitindo', ft.vel === '0 km/h' ? '#f59e0b' : '#059669')}
+              ${kv('Firmware', 'v3.2.1')}
+            `)}
+            ${card('Última execução', `
+              ${kv('Rota', 'RT-C01 Centro')}
+              ${kv('Data', '24/08/2026')}
+              ${kv('Cobertura', '92%', '#059669')}
+              ${kv('Massa coletada', '12,2 t')}
+            `)}
+          </div>
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            ${card('Alertas e pendências', emManut || inativo ? `
+              <div style="background:var(--state-danger-bg);border:1px solid var(--state-danger-border);border-radius:6px;padding:8px 10px;font-size:12px;color:var(--state-danger-text);margin-bottom:8px;">Licença ambiental a vencer em 20 dias</div>
+              <div style="background:var(--state-warning-bg);border:1px solid var(--state-warning-border);border-radius:6px;padding:8px 10px;font-size:12px;color:var(--state-warning-text);">Manutenção ${emManut ? 'em andamento' : 'programada'} — Oficina Central</div>
+            ` : `<div style="font-size:12px;color:var(--text-muted);">Nenhuma pendência crítica. Ativo apto para operação.</div>`)}
+            ${card('Próximas ações', `
+              <div style="font-size:12px;color:var(--primary-600);display:flex;flex-direction:column;gap:8px;">
+                <a href="#" onclick="alert('Renovar licença (protótipo)');return false;">→ Renovar licença ambiental</a>
+                <a href="#" onclick="alert('Agendar manutenção (protótipo)');return false;">→ Agendar manutenção</a>
+                <a href="#" onclick="alert('Verificar rastreador (protótipo)');return false;">→ Verificar rastreador</a>
+              </div>
+            `)}
+          </div>
+        </div>`;
+
+      // Telemetria
+      const telemetriaPanel = `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;">
+        ${card('Velocidade', `<div class="font-mono" style="font-size:22px;font-weight:700;color:#2563eb;">${ft.vel}</div>`)}
+        ${card('Combustível', `<div class="font-mono" style="font-size:22px;font-weight:700;color:#059669;">78%</div>`)}
+        ${card('Horímetro', `<div class="font-mono" style="font-size:22px;font-weight:700;">1.420h</div>`)}
+        ${card('Temperatura', `<div class="font-mono" style="font-size:22px;font-weight:700;color:#059669;">88°C</div>`)}
+      </div>
+      <div style="margin-top:14px;">${card('Posição GPS', `<div style="font-size:12px;color:var(--text-muted);">Última posição: Av. Afonso Pena, Centro · há 3s · precisão 4m. <a href="#" onclick="switchTab('visao-geral',event);return false;" style="color:var(--primary-600);">Ver no mapa operacional →</a></div>`)}</div>`;
+
+      // Execuções
+      const execRows = [
+        ['24/08/2026', 'RT-C01 Centro', '92%', 'Concluída'],
+        ['23/08/2026', 'RT-C01 Centro', '88%', 'Concluída'],
+        ['22/08/2026', 'RT-S01 Seletiva', '0%', 'Cancelada']
+      ].map(r => `<tr><td class="mono">${r[0]}</td><td>${r[1]}</td><td class="mono">${r[2]}</td><td><span class="badge ${r[3] === 'Cancelada' ? 'badge-danger' : 'badge-success'}">${r[3]}</span></td></tr>`).join('');
+      const execucoesPanel = `<div class="table-container"><table class="data-table"><thead><tr><th>DATA</th><th>ROTA</th><th>COBERTURA</th><th>SITUAÇÃO</th></tr></thead><tbody>${execRows}</tbody></table></div>`;
+
+      // Manutenção
+      const manutencaoPanel = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        ${card('Manutenção pendente', emManut ? `${kv('Tipo', 'Troca de filtro de óleo')}${kv('Previsão retorno', '05/08/2026')}${kv('Oficina', 'Oficina Central')}${kv('Custo estimado', 'R$ 850,00')}` : `<div style="font-size:12px;color:var(--text-muted);">Sem manutenção pendente.</div>`)}
+        ${card('Próxima revisão', `${kv('Próxima revisão', 'Em 1.200 km', '#d97706')}${kv('Última intervenção', '27/07/2025')}${kv('Responsável', 'Oficina Central')}`)}
+      </div>`;
+
+      // Documentos
+      const docRows = [
+        ['CRLV — Registro e Licenciamento', 'Válido até 15/02/2026', 'badge-success'],
+        ['Licença Ambiental de Operação', 'Vence 01/06/2026', 'badge-warning'],
+        ['Seguro Obrigatório', 'Válido até 12/2026', 'badge-success']
+      ].map(d => `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border-default);font-size:13px;"><span>${d[0]}</span><span class="badge ${d[2]}">${d[1]}</span></div>`).join('');
+      const documentosPanel = card('Documentação do ativo', docRows);
+
+      // Custos
+      const custosPanel = `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
+        ${card('Consumo diesel', `<div class="font-mono" style="font-size:22px;font-weight:700;color:#10b981;">2,4 km/l</div>`)}
+        ${card('Custo manutenção (mês)', `<div class="font-mono" style="font-size:22px;font-weight:700;">R$ 1.240</div>`)}
+        ${card('Custo/km rodado', `<div class="font-mono" style="font-size:22px;font-weight:700;">R$ 3,80</div>`)}
+      </div>`;
+
+      // Auditoria
+      const audit = [
+        ['27/07/2025 10:18', 'Manutenção concluída por Carlos Eduardo Silva'],
+        ['05/06/2025', 'Situação alterada: Ativo → Manutenção'],
+        ['02/06/2025', 'Ativo cadastrado por Ana Beatriz Costa']
+      ].map(a => `<div style="display:flex;gap:10px;font-size:12px;margin-bottom:8px;"><span class="mono" style="color:var(--text-muted);min-width:120px;">${a[0]}</span><span>${a[1]}</span></div>`).join('');
+      const auditoriaPanel = card('Trilha de auditoria', audit);
+
+      box.innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:8px;">
+          <div>
+            <button class="btn btn-secondary btn-sm" onclick="closeFrotaDetalhe()">‹ Voltar para a frota</button>
+            <div style="display:flex;align-items:center;gap:12px;margin-top:12px;">
+              <div style="width:46px;height:46px;border-radius:8px;background:#2563eb;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;">${ft.id.slice(0, 3)}</div>
+              <div>
+                <h1 class="page-title" style="margin:0;font-size:20px;">${ft.id} · ${ft.tipo}</h1>
+                <div style="margin-top:4px;"><span class="badge badge-${ft.badge}">${ft.status}</span><span style="font-size:12px;color:var(--text-muted);margin-left:8px;">Placa ${ft.placa} · ${ft.modelo}</span></div>
+              </div>
+            </div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;">Prontidão operacional</div>
+            <div style="font-weight:700;font-size:14px;margin-top:2px;">${pront} de 5 requisitos</div>
+            <div style="display:flex;gap:3px;margin:6px 0 10px;justify-content:flex-end;">${prontBars}</div>
+            <div style="display:flex;gap:8px;justify-content:flex-end;">
+              <button class="btn btn-secondary btn-sm" onclick="alert('Editar ativo (protótipo)')">Editar</button>
+              <button class="btn btn-secondary btn-sm" onclick="alert('Alterar situação (protótipo)')">Alterar situação</button>
+              <button class="btn btn-primary btn-sm" onclick="switchTab('visao-geral',event)">Localizar no mapa</button>
+            </div>
+          </div>
+        </div>
+        ${tabBar}
+        <div class="fd-panel" data-panel="visao">${visaoPanel}</div>
+        <div class="fd-panel" data-panel="telemetria" style="display:none;">${telemetriaPanel}</div>
+        <div class="fd-panel" data-panel="execucoes" style="display:none;">${execucoesPanel}</div>
+        <div class="fd-panel" data-panel="manutencao" style="display:none;">${manutencaoPanel}</div>
+        <div class="fd-panel" data-panel="documentos" style="display:none;">${documentosPanel}</div>
+        <div class="fd-panel" data-panel="custos" style="display:none;">${custosPanel}</div>
+        <div class="fd-panel" data-panel="auditoria" style="display:none;">${auditoriaPanel}</div>`;
+      frotaDetTab('visao');
     }
 
     function renderRotas() {
@@ -1309,7 +1773,7 @@
           <td>${rt.turno}</td>
           <td class="mono"><strong>${rt.distancia}</strong></td>
           <td><span class="badge badge-${rt.badge}">${rt.status}</span></td>
-          <td><button class="btn btn-secondary btn-sm" onclick="alert('Ver no mapa: ${rt.nome}')">Ver no Mapa</button></td>
+          <td><button class="btn btn-secondary btn-sm" onclick="event.stopPropagation(); verRotaDetalhe('${rt.id}')">Ver detalhe</button></td>
         `;
         tbody.appendChild(tr);
       });
@@ -1321,24 +1785,397 @@
       document.getElementById('mapRotaTitle').innerText = `Rota ${rt.nome}`;
     }
 
+    // ===== ROTAS — traçado (distância/tempo calculados), cadastro e detalhe =====
+    const ROTA_SCALE = 0.05;   // km por unidade do viewBox
+    const ROTA_VEL = 20;       // km/h média p/ tempo previsto
+    let rotaCheckpoints = [];
+    function rotaPointFromEvent(evt, svg) {
+      const pt = svg.createSVGPoint(); pt.x = evt.clientX; pt.y = evt.clientY;
+      const ctm = svg.getScreenCTM(); if (!ctm) return null;
+      const p = pt.matrixTransform(ctm.inverse());
+      return { x: Math.round(p.x), y: Math.round(p.y) };
+    }
+    function rotaDistKm(pts) {
+      let d = 0; for (let i = 1; i < pts.length; i++) { d += Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y); }
+      return d * ROTA_SCALE;
+    }
+    function drawRotaTracado(layerId, pts) {
+      const layer = document.getElementById(layerId); if (!layer) return;
+      let s = '';
+      if (pts.length > 1) s += `<polyline points="${pts.map(p => `${p.x},${p.y}`).join(' ')}" fill="none" stroke="#2563eb" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>`;
+      pts.forEach((p, i) => {
+        const first = i === 0, last = i === pts.length - 1 && pts.length > 1;
+        const cor = first ? '#10b981' : (last ? '#ef4444' : '#2563eb');
+        s += `<circle cx="${p.x}" cy="${p.y}" r="7" fill="${cor}"/>`;
+        if (first) s += `<text x="${p.x}" y="${p.y - 11}" text-anchor="middle" font-size="9" font-weight="700" fill="#10b981">INÍCIO</text>`;
+        if (last) s += `<text x="${p.x}" y="${p.y - 11}" text-anchor="middle" font-size="9" font-weight="700" fill="#ef4444">FIM</text>`;
+      });
+      layer.innerHTML = s;
+    }
+    function rotaRefresh() {
+      drawRotaTracado('rotaLayer', rotaCheckpoints);
+      const dist = rotaDistKm(rotaCheckpoints);
+      const tempoMin = Math.round(dist / ROTA_VEL * 60);
+      const set = (id, v) => { const el = document.getElementById(id); if (el) el.innerText = v; };
+      set('rotaDist', rotaCheckpoints.length >= 2 ? dist.toFixed(1).replace('.', ',') + ' km' : '-- km');
+      set('rotaTempo', rotaCheckpoints.length >= 2 ? tempoMin + ' min' : '-- min');
+      const h = document.getElementById('inpRotaDist'); if (h) h.value = dist.toFixed(1);
+    }
+    function rotaAddPoint(evt) { const svg = document.getElementById('rotaSvg'); const p = rotaPointFromEvent(evt, svg); if (p) { rotaCheckpoints.push(p); rotaRefresh(); } }
+    function rotaUndo() { rotaCheckpoints.pop(); rotaRefresh(); }
+    function rotaClear() { rotaCheckpoints = []; rotaRefresh(); }
+    function openModalNovaRota() {
+      rotaCheckpoints = [];
+      document.getElementById('inpRotaCod').value = `RT-N${(rotasColetaData.length + 1).toString().padStart(2, '0')}`;
+      document.getElementById('inpRotaNome').value = '';
+      rotaRefresh();
+      document.getElementById('modalNovaRota').classList.add('active');
+    }
+    function closeModalNovaRota() { document.getElementById('modalNovaRota').classList.remove('active'); }
+    function salvarNovaRota(e) {
+      e.preventDefault();
+      if (rotaCheckpoints.length < 2) { alert('Desenhe ao menos 2 pontos para traçar a rota.'); return; }
+      const cod = document.getElementById('inpRotaCod').value;
+      const nomeBase = document.getElementById('inpRotaNome').value;
+      const tipo = document.getElementById('inpRotaTipo').value;
+      const dist = rotaDistKm(rotaCheckpoints);
+      const dias = Array.from(document.querySelectorAll('#rotaDias input:checked')).map(c => c.value).join('/') || '—';
+      const hIni = document.getElementById('inpRotaHIni').value, hFim = document.getElementById('inpRotaHFim').value;
+      const sit = document.getElementById('inpRotaSit').value;
+      const nova = {
+        id: cod, nome: `${cod} · ${nomeBase}`, tipo, turno: `${hIni}-${hFim} · ${dias}`,
+        distancia: dist.toFixed(1).replace('.', ',') + ' km', status: sit === 'Ativo' ? 'Ativa' : 'Inativa', badge: sit === 'Ativo' ? 'success' : 'neutral',
+        cp: [...rotaCheckpoints],
+        municipio: document.getElementById('inpRotaMun').value, setor: document.getElementById('inpRotaSetor').value,
+        veiculo: document.getElementById('inpRotaVeic').value, motorista: document.getElementById('inpRotaMot').value
+      };
+      rotasColetaData.unshift(nova);
+      renderRotas();
+      closeModalNovaRota();
+      alert(`✅ Rota cadastrada!\n\n${cod} · ${nomeBase}\nTipo: ${tipo}\nDistância calculada: ${nova.distancia} · ~${Math.round(dist / ROTA_VEL * 60)} min\nDias: ${dias} · ${hIni}-${hFim}`);
+    }
+    function verRotaDetalhe(id) {
+      const rt = rotasColetaData.find(r => r.id === id);
+      if (!rt) return;
+      document.getElementById('rotaDetTitulo').innerText = rt.nome;
+      document.getElementById('rotaDetSub').innerText = `${rt.id} · ${rt.tipo}`;
+      drawRotaTracado('rotaDetLayer', rt.cp || []);
+      const tempoMin = Math.round((parseFloat(String(rt.distancia).replace(',', '.')) || 0) / ROTA_VEL * 60);
+      const chip = (k, v) => `<div style="background:var(--surface-hover);border:1px solid var(--border-default);border-radius:6px;padding:8px 10px;font-size:12px;"><div style="color:var(--text-muted);font-size:10px;text-transform:uppercase;">${k}</div><div style="font-weight:700;">${v}</div></div>`;
+      document.getElementById('rotaDetInfo').innerHTML =
+        chip('Distância', rt.distancia) + chip('Tempo estimado', tempoMin + ' min') +
+        chip('Tipo de coleta', rt.tipo) + chip('Programação', rt.turno) +
+        chip('Município', rt.municipio || 'Campo Grande') + chip('Situação', rt.status);
+      document.getElementById('modalRotaDetalhe').classList.add('active');
+    }
+    function closeRotaDetalhe() { document.getElementById('modalRotaDetalhe').classList.remove('active'); }
+
     function renderMotoristas() {
       const tbody = document.getElementById('motoristasTable');
       if (!tbody) return;
       tbody.innerHTML = '';
       motoristasData.forEach((mot) => {
         const tr = document.createElement('tr');
+        tr.style.cursor = 'pointer';
+        tr.onclick = () => openMotoristaDetalhe(mot.matricula);
+        const toxBadge = mot.tox === 'Em Dia' ? 'badge-success' : 'badge-warning';
+        const sitBadge = mot.status === 'Escalado' ? 'badge-success' : (mot.status === 'Impedido' ? 'badge-danger' : 'badge-neutral');
         tr.innerHTML = `
           <td><strong>${mot.nome}</strong></td>
           <td class="mono">${mot.matricula}</td>
           <td><span class="badge badge-neutral">${mot.cnh}</span></td>
           <td class="mono">${mot.validade}</td>
-          <td><span class="badge badge-success">${mot.tox}</span></td>
+          <td><span class="badge ${toxBadge}">${mot.tox}</span></td>
           <td class="mono"><strong>${mot.veiculo}</strong></td>
           <td class="mono" style="color: #059669;"><strong>${mot.nota}</strong></td>
-          <td><span class="badge badge-success">${mot.status}</span></td>
+          <td><span class="badge ${sitBadge}">${mot.status}</span></td>
         `;
         tbody.appendChild(tr);
       });
+    }
+
+    // ===== MOTORISTA — página de detalhe com abas =====
+    let motDetActiveTab = 'visao';
+    function openMotoristaDetalhe(matricula) {
+      const m = motoristasData.find(x => x.matricula === matricula);
+      if (!m) return;
+      motDetActiveTab = 'visao';
+      document.querySelectorAll('.tab-pane').forEach(p => p.style.display = 'none');
+      document.getElementById('tab-motorista-detalhe').style.display = 'block';
+      const bc = document.getElementById('currentBreadcrumb'); if (bc) bc.innerText = `Motoristas · ${m.nome}`;
+      renderMotoristaDetalhe(m);
+      if (window.lucide) lucide.createIcons();
+    }
+    function closeMotoristaDetalhe() { switchTab('motoristas'); renderMotoristas(); }
+    function motDetTab(name) {
+      motDetActiveTab = name;
+      document.querySelectorAll('.md-tabbtn').forEach(t => {
+        const on = t.dataset.tab === name;
+        t.style.borderBottom = on ? '2px solid var(--primary-500)' : '2px solid transparent';
+        t.style.color = on ? 'var(--text-primary)' : 'var(--text-muted)';
+        t.style.fontWeight = on ? '700' : '500';
+      });
+      document.querySelectorAll('.md-panel').forEach(p => p.style.display = p.dataset.panel === name ? 'block' : 'none');
+    }
+    function renderMotoristaDetalhe(m) {
+      const box = document.getElementById('motoristaDetalheContent');
+      if (!box) return;
+      const card = (title, body) => `<div style="background:var(--surface-card);border:1px solid var(--border-default);border-radius:var(--radius-lg);padding:14px 16px;"><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:10px;">${title}</div>${body}</div>`;
+      const kv = (k, v, cor) => `<div style="display:flex;justify-content:space-between;gap:10px;font-size:12px;padding:3px 0;"><span style="color:var(--text-muted);">${k}</span><span style="font-weight:600;${cor ? 'color:' + cor : ''}">${v}</span></div>`;
+      const check = (ok, txt) => `<div style="display:flex;align-items:center;gap:8px;font-size:12px;padding:3px 0;"><span style="color:${ok ? '#10b981' : '#ef4444'};font-weight:700;">${ok ? '✓' : '✕'}</span><span>${txt}</span></div>`;
+      const apto = m.apto;
+      const reqOk = apto ? 4 : 2;
+      const iniciais = m.nome.split(' ').map(s => s[0]).slice(0, 2).join('');
+
+      const tabs = [['visao', 'Visão geral'], ['habilitacao', 'Habilitação'], ['escala', 'Escala'], ['execucoes', 'Execuções'], ['afastamentos', 'Afastamentos'], ['documentos', 'Documentos']];
+      const tabBar = `<div style="display:flex;gap:4px;border-bottom:1px solid var(--border-default);margin-bottom:16px;overflow-x:auto;">
+        ${tabs.map(([k, l]) => `<button class="md-tabbtn" data-tab="${k}" onclick="motDetTab('${k}')" style="background:none;border:none;border-bottom:2px solid transparent;padding:8px 12px;font-size:13px;color:var(--text-muted);font-weight:500;cursor:pointer;white-space:nowrap;">${l}</button>`).join('')}
+      </div>`;
+
+      // Visão geral
+      const infoRapida = `${card('Informações rápidas', `
+        <div style="background:${apto ? 'var(--state-success-bg)' : 'var(--state-danger-bg)'};border:1px solid ${apto ? 'var(--state-success-border)' : 'var(--state-danger-border)'};border-radius:6px;padding:8px 10px;font-size:12px;color:${apto ? 'var(--state-success-text)' : 'var(--state-danger-text)'};margin-bottom:8px;">
+          ${apto ? 'Habilitação em dia' : 'CNH a vencer — escala impedida'}<br><span style="font-size:11px;">CNH ${m.cnh} · Venc.: ${m.validade}</span>
+        </div>
+        <div style="font-size:12px;color:var(--text-muted);">Afastamento programado: nenhum agendamento ativo</div>
+      `)}
+      ${card('Ações de rotina', `<div style="font-size:12px;color:var(--primary-600);display:flex;flex-direction:column;gap:8px;">
+        <a href="#" onclick="alert('Imprimir ficha (protótipo)');return false;">→ Imprimir ficha cadastral</a>
+        <a href="#" onclick="alert('Atualizar prontuário (protótipo)');return false;">→ Atualizar prontuário</a>
+      </div>`)}`;
+
+      const visaoPanel = `<div style="display:grid;grid-template-columns:1fr 300px;gap:16px;align-items:start;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+          ${card('Aptidão para conduzir', `
+            ${check(apto, 'Habilitação CNH regularizada')}
+            ${check(m.tox === 'Em Dia', 'Exame toxicológico válido')}
+            ${check(true, 'Treinamento de segurança concluído')}
+            ${check(apto, 'Avaliação médica apta')}
+          `)}
+          ${card('Habilitação CNH', `
+            ${kv('Categoria', m.cnh.replace('Categoria ', ''))}
+            ${kv('Nº registro', m.registro)}
+            ${kv('Validade', m.validade, apto ? '' : '#ef4444')}
+            ${kv('Status', apto ? 'Em dia' : 'A vencer', apto ? '#059669' : '#d97706')}
+          `)}
+          ${card('Escala de trabalho', `
+            ${kv('Escala ativa', apto ? 'Matutina' : '—')}
+            ${kv('Rota designada', m.rota)}
+            ${kv('Turno', m.turno)}
+            ${kv('Próxima escala', apto ? '29/07/2026' : '—')}
+          `)}
+          ${card('Últimas execuções', `
+            ${kv('28/07 · ' + m.veiculo, '98% · Concluída', '#059669')}
+            ${kv('27/07 · ' + m.veiculo, '100% · Concluída', '#059669')}
+            ${kv('25/07 · ' + m.veiculo, '85% · Concluída', '#059669')}
+          `)}
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px;">${infoRapida}</div>
+      </div>`;
+
+      // Habilitação
+      const habilitacaoPanel = `
+        ${card('Carteira Nacional de Habilitação (CNH)', `<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+          ${kv('Categoria atual', m.cnh.replace('Categoria ', ''))}${kv('Primeira habilitação', m.primeiraHab)}
+          ${kv('Número de registro', m.registro)}${kv('Validade da CNH', m.validade, apto ? '' : '#ef4444')}
+          ${kv('Órgão emissor', m.orgao)}${kv('Situação legal', apto ? 'Válida / Regular' : 'Impedido — CNH a vencer', apto ? '#059669' : '#ef4444')}
+        </div>`)}
+        <div style="margin-top:14px;background:var(--state-warning-bg);border:1px solid var(--state-warning-border);border-radius:6px;padding:12px;font-size:12px;color:var(--state-warning-text);">
+          <b>Regra de bloqueio automático:</b> o sistema impede a escalação e vinculação do motorista caso a validade da CNH expire — a situação passa para "Impedido — CNH vencida".
+        </div>
+        <div style="margin-top:14px;">${card('Histórico de renovações', `
+          <div style="display:flex;justify-content:space-between;font-size:12px;padding:6px 0;border-bottom:1px solid var(--border-default);"><span>${m.primeiraHab} · Primeira habilitação</span><span class="mono">${m.orgao}</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;padding:6px 0;"><span>Renovação periódica</span><span class="mono">${m.orgao}</span></div>
+        `)}</div>`;
+
+      // Escala
+      const escalaPanel = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        ${card('Escala ativa', `${kv('Escala', apto ? 'Matutina' : '— sem escala')}${kv('Rota designada', m.rota)}${kv('Turno', m.turno)}${kv('Veículo', m.veiculo)}`)}
+        ${card('Próximos plantões', apto ? `${kv('29/07/2026', 'Matutina · ' + m.rota)}${kv('30/07/2026', 'Matutina · ' + m.rota)}` : `<div style="font-size:12px;color:var(--text-muted);">Escalação bloqueada até regularização da CNH.</div>`)}
+      </div>`;
+
+      // Execuções
+      const execRows = [['28/07/2026', 'RT-C01 Centro', '98%', 'Concluída'], ['27/07/2026', 'RT-C01 Centro', '100%', 'Concluída'], ['25/07/2026', 'RT-S01 Seletiva', '85%', 'Concluída'], ['22/07/2026', 'RT-S01 Seletiva', '0%', 'Cancelada']]
+        .map(r => `<tr><td class="mono">${r[0]}</td><td>${r[1]}</td><td class="mono">${r[2]}</td><td><span class="badge ${r[3] === 'Cancelada' ? 'badge-danger' : 'badge-success'}">${r[3]}</span></td></tr>`).join('');
+      const execucoesPanel = `<div class="table-container"><table class="data-table"><thead><tr><th>DATA</th><th>ROTA</th><th>COBERTURA</th><th>SITUAÇÃO</th></tr></thead><tbody>${execRows}</tbody></table></div>`;
+
+      // Afastamentos
+      const afastamentosPanel = card('Histórico de afastamentos', `
+        <div style="display:flex;justify-content:space-between;font-size:12px;padding:8px 0;border-bottom:1px solid var(--border-default);"><span>Licença médica</span><span class="mono" style="color:var(--text-muted);">18/01/2026 – 24/01/2026</span></div>
+        <div style="font-size:12px;color:var(--text-muted);padding-top:8px;">Nenhum afastamento em andamento.</div>`);
+
+      // Documentos
+      const docsPanel = card('Documentos e licenças', `
+        ${['CNH Digital · Válida', 'Exame Toxicológico · Em dia', 'Curso de Coleta Residencial · Em dia', 'Comprovante de residência · Em dia'].map(d => `<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border-default);font-size:13px;"><span>${d.split(' · ')[0]}</span><span class="badge badge-success">${d.split(' · ')[1]}</span></div>`).join('')}
+      `);
+
+      box.innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:8px;">
+          <div>
+            <button class="btn btn-secondary btn-sm" onclick="closeMotoristaDetalhe()">‹ Voltar para motoristas</button>
+            <div style="display:flex;align-items:center;gap:12px;margin-top:12px;">
+              <div style="width:46px;height:46px;border-radius:50%;background:#2563eb;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;">${iniciais}</div>
+              <div>
+                <h1 class="page-title" style="margin:0;font-size:20px;">${m.nome}</h1>
+                <div style="margin-top:4px;"><span class="badge badge-neutral">Motorista</span> <span class="badge ${apto ? 'badge-success' : 'badge-danger'}">${m.status}</span><span style="font-size:12px;color:var(--text-muted);margin-left:8px;">Matrícula ${m.matricula}</span></div>
+              </div>
+            </div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;">Prontidão operacional</div>
+            <div style="font-weight:700;font-size:14px;margin-top:2px;color:${apto ? '#059669' : '#ef4444'};">${reqOk} de 4 · ${apto ? 'apto a conduzir' : 'impedido'}</div>
+            <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px;">
+              <button class="btn btn-secondary btn-sm" onclick="alert('Editar motorista (protótipo)')">Editar</button>
+              <button class="btn btn-secondary btn-sm" onclick="alert('Vincular à escala (protótipo)')">Vincular à escala</button>
+              <button class="btn btn-primary btn-sm" onclick="alert('Gerir afastamento (protótipo)')">Gerir afastamento</button>
+            </div>
+          </div>
+        </div>
+        ${tabBar}
+        <div class="md-panel" data-panel="visao">${visaoPanel}</div>
+        <div class="md-panel" data-panel="habilitacao" style="display:none;">${habilitacaoPanel}</div>
+        <div class="md-panel" data-panel="escala" style="display:none;">${escalaPanel}</div>
+        <div class="md-panel" data-panel="execucoes" style="display:none;">${execucoesPanel}</div>
+        <div class="md-panel" data-panel="afastamentos" style="display:none;">${afastamentosPanel}</div>
+        <div class="md-panel" data-panel="documentos" style="display:none;">${docsPanel}</div>`;
+      motDetTab('visao');
+    }
+
+    // ===== SETORES =====
+    const setoresData = [
+      { cod: "ST-C01", nome: "Setor Centro 01", tipo: "Convencional", municipio: "Campo Grande", bairros: "Centro, Amambaí", pop: 12450, dom: 4180, area: "11,8 km²", cobertura: "Coberto", rota: "RT-C01", ultima: "28/07/2026", alt: [["28/07/2026", "Rota RT-C01 confirmada"], ["02/06/2025", "Setor criado"]] },
+      { cod: "ST-C02", nome: "Setor Centro 02", tipo: "Seletiva", municipio: "Campo Grande", bairros: "Cabreúva, São Francisco", pop: 9800, dom: 3220, area: "8,4 km²", cobertura: "Coberto", rota: "RT-S01", ultima: "27/07/2026", alt: [["27/07/2026", "Cobertura atualizada"]] },
+      { cod: "ST-N05", nome: "Setor Norte 05", tipo: "Convencional", municipio: "Campo Grande", bairros: "Vila Nova, Coophavila II", pop: 12450, dom: 4180, area: "13,2 km²", cobertura: "Descoberto", rota: null, ultima: "15/06/2025", alt: [["20/06/2025", "Geometria atualizada por Ana Beatriz Costa"], ["15/06/2025", "Rota Norte 03 desvinculada por Sistema"]] },
+      { cod: "ST-N06", nome: "Setor Norte 06", tipo: "Misto", municipio: "Campo Grande", bairros: "Nova Lima", pop: 15200, dom: 5100, area: "16,0 km²", cobertura: "Parcial", rota: "RT-N02", ultima: "20/07/2026", alt: [["20/07/2026", "Rota RT-N02 sub-dimensionada"]] },
+      { cod: "ST-L03", nome: "Setor Leste 03", tipo: "Convencional", municipio: "Campo Grande", bairros: "Tiradentes", pop: 8600, dom: 2900, area: "9,1 km²", cobertura: "Coberto", rota: "RT-L03", ultima: "26/07/2026", alt: [["26/07/2026", "Cobertura confirmada"]] },
+      { cod: "ST-S02", nome: "Setor Sul 02", tipo: "Seletiva", municipio: "Campo Grande", bairros: "Los Angeles", pop: 7300, dom: 2450, area: "7,0 km²", cobertura: "Coberto", rota: "RT-S02", ultima: "25/07/2026", alt: [["25/07/2026", "Cobertura confirmada"]] },
+      { cod: "ST-T01", nome: "Setor Terenos 01", tipo: "Convencional", municipio: "Terenos", bairros: "Centro", pop: 4200, dom: 1400, area: "5,2 km²", cobertura: "Parcial", rota: "RT-T01", ultima: "18/07/2026", alt: [["18/07/2026", "Rota parcial vinculada"]] },
+      { cod: "ST-SD1", nome: "Setor Sidrolândia 01", tipo: "Convencional", municipio: "Sidrolândia", bairros: "Centro", pop: 5100, dom: 1700, area: "6,4 km²", cobertura: "Descoberto", rota: null, ultima: "10/06/2025", alt: [["10/06/2025", "Setor criado sem rota"]] }
+    ];
+    let selectedSetorCod = null;
+    const cobBadge = { Coberto: 'badge-success', Parcial: 'badge-warning', Descoberto: 'badge-danger' };
+    const cobStrip = { Coberto: 'strip-success', Parcial: 'strip-warning', Descoberto: 'strip-danger' };
+
+    function limparFiltrosSetores() {
+      ['setBusca', 'setFiltroTipo', 'setFiltroCob'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+      renderSetores();
+    }
+    function selectSetor(cod) { selectedSetorCod = cod; renderSetores(); }
+    function renderSetores() {
+      const tbody = document.getElementById('setoresTable');
+      if (!tbody) return;
+      const q = (document.getElementById('setBusca')?.value || '').toLowerCase();
+      const fTipo = document.getElementById('setFiltroTipo')?.value || '';
+      const fCob = document.getElementById('setFiltroCob')?.value || '';
+      const list = setoresData.filter(s =>
+        (!q || s.nome.toLowerCase().includes(q) || s.cod.toLowerCase().includes(q)) &&
+        (!fTipo || s.tipo === fTipo) && (!fCob || s.cobertura === fCob));
+      tbody.innerHTML = list.map(s => `
+        <tr style="cursor:pointer;" onclick="selectSetor('${s.cod}')" class="${s.cod === selectedSetorCod ? 'selected' : ''}">
+          <td style="padding:0;position:relative;"><div style="width:4px;height:100%;position:absolute;left:0;top:0;" class="${cobStrip[s.cobertura]}"></div></td>
+          <td><strong>${s.nome}</strong><br><span class="mono" style="font-size:11px;color:var(--text-muted);">${s.cod}</span></td>
+          <td>${s.tipo}</td>
+          <td>${s.municipio}</td>
+          <td class="mono">${s.pop.toLocaleString('pt-BR')}</td>
+          <td><span class="badge ${cobBadge[s.cobertura]}">${s.cobertura}</span></td>
+        </tr>`).join('');
+      const empty = document.getElementById('setoresEmpty');
+      if (empty) empty.style.display = list.length ? 'none' : 'block';
+
+      const set = (id, v) => { const el = document.getElementById(id); if (el) el.innerText = v; };
+      set('kpiSetTotal', setoresData.length);
+      set('kpiSetCobertos', setoresData.filter(s => s.cobertura === 'Coberto').length);
+      set('kpiSetDescobertos', setoresData.filter(s => s.cobertura === 'Descoberto').length);
+      set('kpiSetParcial', setoresData.filter(s => s.cobertura === 'Parcial').length);
+
+      if (!selectedSetorCod || !setoresData.find(s => s.cod === selectedSetorCod)) {
+        selectedSetorCod = list[0] ? list[0].cod : (setoresData[0] ? setoresData[0].cod : null);
+      }
+      renderSetorDetail();
+    }
+    function renderSetorDetail() {
+      const box = document.getElementById('setorDetailPanel');
+      if (!box) return;
+      const s = setoresData.find(x => x.cod === selectedSetorCod);
+      if (!s) { box.innerHTML = `<div style="padding:24px;color:var(--text-muted);font-size:13px;">Selecione um setor.</div>`; return; }
+      const sec = t => `<div style="font-size:10px;font-weight:700;letter-spacing:.6px;color:var(--text-muted);text-transform:uppercase;margin:16px 0 8px;">${t}</div>`;
+      const cobCor = s.cobertura === 'Coberto' ? '#059669' : (s.cobertura === 'Parcial' ? '#d97706' : '#ef4444');
+      const alts = (s.alt || []).map(a => `<div style="display:flex;gap:8px;font-size:11px;margin-bottom:6px;"><span class="mono" style="color:var(--text-muted);min-width:72px;">${a[0]}</span><span>${a[1]}</span></div>`).join('');
+      box.innerHTML = `
+        <div style="padding:16px;border-bottom:1px solid var(--border-default);display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+          <div><div style="font-weight:700;font-size:15px;">${s.nome}</div><div class="mono" style="font-size:11px;color:var(--text-muted);margin-top:2px;">${s.cod} · ${s.tipo}</div></div>
+          <span class="badge ${cobBadge[s.cobertura]}">${s.cobertura}</span>
+        </div>
+        <div style="padding:0 16px 16px;">
+          ${sec('Cobertura')}
+          ${s.rota
+          ? `<div style="font-size:12px;">Rota ativa: <b>${s.rota}</b><br><span style="color:var(--text-muted);">Última cobertura: ${s.ultima}</span></div>`
+          : `<div style="background:var(--state-danger-bg);border:1px solid var(--state-danger-border);border-radius:6px;padding:8px 10px;font-size:12px;color:var(--state-danger-text);">Sem rota ativa designada<br><span style="font-size:11px;">Última cobertura: ${s.ultima}</span></div>`}
+          ${sec('Abrangência')}<div style="font-size:12px;">Bairros: ${s.bairros}<br><span style="color:var(--text-muted);">Área: ${s.area}</span></div>
+          ${sec('Rotas vinculadas')}<div style="font-size:12px;">${s.rota ? `<b>${s.rota}</b>` : `<span style="color:var(--text-muted);">Nenhuma rota vinculada.</span> <a href="#" onclick="alert('Vincular rota (protótipo)');return false;" style="color:var(--primary-600);">Vincular rota</a>`}</div>
+          ${sec('Estimativas')}<div style="font-size:12px;display:flex;gap:18px;"><span>População<br><b>${s.pop.toLocaleString('pt-BR')}</b></span><span>Domicílios<br><b>${s.dom.toLocaleString('pt-BR')}</b></span></div>
+          ${sec('Alterações recentes')}${alts || '<span style="font-size:12px;color:var(--text-muted);">Sem histórico.</span>'}
+          <button class="btn btn-secondary btn-sm" style="width:100%;margin-top:16px;" onclick="openModalNovoSetor()">Editar geometria</button>
+        </div>`;
+    }
+
+    // Desenho de polígono do setor
+    const SET_SCALE = 0.02; // km por unidade do viewBox
+    let setVertices = [];
+    function setPointFromEvent(evt, svg) {
+      const pt = svg.createSVGPoint(); pt.x = evt.clientX; pt.y = evt.clientY;
+      const ctm = svg.getScreenCTM(); if (!ctm) return null;
+      const p = pt.matrixTransform(ctm.inverse());
+      return { x: Math.round(p.x), y: Math.round(p.y) };
+    }
+    function polyArea(pts) { let a = 0; for (let i = 0; i < pts.length; i++) { const j = (i + 1) % pts.length; a += pts[i].x * pts[j].y - pts[j].x * pts[i].y; } return Math.abs(a) / 2; }
+    function polyPerim(pts) { let d = 0; for (let i = 0; i < pts.length; i++) { const j = (i + 1) % pts.length; d += Math.hypot(pts[j].x - pts[i].x, pts[j].y - pts[i].y); } return d; }
+    function setDraw() {
+      const layer = document.getElementById('setLayer'); if (!layer) return;
+      let s = '';
+      if (setVertices.length >= 3) s += `<polygon points="${setVertices.map(p => `${p.x},${p.y}`).join(' ')}" fill="rgba(37,99,235,.15)" stroke="#2563eb" stroke-width="2.5" stroke-linejoin="round"/>`;
+      else if (setVertices.length === 2) s += `<polyline points="${setVertices.map(p => `${p.x},${p.y}`).join(' ')}" fill="none" stroke="#2563eb" stroke-width="2.5"/>`;
+      setVertices.forEach((p, i) => { s += `<circle cx="${p.x}" cy="${p.y}" r="5" fill="#2563eb"/><text x="${p.x}" y="${p.y - 9}" text-anchor="middle" font-size="10" fill="#1d4ed8" font-weight="700">${i + 1}</text>`; });
+      layer.innerHTML = s;
+    }
+    function setRefresh() {
+      setDraw();
+      const areaKm = polyArea(setVertices) * SET_SCALE * SET_SCALE;
+      const perimKm = polyPerim(setVertices) * SET_SCALE;
+      const log = Math.round(areaKm * 8);
+      const set = (id, v) => { const el = document.getElementById(id); if (el) el.innerText = v; };
+      set('setArea', setVertices.length >= 3 ? areaKm.toFixed(1).replace('.', ',') + ' km²' : '-- km²');
+      set('setPerim', setVertices.length >= 2 ? perimKm.toFixed(1).replace('.', ',') + ' km' : '-- km');
+      set('setLog', setVertices.length >= 3 ? log : 0);
+    }
+    function setAddVertex(evt) { const svg = document.getElementById('setSvg'); const p = setPointFromEvent(evt, svg); if (p) { setVertices.push(p); setRefresh(); } }
+    function setUndo() { setVertices.pop(); setRefresh(); }
+    function setClear() { setVertices = []; setRefresh(); }
+    function openModalNovoSetor() {
+      setVertices = [];
+      document.getElementById('inpSetCod').value = `ST-N${(setoresData.length + 1).toString().padStart(2, '0')}`;
+      document.getElementById('inpSetNome').value = '';
+      setRefresh();
+      document.getElementById('modalNovoSetor').classList.add('active');
+    }
+    function closeModalNovoSetor() { document.getElementById('modalNovoSetor').classList.remove('active'); }
+    function salvarNovoSetor(e) {
+      e.preventDefault();
+      if (setVertices.length < 3) { alert('Adicione ao menos 3 vértices para formar o polígono do setor.'); return; }
+      const areaKm = (polyArea(setVertices) * SET_SCALE * SET_SCALE).toFixed(1).replace('.', ',') + ' km²';
+      const cod = document.getElementById('inpSetCod').value;
+      const nome = document.getElementById('inpSetNome').value;
+      const novo = {
+        cod, nome, tipo: document.getElementById('inpSetTipo').value, municipio: document.getElementById('inpSetMunicipio').value,
+        bairros: document.getElementById('inpSetBairros').value || '—', pop: parseInt(document.getElementById('inpSetPop').value || '0'),
+        dom: parseInt(document.getElementById('inpSetDom').value || '0'), area: areaKm, cobertura: 'Descoberto', rota: null,
+        ultima: 'novo', alt: [['hoje', `Setor criado — ${setVertices.length} vértices · ${areaKm}`]]
+      };
+      setoresData.unshift(novo);
+      selectedSetorCod = cod;
+      renderSetores();
+      closeModalNovoSetor();
+      alert(`✅ Setor cadastrado!\n\n${cod} · ${nome}\nÁrea calculada: ${areaKm} (${setVertices.length} vértices)\nMunicípio: ${novo.municipio}`);
     }
 
     function renderTiquetes() {
@@ -1360,6 +2197,65 @@
         `;
         tbody.appendChild(tr);
       });
+    }
+
+    // ===== Locais de Destinação =====
+    const locaisData = [
+      { cod: "LD-01", nome: "Aterro Sanitário Municipal CGR", tipo: "Aterro Sanitário", municipio: "Campo Grande", resp: "Solurb Ltda", ocup: 78, lic: "Válida até 15/03/2028", licSt: "ok", situacao: "Ativo" },
+      { cod: "LD-02", nome: "Central de Transbordo Norte", tipo: "Transbordo", municipio: "Campo Grande", resp: "Solurb Ltda", ocup: 45, lic: "Válida até 08/11/2027", licSt: "ok", situacao: "Ativo" },
+      { cod: "LD-03", nome: "Central de Transbordo Sul", tipo: "Transbordo", municipio: "Campo Grande", resp: "Solurb Ltda", ocup: 62, lic: "A vencer 20/09/2026", licSt: "vencer", situacao: "Ativo" },
+      { cod: "LD-04", nome: "Aterro Sanitário Regional MS", tipo: "Aterro Sanitário", municipio: "Terenos", resp: "EcoAmbiental S.A.", ocup: 94, lic: "Válida até 22/08/2026", licSt: "ok", situacao: "Ativo" },
+      { cod: "LD-05", nome: "Área de Transbordo Leste", tipo: "Transbordo", municipio: "Campo Grande", resp: "Solurb Ltda", ocup: 51, lic: "Válida até 30/04/2027", licSt: "ok", situacao: "Ativo" },
+      { cod: "LD-06", nome: "Ecoponto Jardim Panamá", tipo: "Outro", municipio: "Campo Grande", resp: "Prefeitura CGR", ocup: 33, lic: "Vencida em 12/03/2026", licSt: "vencida", situacao: "Inativo" },
+      { cod: "LD-07", nome: "Aterro Controlado Sidrolândia", tipo: "Aterro Sanitário", municipio: "Sidrolândia", resp: "Município Sidrolândia", ocup: 71, lic: "Válida até 16/01/2028", licSt: "ok", situacao: "Ativo" },
+      { cod: "LD-08", nome: "Central de Triagem Cooperativa", tipo: "Outro", municipio: "Campo Grande", resp: "CoopRecicla", ocup: 58, lic: "Válida até 05/08/2027", licSt: "ok", situacao: "Ativo" }
+    ];
+    function limparFiltrosLocais() {
+      ['locBusca', 'locFiltroMunicipio', 'locFiltroTipo', 'locFiltroSit'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+      renderLocais();
+    }
+    function renderLocais() {
+      const tbody = document.getElementById('locaisTable');
+      if (!tbody) return;
+      const q = (document.getElementById('locBusca')?.value || '').toLowerCase();
+      const fMun = document.getElementById('locFiltroMunicipio')?.value || '';
+      const fTipo = document.getElementById('locFiltroTipo')?.value || '';
+      const fSit = document.getElementById('locFiltroSit')?.value || '';
+      const list = locaisData.filter(l =>
+        (!q || l.nome.toLowerCase().includes(q) || l.resp.toLowerCase().includes(q)) &&
+        (!fMun || l.municipio === fMun) && (!fTipo || l.tipo === fTipo) && (!fSit || l.situacao === fSit));
+
+      const licBadge = { ok: 'badge-success', vencer: 'badge-warning', vencida: 'badge-danger' };
+      const licIcon = { ok: '✓', vencer: '⚠', vencida: '✕' };
+      tbody.innerHTML = list.map(l => {
+        const cor = l.ocup >= 85 ? '#ef4444' : (l.ocup >= 60 ? '#f59e0b' : '#10b981');
+        const strip = l.situacao === 'Inativo' ? '#94a3b8' : cor;
+        return `<tr>
+          <td style="padding:0;position:relative;"><div style="width:4px;height:100%;position:absolute;left:0;top:0;background:${strip};"></div></td>
+          <td><strong>${l.nome}</strong><br><span class="mono" style="font-size:11px;color:var(--text-muted);">${l.cod}</span></td>
+          <td>${l.tipo}</td>
+          <td>${l.municipio}</td>
+          <td>${l.resp}</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div style="flex:1;min-width:70px;height:6px;background:var(--surface-active);border-radius:999px;overflow:hidden;"><div style="width:${l.ocup}%;height:100%;background:${cor};"></div></div>
+              <span class="mono" style="font-size:11px;color:var(--text-muted);">${l.ocup}%</span>
+            </div>
+          </td>
+          <td><span class="badge ${licBadge[l.licSt]}">${licIcon[l.licSt]} ${l.lic}</span></td>
+          <td><span class="badge ${l.situacao === 'Ativo' ? 'badge-success' : 'badge-neutral'}">${l.situacao}</span></td>
+        </tr>`;
+      }).join('');
+      const empty = document.getElementById('locaisEmpty');
+      if (empty) empty.style.display = list.length ? 'none' : 'block';
+
+      // KPIs
+      const total = locaisData.length;
+      const ativos = locaisData.filter(l => l.situacao === 'Ativo').length;
+      const licAlerta = locaisData.filter(l => l.licSt !== 'ok').length;
+      const ocupMedia = Math.round(locaisData.reduce((a, l) => a + l.ocup, 0) / total);
+      const set = (id, v) => { const el = document.getElementById(id); if (el) el.innerText = v; };
+      set('kpiLocaisTotal', total); set('kpiLocaisAtivos', ativos); set('kpiLocaisLic', licAlerta); set('kpiLocaisOcup', ocupMedia + '%');
     }
 
     function switchTab(tabKey, event) {
@@ -1388,8 +2284,9 @@
 
       if (tabKey === 'rotas') { renderRotas(); initRotasMap(); }
       if (tabKey === 'motoristas') renderMotoristas();
-      if (tabKey === 'destinacao') renderTiquetes();
-      if (tabKey === 'visao-geral') initVisaoGeralMap();
+      if (tabKey === 'destinacao') renderLocais();
+      if (tabKey === 'setores') renderSetores();
+      if (tabKey === 'visao-geral') { initVisaoGeralMap(); renderRotasExecucao(); }
     }
 
     let visaoGeralMapInstance = null;
@@ -1399,6 +2296,35 @@
         visaoGeralMapInstance = L.map('visaoGeralMap').setView([-20.465, -54.615], 13);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(visaoGeralMapInstance);
       }, 100);
+    }
+
+    // ===== Rotas em execução (Visão Geral) =====
+    const rotasExecucaoData = [
+      { rota: "RT-C01 · Centro Convencional", veiculo: "CAM-101", motorista: "João Paulo Santos", pct: 78, eta: "11:20", status: "Em rota", badge: "badge-success" },
+      { rota: "RT-S01 · Afonso Pena Seletiva", veiculo: "CAM-102", motorista: "Matheus Nogueira", pct: 54, eta: "12:05", status: "Em rota", badge: "badge-success" },
+      { rota: "RT-N02 · Nova Lima Norte", veiculo: "CAM-118", motorista: "Rafael Alencar", pct: 33, eta: "12:40", status: "Em rota", badge: "badge-success" },
+      { rota: "RT-L03 · Zona Leste Orgânico", veiculo: "CAM-155", motorista: "Carlos Eduardo", pct: 92, eta: "10:50", status: "Finalizando", badge: "badge-warning" },
+      { rota: "RT-P01 · Prosa Cata-Treco", veiculo: "CAM-207", motorista: "Diego Ramos", pct: 12, eta: "13:15", status: "Iniciando", badge: "badge-neutral" }
+    ];
+    function renderRotasExecucao() {
+      const tbody = document.getElementById('rotasExecucaoTable');
+      if (!tbody) return;
+      tbody.innerHTML = rotasExecucaoData.map(r => {
+        const cor = r.pct >= 90 ? '#f59e0b' : (r.pct < 25 ? '#94a3b8' : '#10b981');
+        return `<tr>
+          <td><strong>${r.rota}</strong></td>
+          <td class="mono">${r.veiculo}</td>
+          <td>${r.motorista}</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div style="flex:1;min-width:80px;height:6px;background:var(--surface-active);border-radius:999px;overflow:hidden;"><div style="width:${r.pct}%;height:100%;background:${cor};"></div></div>
+              <span class="mono" style="font-size:11px;color:var(--text-muted);">${r.pct}%</span>
+            </div>
+          </td>
+          <td class="mono">${r.eta}</td>
+          <td><span class="badge ${r.badge}">${r.status}</span></td>
+        </tr>`;
+      }).join('');
     }
 
     let rotasMapInstance = null;
@@ -1418,11 +2344,49 @@
 
     function openModalNovoVeiculo() { document.getElementById('modalNovoVeiculo').classList.add('active'); }
     function closeModalNovoVeiculo() { document.getElementById('modalNovoVeiculo').classList.remove('active'); }
-    function salvarNovoVeiculo(event) { event.preventDefault(); closeModalNovoVeiculo(); alert('✅ ATIVO CADASTRADO!'); }
+    function salvarNovoVeiculo(event) {
+      event.preventDefault();
+      const placa = document.getElementById('inpFtPlaca').value;
+      const modelo = document.getElementById('inpFtModelo').value;
+      const tipo = document.getElementById('inpFtTipo').value;
+      const cap = document.getElementById('inpFtCapacidade').value;
+      let mot = document.getElementById('inpFtMotorista').value;
+      if (mot.startsWith('—')) mot = '—';
+      const sit = document.getElementById('inpFtSituacao').value;
+      const badge = sit === 'Ativo' ? 'success' : (sit === 'Manutenção' ? 'warning' : 'danger');
+      const strip = sit === 'Ativo' ? 'strip-success' : (sit === 'Manutenção' ? 'strip-warning' : 'strip-danger');
+      const id = `CAM-1${(frotaData.length + 1).toString().padStart(2, '0')}`;
+      frotaData.push({ id, placa, modelo, tipo, capacidade: `${cap},0 t`, motorista: mot, vel: '0 km/h', status: sit === 'Ativo' ? 'Em Operação' : sit, strip, badge });
+      renderFrota();
+      const set = (id, v) => { const el = document.getElementById(id); if (el) el.innerText = v; };
+      set('kpiFrotaTotal', frotaData.length);
+      closeModalNovoVeiculo();
+      alert(`✅ Ativo cadastrado!\n\nPrefixo: ${id}\nPlaca: ${placa}\nTipo: ${tipo}\nUso: ${document.getElementById('inpFtUso').value}\nSituação: ${sit}`);
+    }
 
     function openModalNovoMotorista() { document.getElementById('modalNovoMotorista').classList.add('active'); }
     function closeModalNovoMotorista() { document.getElementById('modalNovoMotorista').classList.remove('active'); }
-    function salvarNovoMotorista(event) { event.preventDefault(); closeModalNovoMotorista(); alert('✅ MOTORISTA CADASTRADO!'); }
+    function salvarNovoMotorista(event) {
+      event.preventDefault();
+      const nome = document.getElementById('inpMotNome').value;
+      const cat = document.getElementById('inpMotCnhCat').value;
+      const registro = document.getElementById('inpMotRegistro').value;
+      const orgao = document.getElementById('inpMotOrgao').value;
+      const validadeIso = document.getElementById('inpMotValidade').value;
+      const validade = validadeIso ? validadeIso.split('-').reverse().join('/') : '—';
+      const status = document.getElementById('inpMotStatus').value;
+      const veic = document.getElementById('inpMotVeic').value;
+      const mat = `M-44${(16 + motoristasData.length).toString()}`;
+      motoristasData.push({
+        nome, matricula: mat, cnh: cat, validade, tox: 'Em Dia',
+        veiculo: veic.startsWith('Selecione') ? '—' : veic, nota: '—', status: status === 'Ativo' ? 'Escalado' : 'Inativo',
+        cpf: document.getElementById('inpMotCpf').value, nascimento: document.getElementById('inpMotNasc').value, telefone: document.getElementById('inpMotTel').value,
+        email: document.getElementById('inpMotEmail').value, registro, orgao, primeiraHab: '—', turno: '—', rota: '—', apto: status === 'Ativo'
+      });
+      renderMotoristas();
+      closeModalNovoMotorista();
+      alert(`✅ Motorista cadastrado!\n\nNome: ${nome}\nMatrícula: ${mat}\nCNH: ${cat} (${orgao}) · venc. ${validade}\nStatus: ${status}`);
+    }
 
     function openModalNovoTiquete() { document.getElementById('modalNovoTiquete').classList.add('active'); }
     function closeModalNovoTiquete() { document.getElementById('modalNovoTiquete').classList.remove('active'); }
@@ -1448,6 +2412,9 @@
     renderRotas();
     renderMotoristas();
     renderTiquetes();
+    renderLocais();
+    renderSetores();
+    renderRotasExecucao();
     renderDriverApp();
   </script>
 </body>

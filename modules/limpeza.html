@@ -137,6 +137,8 @@
     .strip-success { background: #10b981; }
     .strip-warning { background: #f59e0b; }
     .strip-danger  { background: #ef4444; }
+    .strip-neutral { background: #94a3b8; }
+    .strip-info    { background: #2563eb; }
 
     /* Modal Solid Opaque Styles */
     .modal-overlay {
@@ -310,9 +312,11 @@
         <a href="#" class="sidebar-nav-subitem" onclick="switchTab('indicadores', event)" id="subnav-indicadores">
           <span>Indicadores & SLA</span>
         </a>
+        <!-- Removido temporariamente a pedido: Relatórios & Dossiê
         <a href="#" class="sidebar-nav-subitem" onclick="switchTab('relatorios', event)" id="subnav-relatorios">
           <span>Relatórios & Dossiê</span>
         </a>
+        -->
 
         <!-- Collapsed Other Modules -->
         <div class="sidebar-section-hdr" style="margin-top: 12px;">OUTROS MÓDULOS</div>
@@ -455,7 +459,7 @@
           <div class="page-header">
             <div>
               <h1 class="page-title">Equipes de Limpeza Pública</h1>
-              <p class="page-subtitle">Cadastramento de equipes, composição de garis, encarregado responsável (RN001) e veículos de apoio.</p>
+              <p class="page-subtitle">Cadastro e composição de equipes — integrantes, equipamentos, turno e situação em tempo real.</p>
             </div>
             <button class="btn btn-primary" onclick="openModalNovaEquipe()">
               <i data-lucide="plus" style="width: 16px;"></i>
@@ -463,25 +467,53 @@
             </button>
           </div>
 
-          <div class="table-container">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th style="width: 4px;"></th>
-                  <th>CÓDIGO EQUIPE</th>
-                  <th>TIPO DE SERVIÇO</th>
-                  <th>ENCARREGADO (RN001)</th>
-                  <th>QTD GARIS</th>
-                  <th>SETOR DE ATUAÇÃO</th>
-                  <th>VEÍCULO APOIO</th>
-                  <th>STATUS PONTO</th>
-                  <th>AÇÃO</th>
-                </tr>
-              </thead>
-              <tbody id="equipesFullTable">
-                <!-- Rendered via JS -->
-              </tbody>
-            </table>
+          <!-- KPIs (BI) -->
+          <div class="kpi-row" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 16px;">
+            <div class="kpi-card"><span class="kpi-label">Equipes Ativas</span><div class="kpi-value" style="color:#10b981;" id="kpiEqAtivas">0</div><span class="kpi-subtext" id="kpiEqAtivasSub">de 0 cadastradas</span></div>
+            <div class="kpi-card"><span class="kpi-label">Em Atividade Agora</span><div class="kpi-value" style="color:#2563eb;" id="kpiEqCampo">0</div><span class="kpi-subtext">equipes em campo</span></div>
+            <div class="kpi-card"><span class="kpi-label">Integrantes Alocados</span><div class="kpi-value" id="kpiEqIntegrantes">0</div><span class="kpi-subtext">garis em serviço</span></div>
+            <div class="kpi-card"><span class="kpi-label">Equipamentos Vinculados</span><div class="kpi-value" id="kpiEqEquip">0</div><span class="kpi-subtext">veículos e máquinas</span></div>
+          </div>
+
+          <!-- Toolbar: busca + filtros -->
+          <div style="display:flex; gap:10px; align-items:center; margin-bottom:12px; flex-wrap:wrap;">
+            <input type="text" class="form-control" id="eqBusca" placeholder="Buscar equipe ou encarregado..." style="max-width:280px;" oninput="renderEquipesTable()">
+            <select class="form-control" id="eqFiltroTurno" style="max-width:170px;" onchange="renderEquipesTable()">
+              <option value="">Todos os turnos</option>
+              <option value="Matutino">Matutino</option>
+              <option value="Vespertino">Vespertino</option>
+              <option value="Noturno">Noturno</option>
+            </select>
+            <select class="form-control" id="eqFiltroSit" style="max-width:180px;" onchange="renderEquipesTable()">
+              <option value="">Todas as situações</option>
+              <option value="Em atividade">Em atividade</option>
+              <option value="Ativa">Ativa</option>
+              <option value="Pausada">Pausada</option>
+              <option value="Inativa">Inativa</option>
+            </select>
+            <button class="btn btn-secondary btn-sm" onclick="limparFiltrosEquipe()">Limpar filtros</button>
+          </div>
+
+          <!-- Layout 2 colunas: tabela + painel de detalhe -->
+          <div style="display:grid; grid-template-columns: 1fr 360px; gap:16px; align-items:start;">
+            <div class="table-container" style="margin:0;">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th style="width: 4px;"></th>
+                    <th>EQUIPE</th>
+                    <th>ENCARREGADO</th>
+                    <th>TIPO DE SERVIÇO</th>
+                    <th>TURNO</th>
+                    <th>INTEGRANTES</th>
+                    <th>SITUAÇÃO</th>
+                  </tr>
+                </thead>
+                <tbody id="equipesFullTable"><!-- Rendered via JS --></tbody>
+              </table>
+              <div id="equipesEmpty" style="display:none; padding:24px; text-align:center; color:var(--text-muted); font-size:13px;">Nenhuma equipe encontrada para os filtros.</div>
+            </div>
+            <div id="equipeDetailPanel" style="border:1px solid var(--border-default); border-radius:var(--radius-lg); background:var(--surface-card); box-shadow:var(--shadow-sm); overflow:hidden; position:sticky; top:16px;"></div>
           </div>
         </div>
 
@@ -516,19 +548,37 @@
         <!-- ========================================================================= -->
         <div id="tab-programacao" class="tab-pane" style="display: none;">
           <div class="page-header">
-            <div><h1 class="page-title">Programação Semanal de Limpeza</h1></div>
-            <button class="btn btn-primary" onclick="openModalAgendarMutirao()">
-              <i data-lucide="calendar-plus" style="width: 16px;"></i>
-              <span>Agendar Mutirão</span>
-            </button>
+            <div>
+              <h1 class="page-title">Programação Semanal de Limpeza</h1>
+              <p class="page-subtitle">Escala de equipes por dia e turno — região e tipo de atividade vêm do itinerário.</p>
+            </div>
+            <div style="display:flex; gap:8px; align-items:center;">
+              <div style="display:inline-flex; gap:6px;">
+                <button id="progBtnCal" class="btn btn-primary btn-sm" onclick="setProgView('cal')">Calendário</button>
+                <button id="progBtnList" class="btn btn-secondary btn-sm" onclick="setProgView('list')">Lista</button>
+              </div>
+              <button class="btn btn-primary" onclick="openModalAgendarMutirao()">
+                <i data-lucide="calendar-plus" style="width: 16px;"></i>
+                <span>Agendar Mutirão</span>
+              </button>
+            </div>
           </div>
-          <div class="table-container">
-            <table class="data-table">
-              <thead><tr><th>DIA / DATA</th><th>REGIONAL</th><th>TIPO ATIVIDADE</th><th>EQUIPE ESCALADA</th><th>STATUS</th><th>AÇÕES</th></tr></thead>
-              <tbody id="programacaoLimpezaTable">
-                <tr><td>25/08/2026 (Terça)</td><td>Anhanduízinho</td><td>Mutirão Capina & Entulho</td><td>Equipe Gama 2 + Delta 4</td><td><span class="badge badge-success">Escala Confirmada</span></td><td><button class="btn btn-secondary btn-sm" onclick="alert('Escala alterada!')">Editar Escala</button></td></tr>
-              </tbody>
-            </table>
+
+          <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px; font-size:13px;">
+            <button class="btn btn-secondary btn-sm" onclick="alert('Semana anterior (protótipo)')">‹</button>
+            <b>25 a 31 de Agosto de 2026</b>
+            <button class="btn btn-secondary btn-sm" onclick="alert('Próxima semana (protótipo)')">›</button>
+          </div>
+
+          <div id="progCalWrap" style="overflow-x:auto;"></div>
+          <div id="progListWrap" class="table-container" style="display:none;"></div>
+
+          <div style="display:flex; gap:16px; margin-top:12px; font-size:11px; color:var(--text-muted); flex-wrap:wrap;">
+            <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#2563eb;vertical-align:middle;"></span> Varrição</span>
+            <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#10b981;vertical-align:middle;"></span> Capina</span>
+            <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#059669;vertical-align:middle;"></span> Poda</span>
+            <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#7c3aed;vertical-align:middle;"></span> Bueiros</span>
+            <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#d97706;vertical-align:middle;"></span> Lavagem</span>
           </div>
         </div>
 
@@ -609,15 +659,42 @@
         <div class="modal-body">
           <div class="form-row">
             <div class="form-group"><label class="form-label">Código da Equipe</label><input type="text" class="form-control font-mono" id="inpEqpCod" value="EQP-DELTA-04" readonly></div>
-            <div class="form-group"><label class="form-label">Tipo de Serviço</label><select class="form-control" id="inpEqpTipo"><option value="Varrição Manual">Varrição Manual</option><option value="Capina & Roçada">Capina & Roçada</option></select></div>
+            <div class="form-group"><label class="form-label">Nome da Equipe</label><input type="text" class="form-control" id="inpEqpNome" placeholder="Ex: Varrição Centro C" required></div>
           </div>
+
+          <!-- TIPOS DE SERVIÇO = APTIDÕES (múltiplas) -->
+          <div class="form-group">
+            <label class="form-label">Tipos de Serviço (aptidões) <span id="lblAptidoesCount" style="color: var(--color-text-muted); font-weight: 400;">(0 selecionados)</span></label>
+            <div style="display:flex; gap:8px; align-items:stretch;">
+              <select class="form-control" id="selAptidao" style="flex:1;"></select>
+              <button type="button" class="btn btn-secondary" onclick="addAptidao()" style="white-space:nowrap;">+ Adicionar</button>
+            </div>
+            <div id="aptidoesChips" style="display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; min-height:22px;"></div>
+          </div>
+
           <div class="form-row">
             <div class="form-group"><label class="form-label">Encarregado Responsável (RN001)</label><input type="text" class="form-control" id="inpEqpEncarregado" placeholder="Ex: Carlos Eduardo Silva" required></div>
-            <div class="form-group"><label class="form-label">Qtd Garis Alocados</label><input type="number" class="form-control font-mono" id="inpEqpGaris" value="6" required></div>
+            <div class="form-group"><label class="form-label">Turno</label><select class="form-control" id="inpEqpTurno"><option value="Matutino">Matutino (06h–14h)</option><option value="Vespertino">Vespertino (14h–22h)</option><option value="Noturno">Noturno (22h–06h)</option></select></div>
           </div>
           <div class="form-row">
-            <div class="form-group"><label class="form-label">Setor de Atuação</label><input type="text" class="form-control" id="inpEqpSetor" value="Região Anhanduízinho" required></div>
-            <div class="form-group"><label class="form-label">Veículo de Apoio</label><input type="text" class="form-control font-mono" id="inpEqpVeiculo" value="VW Delivery QAB-4412" required></div>
+            <div class="form-group"><label class="form-label">Setor-base (opcional)</label><input type="text" class="form-control" id="inpEqpSetor" value="Região Anhanduízinho"></div>
+          </div>
+
+          <!-- INTEGRANTES DA EQUIPE (seleção por nome, RF-LIMP-01) -->
+          <div class="form-group">
+            <label class="form-label">Integrantes da Equipe <span id="lblIntegrantesCount" style="color: var(--color-text-muted); font-weight: 400;">(0 selecionados)</span></label>
+            <div style="display:flex; gap:8px; align-items:stretch;">
+              <select class="form-control" id="selIntegrante" style="flex:1;"></select>
+              <button type="button" class="btn btn-secondary" onclick="addIntegrante()" style="white-space:nowrap;">+ Adicionar</button>
+            </div>
+            <div id="integrantesChips" style="display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; min-height:22px;"></div>
+          </div>
+
+          <!-- EQUIPAMENTOS / VEÍCULOS DE APOIO (múltiplos) -->
+          <div class="form-group">
+            <label class="form-label">Equipamentos / Veículos de Apoio</label>
+            <div id="equipamentosList" style="display:flex; flex-direction:column; gap:8px;"></div>
+            <button type="button" class="btn btn-secondary btn-sm" style="margin-top:8px;" onclick="addEquipamento()">+ Adicionar Equipamento</button>
           </div>
         </div>
         <div class="modal-footer">
@@ -651,17 +728,43 @@
 
   <!-- MODAL 3: NOVO ITINERÁRIO -->
   <div class="modal-overlay" id="modalNovoItinerario">
-    <div class="modal-card">
+    <div class="modal-card" style="max-width: 720px;">
       <div class="modal-header">
-        <div><h2 style="font-size: 16px; font-weight: 700;">Cadastrar Novo Itinerário de Varrição</h2></div>
+        <div><h2 style="font-size: 16px; font-weight: 700;">Cadastrar Novo Itinerário</h2><span style="font-size: 11px; color: var(--color-text-muted);">Desenhe os checkpoints no traçado — a extensão é calculada automaticamente</span></div>
         <button style="border: none; background: transparent; cursor: pointer;" onclick="closeModalNovoItinerario()"><i data-lucide="x" style="width: 20px;"></i></button>
       </div>
       <form onsubmit="salvarNovoItinerario(event)">
         <div class="modal-body">
-          <div class="form-group"><label class="form-label">Nome do Itinerário</label><input type="text" class="form-control" id="inpItinNome" placeholder="Ex: Av. Duque de Caxias" required></div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Código</label><input type="text" class="form-control font-mono" id="inpItinCod" readonly></div>
+            <div class="form-group"><label class="form-label">Nome do Itinerário</label><input type="text" class="form-control" id="inpItinNome" placeholder="Ex: Av. Duque de Caxias" required></div>
+          </div>
           <div class="form-row">
             <div class="form-group"><label class="form-label">Regional</label><input type="text" class="form-control" id="inpItinRegional" value="Imbirussú" required></div>
-            <div class="form-group"><label class="form-label">Extensão (km)</label><input type="number" class="form-control font-mono" id="inpItinExt" value="12.5" step="0.1" required></div>
+            <div class="form-group"><label class="form-label">Tipo de Serviço</label><select class="form-control" id="inpItinTipo"><option>Varrição Manual</option><option>Varrição Mecanizada</option><option>Capina & Roçada</option><option>Poda</option><option>Limpeza de Bueiros</option><option>Lavagem de Logradouros</option></select></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Método</label><select class="form-control" id="inpItinMet"><option>Manual</option><option>Mecanizada</option><option>Manual / Roçadeira</option><option>Hidrojato</option><option>Manual / Mecanizada</option></select></div>
+            <div class="form-group"><label class="form-label">Frequência</label><select class="form-control" id="inpItinFreq"><option>Diária</option><option>Diária (Noturno)</option><option>Dias alternados</option><option>Semanal</option><option>Quinzenal</option><option>Mensal</option></select></div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Traçado do Itinerário <span style="color: var(--color-text-muted); font-weight: 400;">— clique no quadro para adicionar checkpoints em sequência</span></label>
+            <div style="border:1px solid var(--border-default); border-radius:var(--radius-md); overflow:hidden; background:#f8fafc;">
+              <svg id="itinSvgEdit" viewBox="0 0 600 280" style="width:100%; height:280px; display:block; cursor:crosshair;" onclick="itinAddPoint(event)">
+                <defs><pattern id="itinGrid" width="30" height="30" patternUnits="userSpaceOnUse"><path d="M 30 0 L 0 0 0 30" fill="none" stroke="#e2e8f0" stroke-width="1"/></pattern></defs>
+                <rect width="600" height="280" fill="url(#itinGrid)"/>
+                <g id="itinLayerEdit"></g>
+              </svg>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; gap:12px; flex-wrap:wrap;">
+              <div style="font-size:12px; color:var(--text-muted);">Extensão calculada: <b id="itinExtOut" style="color:var(--text-primary); font-family:var(--font-mono);">0,0 km</b> · <span id="itinCpOut">0 checkpoints</span></div>
+              <div style="display:flex; gap:8px;">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="itinUndo()">Desfazer último</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="itinClear()">Limpar traçado</button>
+              </div>
+            </div>
+            <input type="hidden" id="inpItinExt" value="0">
           </div>
         </div>
         <div class="modal-footer">
@@ -669,6 +772,34 @@
           <button type="submit" class="btn btn-primary">Salvar Itinerário</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- MODAL: VER TRAÇADO NO MAPA -->
+  <div class="modal-overlay" id="modalVerTracado">
+    <div class="modal-card" style="max-width: 720px;">
+      <div class="modal-header">
+        <div><h2 id="verTracadoTitulo" style="font-size: 16px; font-weight: 700;">Traçado do Itinerário</h2><span id="verTracadoSub" style="font-size: 11px; color: var(--color-text-muted);"></span></div>
+        <button style="border: none; background: transparent; cursor: pointer;" onclick="closeVerTracado()"><i data-lucide="x" style="width: 20px;"></i></button>
+      </div>
+      <div class="modal-body">
+        <div style="border:1px solid var(--border-default); border-radius:var(--radius-md); overflow:hidden; background:#f8fafc;">
+          <svg id="itinSvgView" viewBox="0 0 600 280" style="width:100%; height:280px; display:block;">
+            <defs><pattern id="itinGridV" width="30" height="30" patternUnits="userSpaceOnUse"><path d="M 30 0 L 0 0 0 30" fill="none" stroke="#e2e8f0" stroke-width="1"/></pattern></defs>
+            <rect width="600" height="280" fill="url(#itinGridV)"/>
+            <g id="itinLayerView"></g>
+          </svg>
+        </div>
+        <div style="display:flex; gap:18px; margin-top:10px; font-size:12px; color:var(--text-muted); flex-wrap:wrap;">
+          <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#10b981;vertical-align:middle;"></span> Início</span>
+          <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#2563eb;vertical-align:middle;"></span> Checkpoint</span>
+          <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#ef4444;vertical-align:middle;"></span> Fim</span>
+          <span id="verTracadoInfo" style="margin-left:auto;"></span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" onclick="closeVerTracado()">Fechar</button>
+      </div>
     </div>
   </div>
 
@@ -681,8 +812,23 @@
       </div>
       <form onsubmit="salvarAgendarMutirao(event)">
         <div class="modal-body">
-          <div class="form-group"><label class="form-label">Bairro / Regional do Mutirão</label><input type="text" class="form-control" id="inpMutiraoBairro" value="Bairro Moreninhas III" required></div>
-          <div class="form-group"><label class="form-label">Data Agendada</label><input type="date" class="form-control" id="inpMutiraoData" value="2026-08-28" required></div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Equipe escalada</label><select class="form-control" id="inpMutEquipe" onchange="mutSyncEquipe()"></select></div>
+            <div class="form-group"><label class="form-label">Turno <span style="color:var(--text-muted);font-weight:400;">(da equipe)</span></label><input type="text" class="form-control" id="inpMutTurno" readonly></div>
+          </div>
+          <div class="form-group"><label class="form-label">Itinerário</label><select class="form-control" id="inpMutItin" onchange="mutSyncItin()"></select></div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Regional <span style="color:var(--text-muted);font-weight:400;">(do itinerário)</span></label><input type="text" class="form-control" id="inpMutRegional" readonly></div>
+            <div class="form-group"><label class="form-label">Tipo de atividade <span style="color:var(--text-muted);font-weight:400;">(do itinerário)</span></label><input type="text" class="form-control" id="inpMutTipo" readonly></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Data</label><input type="date" class="form-control" id="inpMutiraoData" value="2026-08-28"></div>
+            <div class="form-group"><label class="form-label">Dia da semana</label><select class="form-control" id="inpMutDia"><option value="0">Segunda</option><option value="1">Terça</option><option value="2">Quarta</option><option value="3">Quinta</option><option value="4">Sexta</option><option value="5">Sábado</option><option value="6">Domingo</option></select></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Horário de início</label><input type="time" class="form-control" id="inpMutHoraIni" value="07:00"></div>
+            <div class="form-group"><label class="form-label">Horário de término</label><input type="time" class="form-control" id="inpMutHoraFim" value="11:00"></div>
+          </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" onclick="closeModalAgendarMutirao()">Cancelar</button>
@@ -777,13 +923,53 @@
     ];
 
     const equipesData = [
-      { cod: "EQP-ALPHA-01", tipo: "Varrição Manual & Mecanizada", encarregado: "Marcos Ribeiro Silva", garis: "8 Garis", setor: "Centro Histórico", veiculo: "VW Delivery QAB-1020", ponto: "Ponto GPS OK (07:00)", strip: "strip-success" },
-      { cod: "EQP-BETA-03", tipo: "Capina & Roçada Hidráulica", encarregado: "Luciano Mendes", garis: "6 Garis", setor: "Parque dos Poderes", veiculo: "Ford Cargo QAB-8819", ponto: "Ponto GPS OK (07:05)", strip: "strip-success" }
+      { cod: "EQP-VAR-01", nome: "Varrição Centro A", encarregado: "José Carlos Ferreira", matricula: "4821", desde: "03/2014", turno: "Matutino", tipo: "Varrição Manual", setor: "Centro Histórico", situacao: "Em atividade", strip: "strip-success",
+        integrantes: ["Antônio Marques", "Cláudio Ramos", "Edson Prado", "Gilmar Souza", "Ivone Teixeira", "Luciana Faria", "Otávio Nunes", "Rubens Gomes"],
+        equipamentos: [{tipo:"Caminhão de Varrição", desc:"VW Delivery QAB-1020"}, {tipo:"Caminhão de Varrição", desc:"VW Delivery QAB-1044"}, {tipo:"Soprador", desc:"Stihl BR-600"}],
+        atividade: { itinerario: "VAR-014", iniciado: "07h12", pct: 68 },
+        historico: [{data:"18/07", texto:"Rubens D. incluído na equipe"}, {data:"10/07", texto:"Troca de encarregado: A. Prado → J. Carlos"}, {data:"02/06", texto:"Equipe criada com 7 integrantes"}] },
+      { cod: "EQP-VAR-02", nome: "Varrição Centro B", encarregado: "Ana Paula Nogueira", matricula: "5133", desde: "08/2018", turno: "Vespertino", tipo: "Varrição Manual", setor: "Centro / Amambaí", situacao: "Ativa", strip: "strip-success",
+        integrantes: ["Marcelo Dias", "Fernanda Costa", "José Barbosa", "Sandra Oliveira", "Cláudio Ramos", "Edson Prado", "Otávio Nunes"],
+        equipamentos: [{tipo:"Caminhão de Varrição", desc:"VW Delivery QAB-2210"}, {tipo:"Soprador", desc:"Stihl BR-600"}],
+        atividade: null,
+        historico: [{data:"22/07", texto:"Sandra O. incluída na equipe"}, {data:"01/07", texto:"Equipe criada com 7 integrantes"}] },
+      { cod: "EQP-CAP-01", nome: "Capina Zona Norte", encarregado: "Roberto Silva", matricula: "3902", desde: "05/2012", turno: "Matutino", tipo: "Capina & Roçada", setor: "Nova Lima", situacao: "Em atividade", strip: "strip-success",
+        integrantes: ["Gilmar Souza", "Antônio Marques", "Rubens Gomes", "Marcelo Dias", "José Barbosa", "Otávio Nunes"],
+        equipamentos: [{tipo:"Roçadeira Costal", desc:"Husqvarna 143R"}, {tipo:"Roçadeira Costal", desc:"Husqvarna 143R"}, {tipo:"Caminhão de Apoio", desc:"Ford Cargo QAB-8819"}],
+        atividade: { itinerario: "CAP-007", iniciado: "07h05", pct: 42 },
+        historico: [{data:"12/07", texto:"Otávio N. incluído na equipe"}, {data:"03/06", texto:"Equipe criada com 6 integrantes"}] },
+      { cod: "EQP-POD-01", nome: "Poda Áreas Verdes", encarregado: "Carlos Eduardo Lima", matricula: "4410", desde: "02/2016", turno: "Matutino", tipo: "Poda", setor: "Parque dos Poderes", situacao: "Pausada", strip: "strip-warning",
+        integrantes: ["Cláudio Ramos", "Edson Prado", "Ivone Teixeira", "Luciana Faria", "Gilmar Souza"],
+        equipamentos: [{tipo:"Motopoda", desc:"Stihl HT-133"}, {tipo:"Caminhão Munck", desc:"MB Atego QAB-7711"}],
+        atividade: { itinerario: "POD-002", iniciado: "07h30", pct: 15 },
+        historico: [{data:"20/07", texto:"Equipe pausada — aguardando EPI"}, {data:"05/06", texto:"Equipe criada com 5 integrantes"}] },
+      { cod: "EQP-BUE-01", nome: "Bueiros Região Sul", encarregado: "Fernanda Lima", matricula: "4988", desde: "09/2019", turno: "Vespertino", tipo: "Limpeza de Bueiros", setor: "Região Sul", situacao: "Ativa", strip: "strip-success",
+        integrantes: ["Rubens Gomes", "Antônio Marques", "Marcelo Dias", "José Barbosa"],
+        equipamentos: [{tipo:"Caminhão Hidrojato", desc:"MB Atego QAB-6620"}, {tipo:"Kit EPI", desc:"Confinado x4"}],
+        atividade: null,
+        historico: [{data:"15/07", texto:"Equipe criada com 4 integrantes"}] },
+      { cod: "EQP-LAV-01", nome: "Lavagem de Feiras", encarregado: "Paulo Henrique Alves", matricula: "5201", desde: "01/2021", turno: "Noturno", tipo: "Lavagem de Logradouros", setor: "Feiras Livres", situacao: "Inativa", strip: "strip-neutral",
+        integrantes: ["Sandra Oliveira", "Fernanda Costa", "Luciana Faria", "Ivone Teixeira"],
+        equipamentos: [{tipo:"Caminhão Pipa", desc:"Ford Cargo QAB-9030"}],
+        atividade: null,
+        historico: [{data:"28/06", texto:"Equipe inativada — fora de escala"}, {data:"10/05", texto:"Equipe criada com 4 integrantes"}] },
+      { cod: "EQP-MUL-01", nome: "Multisserviço Leste", encarregado: "Márcia Souza", matricula: "4677", desde: "07/2017", turno: "Matutino", tipo: "Varrição, Capina, Poda", setor: "Região Leste", situacao: "Em atividade", strip: "strip-success",
+        integrantes: ["Antônio Marques", "Cláudio Ramos", "Edson Prado", "Gilmar Souza", "Ivone Teixeira", "Luciana Faria", "Otávio Nunes", "Rubens Gomes", "Marcelo Dias"],
+        equipamentos: [{tipo:"Caminhão de Varrição", desc:"VW Delivery QAB-3120"}, {tipo:"Roçadeira Costal", desc:"Husqvarna 143R"}, {tipo:"Motopoda", desc:"Stihl HT-133"}, {tipo:"Caminhão de Apoio", desc:"Ford Cargo QAB-4415"}],
+        atividade: { itinerario: "MUL-021", iniciado: "06h58", pct: 55 },
+        historico: [{data:"19/07", texto:"Aptidão de Poda adicionada à equipe"}, {data:"04/06", texto:"Equipe criada com 8 integrantes"}] },
+      { cod: "EQP-VME-01", nome: "Varrição Mecanizada 01", encarregado: "Diego Ramos", matricula: "5044", desde: "11/2020", turno: "Noturno", tipo: "Varrição Mecanizada", setor: "Av. Afonso Pena", situacao: "Ativa", strip: "strip-success",
+        integrantes: ["José Barbosa", "Marcelo Dias", "Sandra Oliveira"],
+        equipamentos: [{tipo:"Varredeira Mecânica", desc:"Dulevo 5000 QAB-1188"}],
+        atividade: null,
+        historico: [{data:"09/06", texto:"Equipe criada com 3 integrantes"}] }
     ];
 
     const itinerariosData = [
-      { cod: "IT-VAR-01", nome: "Av. Afonso Pena (Centro a Shopping)", regional: "Centro", ext: "14,2 km", freq: "Diária (Noturno)", met: "Mecanizada" },
-      { cod: "IT-CAP-04", nome: "Parque dos Poderes (Avenida do Poeta)", regional: "Prosa", ext: "18,5 km", freq: "Quinzenal", met: "Manual / Roçadeira" }
+      { cod: "IT-VAR-01", nome: "Av. Afonso Pena (Centro a Shopping)", regional: "Centro", tipo: "Varrição Mecanizada", ext: "14,2 km", freq: "Diária (Noturno)", met: "Mecanizada",
+        checkpoints: [{x:60,y:220},{x:150,y:200},{x:240,y:150},{x:340,y:150},{x:420,y:90},{x:520,y:70}] },
+      { cod: "IT-CAP-04", nome: "Parque dos Poderes (Avenida do Poeta)", regional: "Prosa", tipo: "Capina & Roçada", ext: "18,5 km", freq: "Quinzenal", met: "Manual / Roçadeira",
+        checkpoints: [{x:80,y:80},{x:180,y:120},{x:180,y:210},{x:300,y:210},{x:400,y:160},{x:500,y:200}] }
     ];
 
     function renderVisaoGeralAtividades() {
@@ -805,27 +991,106 @@
       });
     }
 
+    let selectedEquipeCod = null;
+
+    function setText(id, v) { const el = document.getElementById(id); if (el) el.innerText = v; }
+    function getIntegCount(e) { return e.integrantes ? e.integrantes.length : (parseInt(e.garis) || 0); }
+    function getSituacaoBadge(sit) {
+      const map = { "Em atividade": "badge-success", "Ativa": "badge-neutral", "Pausada": "badge-warning", "Inativa": "badge-danger" };
+      return `<span class="badge ${map[sit] || 'badge-neutral'}">${sit || 'Ativa'}</span>`;
+    }
+    function filtrarEquipes() {
+      const q = (document.getElementById('eqBusca')?.value || '').toLowerCase();
+      const t = document.getElementById('eqFiltroTurno')?.value || '';
+      const s = document.getElementById('eqFiltroSit')?.value || '';
+      return equipesData.filter(e =>
+        (!q || (e.nome || '').toLowerCase().includes(q) || (e.encarregado || '').toLowerCase().includes(q) || (e.cod || '').toLowerCase().includes(q)) &&
+        (!t || e.turno === t) &&
+        (!s || e.situacao === s));
+    }
+    function limparFiltrosEquipe() {
+      ['eqBusca', 'eqFiltroTurno', 'eqFiltroSit'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+      renderEquipesTable();
+    }
+    function selectEquipe(cod) { selectedEquipeCod = cod; renderEquipesTable(); }
+
     function renderEquipesTable() {
       const tbody = document.getElementById('equipesFullTable');
       if (!tbody) return;
+      const list = filtrarEquipes();
       tbody.innerHTML = '';
-      equipesData.forEach(eqp => {
+      list.forEach(eqp => {
         const tr = document.createElement('tr');
+        if (eqp.cod === selectedEquipeCod) tr.className = 'selected';
+        tr.style.cursor = 'pointer';
+        tr.onclick = () => selectEquipe(eqp.cod);
         tr.innerHTML = `
-          <td style="padding:0; position:relative;"><div class="status-left-strip ${eqp.strip}"></div></td>
-          <td class="mono"><strong>${eqp.cod}</strong></td>
+          <td style="padding:0; position:relative;"><div class="status-left-strip ${eqp.strip || 'strip-neutral'}"></div></td>
+          <td><strong>${eqp.nome || eqp.cod}</strong><br><span class="mono" style="font-size:11px;color:var(--text-muted);">${eqp.cod}</span></td>
+          <td>${eqp.encarregado}</td>
           <td>${eqp.tipo}</td>
-          <td><strong>${eqp.encarregado}</strong> (RN001)</td>
-          <td class="mono">${eqp.garis}</td>
-          <td>${eqp.setor}</td>
-          <td class="mono">${eqp.veiculo}</td>
-          <td><span class="badge badge-success">${eqp.ponto}</span></td>
-          <td><button class="btn btn-primary btn-sm" onclick="openMobileSimForTruck('${eqp.cod}')">Abrir App Campo</button></td>
-        `;
+          <td>${eqp.turno || '—'}</td>
+          <td class="mono">${getIntegCount(eqp)}</td>
+          <td>${getSituacaoBadge(eqp.situacao)}</td>`;
         tbody.appendChild(tr);
       });
-      document.getElementById('badgeEquipesCount').innerText = equipesData.length;
-      document.getElementById('kpiEquipesAtivas').innerText = `${equipesData.length} / 14`;
+      const empty = document.getElementById('equipesEmpty');
+      if (empty) empty.style.display = list.length ? 'none' : 'block';
+
+      // KPIs (BI)
+      const ativas = equipesData.filter(e => e.situacao !== 'Inativa').length;
+      const campo = equipesData.filter(e => e.situacao === 'Em atividade').length;
+      const integ = equipesData.reduce((a, e) => a + getIntegCount(e), 0);
+      const equip = equipesData.reduce((a, e) => a + (e.equipamentos ? e.equipamentos.length : 0), 0);
+      setText('kpiEqAtivas', ativas); setText('kpiEqAtivasSub', `de ${equipesData.length} cadastradas`);
+      setText('kpiEqCampo', campo); setText('kpiEqIntegrantes', integ); setText('kpiEqEquip', equip);
+      setText('badgeEquipesCount', equipesData.length);
+      const kpiTop = document.getElementById('kpiEquipesAtivas'); if (kpiTop) kpiTop.innerText = `${ativas} / ${equipesData.length}`;
+
+      if (!selectedEquipeCod || !equipesData.find(e => e.cod === selectedEquipeCod)) {
+        selectedEquipeCod = list[0] ? list[0].cod : (equipesData[0] ? equipesData[0].cod : null);
+      }
+      renderEquipeDetail();
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function renderEquipeDetail() {
+      const box = document.getElementById('equipeDetailPanel');
+      if (!box) return;
+      const e = equipesData.find(x => x.cod === selectedEquipeCod);
+      if (!e) { box.innerHTML = `<div style="padding:24px;color:var(--text-muted);font-size:13px;">Selecione uma equipe para ver os detalhes.</div>`; return; }
+      const sec = t => `<div style="font-size:10px;font-weight:700;letter-spacing:.6px;color:var(--text-muted);text-transform:uppercase;margin:16px 0 8px;">${t}</div>`;
+      const chips = (e.integrantes || []).map(n => `<span style="display:inline-block;background:var(--surface-hover);border:1px solid var(--border-default);border-radius:999px;padding:2px 9px;font-size:11px;margin:0 4px 4px 0;">${n}</span>`).join('') || '<span style="font-size:12px;color:var(--text-muted);">—</span>';
+      const agg = {}; (e.equipamentos || []).forEach(eq => { agg[eq.tipo] = (agg[eq.tipo] || 0) + 1; });
+      const equipStr = Object.keys(agg).length ? Object.entries(agg).map(([t, n]) => `${n}× ${t}`).join(' · ') : '—';
+      let ativHtml;
+      if (e.atividade) {
+        ativHtml = `<div style="font-size:12px;">Itinerário <b>${e.atividade.itinerario}</b> · iniciado às ${e.atividade.iniciado}</div>
+          <div style="margin-top:6px;height:6px;background:var(--surface-hover);border-radius:999px;overflow:hidden;"><div style="width:${e.atividade.pct}%;height:100%;background:#10b981;"></div></div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">${e.atividade.pct}% dos checkpoints</div>`;
+      } else {
+        ativHtml = `<div style="font-size:12px;color:var(--text-muted);">Sem atividade em execução no momento.</div>`;
+      }
+      const hist = (e.historico || []).map(h => `<div style="display:flex;gap:8px;font-size:11px;margin-bottom:6px;"><span class="mono" style="color:var(--text-muted);min-width:42px;">${h.data}</span><span>${h.texto}</span></div>`).join('') || '<span style="font-size:12px;color:var(--text-muted);">Sem histórico.</span>';
+      box.innerHTML = `
+        <div style="padding:16px;border-bottom:1px solid var(--border-default);">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+            <div><div style="font-weight:700;font-size:15px;">${e.nome || e.cod}</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Turno ${e.turno || '—'} · ${getIntegCount(e)} integrantes</div></div>
+            ${getSituacaoBadge(e.situacao)}
+          </div>
+        </div>
+        <div style="padding:0 16px 16px;">
+          ${sec('Atividade em execução')}${ativHtml}
+          ${sec('Encarregado')}<div style="font-size:12px;"><b>${e.encarregado}</b><br><span style="color:var(--text-muted);">Matrícula ${e.matricula || '—'} · desde ${e.desde || '—'}</span></div>
+          ${sec('Composição da equipe')}<div>${chips}</div>
+          ${sec('Equipamentos vinculados')}<div style="font-size:12px;">${equipStr}</div>
+          ${sec('Histórico de composição')}${hist}
+          <div style="display:flex;gap:8px;margin-top:18px;">
+            <button class="btn btn-secondary btn-sm" style="flex:1;" onclick="openModalNovaEquipe()">Editar equipe</button>
+            <button class="btn btn-primary btn-sm" style="flex:1;" onclick="switchTab('atividades', event)">Ver atividades</button>
+          </div>
+        </div>`;
     }
 
     function renderItinerariosTable() {
@@ -841,10 +1106,118 @@
           <td class="mono"><strong>${itin.ext}</strong></td>
           <td>${itin.freq}</td>
           <td>${itin.met}</td>
-          <td><button class="btn btn-secondary btn-sm" onclick="alert('Ver traçado no mapa: ${itin.nome}')">Ver no Mapa</button></td>
+          <td><button class="btn btn-secondary btn-sm" onclick="verNoMapa('${itin.cod}')">Ver no Mapa</button></td>
         `;
         tbody.appendChild(tr);
       });
+    }
+
+    // ===== Programação semanal (calendário + lista) =====
+    const progDias = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
+    const progDatas = ['25', '26', '27', '28', '29', '30', '31'];
+    const tipoCor = { 'Varrição': '#2563eb', 'Capina': '#10b981', 'Poda': '#059669', 'Bueiros': '#7c3aed', 'Lavagem': '#d97706', 'Mutirão': '#dc2626' };
+    function corTipo(t) { for (const k in tipoCor) { if ((t || '').includes(k)) return tipoCor[k]; } return '#64748b'; }
+
+    const programacaoData = [];
+    [
+      { equipe: "Varrição Centro A", itin: "VAR-014", tipo: "Varrição", hora: "07:00", horaFim: "11:00", regional: "Centro", dias: [0, 1, 2, 3, 4] },
+      { equipe: "Varrição Centro B", itin: "VAR-015", tipo: "Varrição", hora: "14:00", horaFim: "18:00", regional: "Centro", dias: [0, 1, 2, 3, 4, 5] },
+      { equipe: "Capina Zona Norte", itin: "CAP-007", tipo: "Capina", hora: "07:00", horaFim: "11:00", regional: "Nova Lima", dias: [0, 2, 4] },
+      { equipe: "Poda Áreas Verdes", itin: "POD-002", tipo: "Poda", hora: "07:30", horaFim: "11:30", regional: "Prosa", dias: [1, 3] },
+      { equipe: "Bueiros Região Sul", itin: "BUE-003", tipo: "Bueiros", hora: "14:00", horaFim: "18:00", regional: "Sul", dias: [0, 2, 3, 4] },
+      { equipe: "Lavagem de Feiras", itin: "LAV-002", tipo: "Lavagem", hora: "22:00", horaFim: "02:00", regional: "Feiras", dias: [2, 5, 6] },
+      { equipe: "Multisserviço Leste", itin: "MUL-021", tipo: "Varrição", hora: "06:58", horaFim: "12:00", regional: "Leste", dias: [0, 1, 2, 3, 4] }
+    ].forEach(r => r.dias.forEach(d => programacaoData.push({ equipe: r.equipe, itin: r.itin, tipo: r.tipo, hora: r.hora, horaFim: r.horaFim, regional: r.regional, dia: d, status: "Confirmada" })));
+
+    let progView = 'cal';
+    function setProgView(v) {
+      progView = v;
+      const cal = document.getElementById('progCalWrap'), list = document.getElementById('progListWrap');
+      if (cal) cal.style.display = v === 'cal' ? 'block' : 'none';
+      if (list) list.style.display = v === 'list' ? 'block' : 'none';
+      const bCal = document.getElementById('progBtnCal'), bList = document.getElementById('progBtnList');
+      if (bCal) bCal.className = 'btn btn-sm ' + (v === 'cal' ? 'btn-primary' : 'btn-secondary');
+      if (bList) bList.className = 'btn btn-sm ' + (v === 'list' ? 'btn-primary' : 'btn-secondary');
+    }
+    function renderProgCalendar() {
+      const wrap = document.getElementById('progCalWrap'); if (!wrap) return;
+      const equipesProg = equipesData.map(e => e.nome).filter(n => programacaoData.some(p => p.equipe === n));
+      let html = `<table class="data-table" style="min-width:840px;"><thead><tr><th style="min-width:150px;">EQUIPE</th>`;
+      progDias.forEach((d, i) => html += `<th style="text-align:center;">${d} ${progDatas[i]}</th>`);
+      html += `</tr></thead><tbody>`;
+      equipesProg.forEach(nome => {
+        const eq = equipesData.find(e => e.nome === nome);
+        html += `<tr><td><strong>${nome}</strong><br><span style="font-size:10px;color:var(--text-muted);">Turno ${eq ? eq.turno : ''}</span></td>`;
+        for (let d = 0; d < 7; d++) {
+          const cel = programacaoData.filter(p => p.equipe === nome && p.dia === d);
+          html += `<td style="vertical-align:top;">` + cel.map(c => `
+            <div style="border-left:3px solid ${corTipo(c.tipo)};background:var(--surface-hover);border-radius:4px;padding:3px 6px;margin-bottom:4px;font-size:10px;line-height:1.35;">
+              <b>${c.itin}</b><br><span style="color:var(--text-muted);">${c.hora}</span>
+            </div>`).join('') + `</td>`;
+        }
+        html += `</tr>`;
+      });
+      html += `</tbody></table>`;
+      wrap.innerHTML = html;
+    }
+    function renderProgList() {
+      const wrap = document.getElementById('progListWrap'); if (!wrap) return;
+      const rows = programacaoData.slice().sort((a, b) => a.dia - b.dia).map(p => {
+        const eq = equipesData.find(e => e.nome === p.equipe);
+        return `<tr>
+          <td>${progDias[p.dia]} ${progDatas[p.dia]}/08</td>
+          <td><strong>${p.equipe}</strong></td>
+          <td>${eq ? eq.turno : '—'}</td>
+          <td><span class="mono">${p.itin}</span> · ${p.regional || '—'}</td>
+          <td>${p.tipo}</td>
+          <td class="mono">${p.hora}${p.horaFim ? '–' + p.horaFim : ''}</td>
+          <td><span class="badge badge-success">${p.status || 'Confirmada'}</span></td>
+        </tr>`;
+      }).join('');
+      wrap.innerHTML = `<table class="data-table"><thead><tr><th>DIA</th><th>EQUIPE</th><th>TURNO</th><th>ITINERÁRIO / REGIONAL</th><th>TIPO</th><th>HORÁRIO</th><th>STATUS</th></tr></thead><tbody>${rows}</tbody></table>`;
+    }
+    function renderProgramacao() { renderProgCalendar(); renderProgList(); setProgView(progView); }
+
+    // ===== Modal Agendar Mutirão (equipe + itinerário → região/tipo, horários) =====
+    function mutSyncEquipe() {
+      const nome = document.getElementById('inpMutEquipe').value;
+      const eq = equipesData.find(e => e.nome === nome);
+      document.getElementById('inpMutTurno').value = eq ? eq.turno : '';
+    }
+    function mutSyncItin() {
+      const cod = document.getElementById('inpMutItin').value;
+      const it = itinerariosData.find(i => i.cod === cod);
+      document.getElementById('inpMutRegional').value = it ? it.regional : '';
+      document.getElementById('inpMutTipo').value = it ? (it.tipo || it.met || '') : '';
+    }
+    function openModalAgendarMutirao() {
+      const selE = document.getElementById('inpMutEquipe');
+      selE.innerHTML = equipesData.map(e => `<option value="${e.nome}">${e.nome}</option>`).join('');
+      const selI = document.getElementById('inpMutItin');
+      selI.innerHTML = itinerariosData.map(i => `<option value="${i.cod}">${i.cod} · ${i.nome}</option>`).join('');
+      mutSyncEquipe(); mutSyncItin();
+      document.getElementById('modalAgendarMutirao').classList.add('active');
+    }
+    function closeModalAgendarMutirao() { document.getElementById('modalAgendarMutirao').classList.remove('active'); }
+    function salvarAgendarMutirao(e) {
+      e.preventDefault();
+      const equipe = document.getElementById('inpMutEquipe').value;
+      const itin = document.getElementById('inpMutItin').value;
+      const regional = document.getElementById('inpMutRegional').value;
+      const tipo = document.getElementById('inpMutTipo').value;
+      const dia = parseInt(document.getElementById('inpMutDia').value);
+      const hIni = document.getElementById('inpMutHoraIni').value;
+      const hFim = document.getElementById('inpMutHoraFim').value;
+
+      programacaoData.push({ equipe, itin, tipo, hora: hIni, horaFim: hFim, regional, dia, status: "Confirmada" });
+      renderProgramacao();
+      closeModalAgendarMutirao();
+      showSuccessPopup('Mutirão agendado!', `
+        • Equipe: <b>${equipe}</b><br>
+        • Itinerário: <b>${itin}</b> (${regional})<br>
+        • Tipo: <b>${tipo}</b><br>
+        • ${progDias[dia]} · <b>${hIni}–${hFim}</b>
+      `);
     }
 
     // App de Campo (390px)
@@ -896,30 +1269,167 @@
     }
 
     // Modal Handlers
-    function openModalNovaEquipe() { document.getElementById('modalNovaEquipe').classList.add('active'); }
+    // --- Dados de apoio p/ o modal de equipe ---
+    const garisDisponiveis = ["Antônio Marques", "Cláudio Ramos", "Edson Prado", "Gilmar Souza", "Ivone Teixeira", "Luciana Faria", "Otávio Nunes", "Rubens Gomes", "Sandra Oliveira", "Marcelo Dias", "Fernanda Costa", "José Barbosa"];
+    const tiposEquipamento = ["Veículo de Apoio", "Caminhão de Varrição", "Roçadeira Costal", "Soprador", "Caminhão Pipa", "Motopoda", "Caçamba / Basculante", "Kit EPI", "Placas de Sinalização"];
+    const tiposServico = ["Varrição Manual", "Varrição Mecanizada", "Capina & Roçada", "Poda", "Limpeza de Bueiros", "Lavagem de Logradouros"];
+    let integrantesSelecionados = [];
+    let equipamentosEquipe = [];
+    let aptidoesSelecionadas = [];
+
+    function renderAptidaoSelect() {
+      const sel = document.getElementById('selAptidao');
+      if (!sel) return;
+      const disp = tiposServico.filter(t => !aptidoesSelecionadas.includes(t));
+      sel.innerHTML = disp.length ? disp.map(t => `<option value="${t}">${t}</option>`).join('') : '<option value="">— Todas já adicionadas —</option>';
+    }
+    function renderAptidoesChips() {
+      const box = document.getElementById('aptidoesChips');
+      if (!box) return;
+      box.innerHTML = aptidoesSelecionadas.map((t, i) => `
+        <span style="display:inline-flex;align-items:center;gap:6px;background:var(--color-bg-subtle,#eff6ff);border:1px solid #bfdbfe;color:#1d4ed8;border-radius:999px;padding:3px 10px;font-size:12px;">
+          ${t}<i data-lucide="x" style="width:13px;height:13px;cursor:pointer;" onclick="removeAptidao(${i})"></i>
+        </span>`).join('');
+      document.getElementById('lblAptidoesCount').innerText = `(${aptidoesSelecionadas.length} selecionados)`;
+      if (window.lucide) lucide.createIcons();
+    }
+    function addAptidao() {
+      const val = document.getElementById('selAptidao').value;
+      if (!val) return;
+      aptidoesSelecionadas.push(val);
+      renderAptidaoSelect(); renderAptidoesChips();
+    }
+    function removeAptidao(i) { aptidoesSelecionadas.splice(i, 1); renderAptidaoSelect(); renderAptidoesChips(); }
+
+    function renderIntegranteSelect() {
+      const sel = document.getElementById('selIntegrante');
+      if (!sel) return;
+      const disp = garisDisponiveis.filter(g => !integrantesSelecionados.includes(g));
+      sel.innerHTML = disp.length ? disp.map(g => `<option value="${g}">${g}</option>`).join('') : '<option value="">— Todos já adicionados —</option>';
+    }
+    function renderIntegrantesChips() {
+      const box = document.getElementById('integrantesChips');
+      if (!box) return;
+      box.innerHTML = integrantesSelecionados.map((g, i) => `
+        <span style="display:inline-flex;align-items:center;gap:6px;background:var(--color-bg-subtle,#f1f5f9);border:1px solid var(--color-border,#e2e8f0);border-radius:999px;padding:3px 10px;font-size:12px;">
+          ${g}<i data-lucide="x" style="width:13px;height:13px;cursor:pointer;color:var(--color-text-muted);" onclick="removeIntegrante(${i})"></i>
+        </span>`).join('');
+      document.getElementById('lblIntegrantesCount').innerText = `(${integrantesSelecionados.length} selecionados)`;
+      if (window.lucide) lucide.createIcons();
+    }
+    function addIntegrante() {
+      const val = document.getElementById('selIntegrante').value;
+      if (!val) return;
+      integrantesSelecionados.push(val);
+      renderIntegranteSelect();
+      renderIntegrantesChips();
+    }
+    function removeIntegrante(i) {
+      integrantesSelecionados.splice(i, 1);
+      renderIntegranteSelect();
+      renderIntegrantesChips();
+    }
+    function renderEquipamentos() {
+      const box = document.getElementById('equipamentosList');
+      if (!box) return;
+      box.innerHTML = equipamentosEquipe.map((eq, i) => `
+        <div style="display:flex;gap:8px;align-items:center;">
+          <select class="form-control" style="flex:0 0 44%;" onchange="equipamentosEquipe[${i}].tipo=this.value">
+            ${tiposEquipamento.map(t => `<option value="${t}" ${t === eq.tipo ? 'selected' : ''}>${t}</option>`).join('')}
+          </select>
+          <input type="text" class="form-control font-mono" style="flex:1;" placeholder="Identificação / Placa" value="${eq.desc}" oninput="equipamentosEquipe[${i}].desc=this.value">
+          <button type="button" class="btn btn-secondary btn-sm" title="Remover" onclick="removeEquipamento(${i})"><i data-lucide="trash-2" style="width:14px;"></i></button>
+        </div>`).join('');
+      if (window.lucide) lucide.createIcons();
+    }
+    function addEquipamento() { equipamentosEquipe.push({ tipo: tiposEquipamento[0], desc: "" }); renderEquipamentos(); }
+    function removeEquipamento(i) { equipamentosEquipe.splice(i, 1); renderEquipamentos(); }
+
+    function showSuccessPopup(title, linesHtml) {
+      const old = document.getElementById('successPopup');
+      if (old) old.remove();
+      const overlay = document.createElement('div');
+      overlay.id = 'successPopup';
+      overlay.className = 'modal-overlay active';
+      overlay.style.zIndex = '2000';
+      overlay.innerHTML = `
+        <div class="modal-card" style="max-width:420px;">
+          <div style="padding:28px 24px 8px;text-align:center;">
+            <div style="width:56px;height:56px;border-radius:50%;background:rgba(16,185,129,.12);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;">
+              <i data-lucide="check" style="width:30px;height:30px;color:#10b981;"></i>
+            </div>
+            <h2 style="font-size:17px;font-weight:700;margin:0 0 8px;">${title}</h2>
+            <div style="font-size:13px;color:var(--color-text-muted);line-height:1.8;text-align:left;display:inline-block;">${linesHtml}</div>
+          </div>
+          <div class="modal-footer" style="justify-content:center;border-top:none;padding-top:4px;">
+            <button class="btn btn-primary" onclick="document.getElementById('successPopup').remove()">OK, entendi</button>
+          </div>
+        </div>`;
+      document.body.appendChild(overlay);
+      overlay.addEventListener('click', ev => { if (ev.target === overlay) overlay.remove(); });
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function openModalNovaEquipe() {
+      const el = id => document.getElementById(id);
+      if (el('inpEqpNome')) el('inpEqpNome').value = '';
+      if (el('inpEqpEncarregado')) el('inpEqpEncarregado').value = '';
+      if (el('inpEqpCod')) el('inpEqpCod').value = `EQP-NOVA-0${equipesData.length + 1}`;
+      aptidoesSelecionadas = ["Varrição Manual"];
+      integrantesSelecionados = ["Antônio Marques", "Cláudio Ramos"];
+      equipamentosEquipe = [{ tipo: "Caminhão de Varrição", desc: "VW Delivery QAB-4412" }];
+      renderAptidaoSelect();
+      renderAptidoesChips();
+      renderIntegranteSelect();
+      renderIntegrantesChips();
+      renderEquipamentos();
+      document.getElementById('modalNovaEquipe').classList.add('active');
+    }
     function closeModalNovaEquipe() { document.getElementById('modalNovaEquipe').classList.remove('active'); }
     function salvarNovaEquipe(e) {
       e.preventDefault();
+      const nome = document.getElementById('inpEqpNome').value.trim();
       const enc = document.getElementById('inpEqpEncarregado').value;
-      const garis = document.getElementById('inpEqpGaris').value;
       const setor = document.getElementById('inpEqpSetor').value;
-      const tipo = document.getElementById('inpEqpTipo').value;
-      const veiculo = document.getElementById('inpEqpVeiculo').value;
+      const turno = document.getElementById('inpEqpTurno').value;
+
+      if (aptidoesSelecionadas.length === 0) { alert('Selecione ao menos um tipo de serviço (aptidão) para a equipe.'); return; }
+      if (integrantesSelecionados.length === 0) { alert('Selecione ao menos um integrante para a equipe.'); return; }
+
+      const qtd = integrantesSelecionados.length;
+      const tipo = aptidoesSelecionadas.join(', ');
+      const equipDescs = equipamentosEquipe.filter(eq => eq.desc.trim()).map(eq => `${eq.tipo}: ${eq.desc.trim()}`);
 
       const newEqp = {
-        cod: `EQP-DELTA-0${equipesData.length + 1}`,
+        cod: `EQP-NOVA-0${equipesData.length + 1}`,
+        nome: nome || `Equipe ${equipesData.length + 1}`,
         tipo: tipo,
+        aptidoes: [...aptidoesSelecionadas],
+        turno: turno,
         encarregado: enc,
-        garis: `${garis} Garis`,
+        matricula: "—",
+        desde: "novo",
+        garis: `${qtd} integrantes`,
         setor: setor,
-        veiculo: veiculo,
-        ponto: "Ponto GPS OK (07:10)",
-        strip: "strip-success"
+        situacao: "Ativa",
+        strip: "strip-success",
+        atividade: null,
+        integrantes: [...integrantesSelecionados],
+        equipamentos: equipamentosEquipe.filter(eq => eq.desc.trim()),
+        historico: [{ data: "hoje", texto: `Equipe criada com ${qtd} integrantes` }]
       };
       equipesData.unshift(newEqp);
+      selectedEquipeCod = newEqp.cod;
       renderEquipesTable();
       closeModalNovaEquipe();
-      alert(`✅ NOVA EQUIPE DE LIMPEZA CADASTRADA!\n\n• Encarregado: ${enc}\n• Garis: ${garis}\n• Setor: ${setor}`);
+      showSuccessPopup('Nova equipe cadastrada!', `
+        <b>${newEqp.nome}</b> (${newEqp.cod})<br>
+        • Aptidões: <b>${tipo}</b><br>
+        • Turno: <b>${turno}</b><br>
+        • Encarregado: <b>${enc}</b><br>
+        • Integrantes (${qtd}): ${integrantesSelecionados.join(', ')}<br>
+        • Equipamentos: ${equipDescs.join(' &nbsp;·&nbsp; ') || '—'}
+      `);
     }
 
     function openModalNovaAtividade() { document.getElementById('modalNovaAtividade').classList.add('active'); }
@@ -945,34 +1455,105 @@
       alert(`✅ NOVA ORDEM DE SERVIÇO LANÇADA!\n\n• OS: ${newAtiv.cod}\n• Tipo: ${tipo}\n• Local: ${local}`);
     }
 
-    function openModalNovoItinerario() { document.getElementById('modalNovoItinerario').classList.add('active'); }
+    // ===== Traçado de itinerário por checkpoints (MVP, extensão calculada) =====
+    const ITIN_SCALE = 0.02; // km por unidade do viewBox
+    let itinCheckpoints = [];
+
+    function itinPointFromEvent(evt, svg) {
+      const pt = svg.createSVGPoint();
+      pt.x = evt.clientX; pt.y = evt.clientY;
+      const ctm = svg.getScreenCTM();
+      if (!ctm) return null;
+      const p = pt.matrixTransform(ctm.inverse());
+      return { x: Math.round(p.x), y: Math.round(p.y) };
+    }
+    function calcExt(points) {
+      let d = 0;
+      for (let i = 1; i < points.length; i++) {
+        const dx = points[i].x - points[i - 1].x, dy = points[i].y - points[i - 1].y;
+        d += Math.sqrt(dx * dx + dy * dy);
+      }
+      return d * ITIN_SCALE;
+    }
+    function fmtKm(v) { return v.toFixed(1).replace('.', ',') + ' km'; }
+    function drawTracado(layerId, points) {
+      const layer = document.getElementById(layerId);
+      if (!layer) return;
+      let s = '';
+      if (points.length > 1) {
+        s += `<polyline points="${points.map(p => `${p.x},${p.y}`).join(' ')}" fill="none" stroke="#2563eb" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>`;
+      }
+      points.forEach((p, i) => {
+        const isFirst = i === 0, isLast = i === points.length - 1 && points.length > 1;
+        const color = isFirst ? '#10b981' : (isLast ? '#ef4444' : '#2563eb');
+        s += `<circle cx="${p.x}" cy="${p.y}" r="11" fill="${color}"/>`;
+        s += `<text x="${p.x}" y="${p.y + 4}" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">${i + 1}</text>`;
+        if (isFirst) s += `<text x="${p.x}" y="${p.y - 16}" text-anchor="middle" font-size="10" font-weight="700" fill="#10b981">INÍCIO</text>`;
+        if (isLast) s += `<text x="${p.x}" y="${p.y - 16}" text-anchor="middle" font-size="10" font-weight="700" fill="#ef4444">FIM</text>`;
+      });
+      layer.innerHTML = s;
+    }
+    function itinRefreshEdit() {
+      drawTracado('itinLayerEdit', itinCheckpoints);
+      const ext = calcExt(itinCheckpoints);
+      const o1 = document.getElementById('itinExtOut'); if (o1) o1.innerText = fmtKm(ext);
+      const o2 = document.getElementById('itinCpOut'); if (o2) o2.innerText = `${itinCheckpoints.length} checkpoints`;
+      const o3 = document.getElementById('inpItinExt'); if (o3) o3.value = ext.toFixed(1);
+    }
+    function itinAddPoint(evt) {
+      const svg = document.getElementById('itinSvgEdit');
+      const p = itinPointFromEvent(evt, svg);
+      if (!p) return;
+      itinCheckpoints.push(p);
+      itinRefreshEdit();
+    }
+    function itinUndo() { itinCheckpoints.pop(); itinRefreshEdit(); }
+    function itinClear() { itinCheckpoints = []; itinRefreshEdit(); }
+
+    function verNoMapa(cod) {
+      const it = itinerariosData.find(x => x.cod === cod);
+      if (!it) return;
+      document.getElementById('verTracadoTitulo').innerText = `Traçado · ${it.nome}`;
+      document.getElementById('verTracadoSub').innerText = `${it.cod} · ${it.regional}`;
+      const pts = (it.checkpoints && it.checkpoints.length) ? it.checkpoints : [];
+      drawTracado('itinLayerView', pts);
+      document.getElementById('verTracadoInfo').innerText = pts.length
+        ? `${it.ext} · ${pts.length} checkpoints · ${it.met} · ${it.freq}`
+        : 'Sem traçado cadastrado para este itinerário.';
+      document.getElementById('modalVerTracado').classList.add('active');
+    }
+    function closeVerTracado() { document.getElementById('modalVerTracado').classList.remove('active'); }
+
+    function openModalNovoItinerario() {
+      itinCheckpoints = [];
+      document.getElementById('inpItinCod').value = `IT-NOVO-0${itinerariosData.length + 1}`;
+      document.getElementById('inpItinNome').value = '';
+      itinRefreshEdit();
+      document.getElementById('modalNovoItinerario').classList.add('active');
+    }
     function closeModalNovoItinerario() { document.getElementById('modalNovoItinerario').classList.remove('active'); }
     function salvarNovoItinerario(e) {
       e.preventDefault();
+      if (itinCheckpoints.length < 2) { alert('Adicione ao menos 2 checkpoints para traçar o itinerário.'); return; }
+      const cod = document.getElementById('inpItinCod').value;
       const nome = document.getElementById('inpItinNome').value;
       const reg = document.getElementById('inpItinRegional').value;
-      const ext = document.getElementById('inpItinExt').value;
+      const tipo = document.getElementById('inpItinTipo').value;
+      const met = document.getElementById('inpItinMet').value;
+      const freq = document.getElementById('inpItinFreq').value;
+      const extNum = parseFloat(document.getElementById('inpItinExt').value || '0');
 
-      const newItin = {
-        cod: `IT-VAR-0${itinerariosData.length + 1}`,
-        nome: nome,
-        regional: reg,
-        ext: `${ext} km`,
-        freq: "Diária",
-        met: "Manual / Mecanizada"
-      };
+      const newItin = { cod, nome, regional: reg, tipo, ext: fmtKm(extNum), freq, met, checkpoints: [...itinCheckpoints] };
       itinerariosData.unshift(newItin);
       renderItinerariosTable();
       closeModalNovoItinerario();
-      alert(`✅ NOVO ITINERÁRIO CADASTRADO!\n\n• Nome: ${nome}\n• Regional: ${reg}\n• Extensão: ${ext} km`);
-    }
-
-    function openModalAgendarMutirao() { document.getElementById('modalAgendarMutirao').classList.add('active'); }
-    function closeModalAgendarMutirao() { document.getElementById('modalAgendarMutirao').classList.remove('active'); }
-    function salvarAgendarMutirao(e) {
-      e.preventDefault();
-      closeModalAgendarMutirao();
-      alert('✅ MUTIRÃO DE LIMPEZA URBANA AGENDADO E PUBLICADO!');
+      showSuccessPopup('Novo itinerário cadastrado!', `
+        <b>${cod}</b><br>
+        • Nome: <b>${nome}</b><br>
+        • Regional: <b>${reg}</b> · Tipo: <b>${tipo}</b><br>
+        • Método: <b>${met}</b> · Frequência: <b>${freq}</b><br>
+        • Extensão calculada: <b>${fmtKm(extNum)}</b> (${itinCheckpoints.length} checkpoints)
+      `);
     }
 
     function openModalChuvaRN009() {
@@ -1019,6 +1600,7 @@
 
       if (tabKey === 'equipes') renderEquipesTable();
       if (tabKey === 'itinerarios') renderItinerariosTable();
+      if (tabKey === 'programacao') renderProgramacao();
       if (tabKey === 'visao-geral') { renderVisaoGeralAtividades(); initVisaoGeralLimpezaMap(); }
     }
 
@@ -1037,6 +1619,7 @@
     renderVisaoGeralAtividades();
     renderEquipesTable();
     renderItinerariosTable();
+    renderProgramacao();
     initVisaoGeralLimpezaMap();
     renderWorkerApp();
   </script>
