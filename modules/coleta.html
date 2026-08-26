@@ -218,9 +218,9 @@
       outline: none;
     }
     .form-control:focus {
-      border-color: var(--color-primary);
+      border-color: var(--primary-500);
       background-color: #ffffff !important;
-      box-shadow: 0 0 0 3px var(--color-primary-glow);
+      box-shadow: 0 0 0 3px var(--primary-glow);
     }
     .form-row {
       display: grid;
@@ -675,8 +675,8 @@
               </div>
 
               <div>
-                <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--color-text-muted); margin-bottom: 6px;">TELEMETRIA EM TEMPO REAL</div>
-                <div style="background: var(--color-page); padding: 12px; border-radius: var(--radius-md); border: 1px solid var(--color-border); display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 12px;" class="font-mono">
+                <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px;">TELEMETRIA EM TEMPO REAL</div>
+                <div style="background: var(--surface-page); padding: 12px; border-radius: var(--radius-md); border: 1px solid var(--border-default); display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 12px;" class="font-mono">
                   <div>Velocidade: <strong style="color: #2563eb;" id="ftDrawerVel">42 km/h</strong></div>
                   <div>Combustível: <strong style="color: #059669;" id="ftDrawerTanque">78% (Tanque)</strong></div>
                   <div>Horímetro: <strong>1.420h</strong></div>
@@ -685,15 +685,15 @@
               </div>
 
               <div>
-                <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--color-text-muted); margin-bottom: 6px;">MOTORISTA TITULAR (CNH)</div>
-                <div style="background: var(--color-page); padding: 10px; border-radius: var(--radius-md); border: 1px solid var(--color-border);">
+                <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px;">MOTORISTA TITULAR (CNH)</div>
+                <div style="background: var(--surface-page); padding: 10px; border-radius: var(--radius-md); border: 1px solid var(--border-default);">
                   <strong style="display: block; font-size: 13px;" id="ftDrawerMotorista">João Paulo Santos</strong>
-                  <span style="font-size: 11px; color: var(--color-text-muted);" id="ftDrawerCnh">CNH Cat E (Validade: 11/2028) • Tox: OK</span>
+                  <span style="font-size: 11px; color: var(--text-muted);" id="ftDrawerCnh">CNH Cat E (Validade: 11/2028) • Tox: OK</span>
                 </div>
               </div>
 
               <div>
-                <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--color-text-muted); margin-bottom: 6px;">DADOS TÉCNICOS DO ATIVO</div>
+                <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px;">DADOS TÉCNICOS DO ATIVO</div>
                 <div style="font-size: 12px; display: flex; flex-direction: column; gap: 4px;" class="font-mono">
                   <div>Placa: <strong id="ftDrawerPlaca">QAA-9912</strong></div>
                   <div>Modelo: <strong>Mercedes-Benz Atego 1719</strong></div>
@@ -702,7 +702,7 @@
                 </div>
               </div>
 
-              <div style="margin-top: auto; padding-top: 16px; border-top: 1px solid var(--color-border); display: flex; gap: 10px;">
+              <div style="margin-top: auto; padding-top: 16px; border-top: 1px solid var(--border-default); display: flex; gap: 10px;">
                 <button class="btn btn-secondary" style="flex: 1;" onclick="alert('Histórico de telemetria exportado em PDF!')">Histórico GPS</button>
                 <button class="btn btn-primary" onclick="openMobileSimForTruck('CAM-101')">Abrir Cabine App</button>
               </div>
@@ -865,8 +865,8 @@
             </div>
 
             <!-- Right Interactive Route Map -->
-            <div style="width: 480px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); overflow: hidden; display: flex; flex-direction: column;">
-              <div style="padding: 12px 16px; background: var(--color-page); border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center;">
+            <div style="width: 480px; background: var(--surface-card); border: 1px solid var(--border-default); border-radius: var(--radius-lg); overflow: hidden; display: flex; flex-direction: column;">
+              <div style="padding: 12px 16px; background: var(--surface-page); border-bottom: 1px solid var(--border-default); display: flex; justify-content: space-between; align-items: center;">
                 <strong style="font-size: 13px;" id="mapRotaTitle">Rota RT-C01 · Centro Convencional</strong>
                 <span class="badge badge-success">Traçado GPS Ativo</span>
               </div>
